@@ -23,29 +23,24 @@ pub fn main() {
     #[inline(always)]
     move || match xyloid::type_1() {
       Some(io) => {
-        let cy = fy((zy / 256.).round() as i32);
-        let cx = fx((zx / 256.).round() as i32);
-        const AS: i32 = 4;
-
-        println!("{} {} {} {}", cy, cx, zy, zx);
-
         let zz = #[inline(always)]
-        |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, AS, MS, MS * 16, x1, y1, x2, y2);
+        |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, 16, MS, MS * 4, x1, y1, x2, y2);
         let yy = #[inline(always)]
         |n1: i32, n2: i32| fy((n2 - 1) - (n1.max(1).min(16) / 1));
         let xx = #[inline(always)]
         |n1: i32, n2: i32| fx((n2 + 1) + (n1.max(1).min(16) / 2));
-        let aa = #[inline(always)]
-        |n1: i32, n2: i32| zz(cx, cy, n1, n2);
+
+        let cy = fy((zy / 256.).round() as i32);
+        let cx = fx((zx / 256.).round() as i32);
 
         while let Ok((an, ax, ay, az)) = o2.recv() {
           let yy = yy(an, ay);
           let xx = xx(an, ax);
 
           match az {
-            1 => aa(xx, yy),
-            _ => match az % AS {
-              1 => aa(xx, NO),
+            1 => zz(cx, cy, xx, yy),
+            _ => match az % 2 {
+              1 => zz(cx, cy, xx, NO),
               _ => F,
             },
           };
