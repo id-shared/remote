@@ -30,7 +30,7 @@ const wss = new WebSocketServer({ server });
 const FILE_PATH = '1.jpg';
 
 // Utility to convert file to Data URL
-const send = (file) => (ws) =>{
+const send = (file) => (ws) => {
   return readFile(file, (err, data) => {
     if (!err && data.length > 0) {
       // Infer the mime-type (assuming jpg)
