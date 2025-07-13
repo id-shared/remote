@@ -1,0 +1,33 @@
+[workspace.metadata.clippy]
+all = true
+cargo = true
+nursery = true
+pedantic = true
+
+[workspace]
+members = ["x", "live", "_/screen", "_/thread", "_/xyloid"]
+resolver = "3"
+
+[profile.release.package."*"]
+codegen-units = 1
+opt-level = 3
+
+[profile.release]
+codegen-units = 1
+debug = false
+debug-assertions = false
+incremental = false
+lto = "fat"
+opt-level = 3
+overflow-checks = false
+panic = "abort"
+rpath = false
+strip = false
+
+[profile.dev.package."*"]
+incremental = true
+opt-level = 1
+
+[profile.dev]
+debug = true
+opt-level = 1

@@ -1,0 +1,20 @@
+[dependencies]
+crossbeam = { version = "0.8.4" }
+xyloid = { path = "./../_/xyloid" }
+screen = { path = "./../_/screen" }
+
+[[bin]]
+doctest = false
+name = "x"
+path = "_.rs"
+
+[package]
+authors = ["Zyrosk <hq.zyrosk@gmail.com>"]
+categories = ["development-tools::debugging"]
+description = "A Chrome DevTools Protocol client"
+edition = "2021"
+keywords = ["chrome", "client", "devtools", "protocol"]
+license = "MIT OR Apache-2.0"
+name = "x"
+repository = "https://github.com/hq-zyrosk/main"
+version = "0.0.1"

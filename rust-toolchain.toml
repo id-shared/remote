@@ -1,0 +1,15 @@
+[toolchain]
+  channel = "nightly"
+  components = [
+    "cargo",
+    "clippy",
+    "rust-analyzer",
+    "rust-docs-json",
+    "rust-src",
+    "rust-std",
+    "rustc",
+    "rustfmt",
+  ]
+  targets = [
+    "x86_64-pc-windows-msvc",
+  ]

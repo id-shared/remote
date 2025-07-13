@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>RDP</title>
+</head>
+
+<body>
+  <section class="content"></section>
+
+  <script>
+    const wss = new WebSocket(`wss://${location.host}`);
+
+    document.addEventListener("mousedown", (e) => {
+      switch (e.button) {
+        case 2:
+          return wss.send(JSON.stringify({
+            rmb: true,
+          }));
+        case 0:
+          return wss.send(JSON.stringify({
+            lmb: true,
+          }));
+        default:
+          return true;
+      }
+    });
+
+    document.addEventListener("mouseup", (e) => {
+      switch (e.button) {
+        case 2:
+          return wss.send(JSON.stringify({
+            rmb: false,
+          }));
+        case 0:
+          return wss.send(JSON.stringify({
+            lmb: false,
+          }));
+        default:
+          return true;
+      }
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      wss.send(JSON.stringify({
+        y: e.clientY,
+        x: e.clientX,
+      }));
+    });
+  </script>
+  <style>
+    .content {
+      background-image: url("https://jackharvest.com/wp-content/uploads/2024/03/SERVER_2025RED_LIGHT-1.jpg");
+      background-size: cover;
+      background-position: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+      width: 100%;
+    }
+
+    * {
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+</body>
+
+</html>

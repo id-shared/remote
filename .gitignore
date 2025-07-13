@@ -1,0 +1,8 @@
+node_modules
+target
+
+*.lock
+*.jpg
+*.png
+*.yuv
+*.mp4

@@ -1,0 +1,8 @@
+
+let collect: Vec<u8> = buffer.chunks_exact(4).flat_map(|p| [p[2], p[1], p[0]]).collect();
+match ImageBuffer::<Rgb<u8>, Vec<u8>>::from_raw(wide as u32, high as u32, collect) {
+  Some(img) => {
+    img.save(format!("_/screen/_/1.png")).unwrap();
+  },
+  None => (),
+}

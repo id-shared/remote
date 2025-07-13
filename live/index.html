@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Screen Stream Viewer</title>
+</head>
+
+<body>
+  <video id="video" controls autoplay></video>
+  <script>
+    const video = document.getElementById('video');
+    const mediaSource = new MediaSource();
+    video.src = URL.createObjectURL(mediaSource);
+
+    const chunks = ['video-part1.mp4', 'video-part2.mp4', 'video-part3.mp4']; // Update with your filenames
+
+    mediaSource.addEventListener('sourceopen', () => {
+      const sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.64001e, mp4a.40.2"');
+
+      function fetchAndAppendChunk() {
+        fetch(chunks[i])
+          .then(response => response.arrayBuffer())
+          .then(data => {
+            sourceBuffer.appendBuffer(data);
+            i++;
+          });
+      }
+
+      sourceBuffer.addEventListener('updateend', fetchAndAppendChunk);
+      fetchAndAppendChunk();
+    });
+  </script>
+</body>
+
+</html>

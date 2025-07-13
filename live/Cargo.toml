@@ -1,0 +1,24 @@
+[dependencies]
+windows = { version = "0.61.3", features = [
+  "Win32_Graphics_Gdi",
+  "Win32_Foundation",
+  "Win32_UI_WindowsAndMessaging",
+] }
+crossbeam-utils = { version = "0.8.21" }
+image = { version = "0.25.6" }
+
+[[bin]]
+doctest = false
+name = "live"
+path = "_.rs"
+
+[package]
+authors = ["Zyrosk <hq.zyrosk@gmail.com>"]
+categories = ["development-tools::debugging"]
+description = "A Chrome DevTools Protocol client"
+edition = "2021"
+keywords = ["chrome", "client", "devtools", "protocol"]
+license = "MIT OR Apache-2.0"
+name = "live"
+repository = "https://github.com/hq-zyrosk/main"
+version = "0.0.1"

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Custom RDP</title>
+</head>
+
+<body>
+  <h1>AceX Cloud</h1>
+  <div>
+    <img id="frame" alt="Streaming frame..."
+      src="https://media.licdn.com/dms/image/v2/D560BAQGnu30EpGNyYw/company-logo_200_200/company-logo_200_200/0/1736843238821/ace_cloud_hosting_logo?e=2147483647&v=beta&t=Bz9zg-G-lEz3eukELUui1JDACP5HJIYk98Fjybdy8OY" />
+  </div>
+  <div id="status">Connecting…</div>
+  <script>
+    const connect = () => {
+      const status = document.getElementById('status');
+      const frame = document.getElementById('frame');
+      const ws = new WebSocket(`ws://20.193.131.66:9999`);
+
+      ws.onopen = () => {
+        status.textContent = "Connected. Waiting for frames...";
+        status.className = "";
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === "frame" && typeof msg.data === "string") {
+            frame.src = msg.data;
+            status.textContent = "Live";
+            status.className = "";
+          }
+        } catch (e) {
+          status.textContent = "Received malformed data!";
+          status.className = "error";
+        }
+      };
+
+      ws.onclose = () => {
+        status.textContent = "Disconnected from server.";
+        status.className = "error";
+        setTimeout(connect, 1000);
+      };
+
+      ws.onerror = (err) => {
+        status.textContent = "WebSocket error!";
+        status.className = "error";
+      };
+    };
+
+    connect();
+  </script>
+
+  <script>
+    const wss = new WebSocket(`ws://20.193.131.66:9998`);
+    const abc = document.getElementById("frame");
+
+    abc.addEventListener("mousedown", (e) => {
+      switch (e.button) {
+        case 2:
+          return wss.send(JSON.stringify({
+            rmb: true,
+          }));
+        case 0:
+          return wss.send(JSON.stringify({
+            lmb: true,
+          }));
+        default:
+          return true;
+      }
+    });
+
+    abc.addEventListener("mouseup", (e) => {
+      switch (e.button) {
+        case 2:
+          return wss.send(JSON.stringify({
+            rmb: false,
+          }));
+        case 0:
+          return wss.send(JSON.stringify({
+            lmb: false,
+          }));
+        default:
+          return true;
+      }
+    });
+
+    abc.addEventListener("mousemove", (e) => {
+      wss.send(JSON.stringify({
+        y: e.clientY,
+        x: e.clientX,
+      }));
+    });
+  </script>
+  <style>
+    #status.error {
+      color: #C90000FF;
+    }
+
+    #status {
+      margin-top: 0.5em;
+      font-size: 1em;
+      color: #007400FF;
+    }
+
+    #frame {
+      max-width: 90vw;
+      max-height: 80vh;
+      border: 1px solid #636363FF;
+      background: #EFEFEFFF;
+      box-shadow: 0 4px 16px #636363FF;
+    }
+
+    body {
+      font-family: sans-serif;
+      background: #EFEFEFFF;
+      color: #000000FF;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 0.5em;
+      color: #636363FF;
+    }
+
+    html,
+    body {
+      height: 100%;
+      width: 100%;
+    }
+
+    * {
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+</body>
+
+</html>
