@@ -7,10 +7,8 @@
 </head>
 
 <body>
-  <h1>AceX Cloud</h1>
-  <div>
-    <img id="frame" alt="Streaming frame..."
-      src="https://media.licdn.com/dms/image/v2/D560BAQGnu30EpGNyYw/company-logo_200_200/company-logo_200_200/0/1736843238821/ace_cloud_hosting_logo?e=2147483647&v=beta&t=Bz9zg-G-lEz3eukELUui1JDACP5HJIYk98Fjybdy8OY" />
+  <div class="container">
+    <img class="centered" id="frame" width="1920" heigh="1080" src="" />
   </div>
   <div id="status">Connecting…</div>
   <script>
@@ -88,46 +86,53 @@
     });
 
     abc.addEventListener("mousemove", (e) => {
-      wss.send(JSON.stringify({
-        y: e.clientY,
-        x: e.clientX,
-      }));
+      const rect = abc.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const data = JSON.stringify({
+        y,
+        x,
+      });
+      wss.send(data);
     });
   </script>
   <style>
+    #frame {
+      box-shadow: 0 4px 16px #636363FF;
+      border: 1px solid #636363FF;
+      background: #FFFFFFFF;
+      min-height: 1080px;
+      min-width: 1920px;
+    }
+
     #status.error {
       color: #C90000FF;
     }
 
     #status {
+      color: #007400FF;
       margin-top: 0.5em;
       font-size: 1em;
-      color: #007400FF;
     }
 
-    #frame {
-      max-width: 90vw;
-      max-height: 80vh;
-      border: 1px solid #636363FF;
-      background: #EFEFEFFF;
-      box-shadow: 0 4px 16px #636363FF;
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
     }
 
-    body {
+    .centered {
+      line-height: 1080px;
+      height: 1080px;
+      width: 1920px;
+    }
+
+    body,
+    html {
       font-family: sans-serif;
-      background: #EFEFEFFF;
+      background: #FFFFFFFF;
       color: #000000FF;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 2em;
-      margin-bottom: 0.5em;
-      color: #636363FF;
-    }
-
-    html,
-    body {
       height: 100%;
       width: 100%;
     }
