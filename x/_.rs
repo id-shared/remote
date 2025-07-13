@@ -14,21 +14,23 @@ pub fn main() {
   let ux = zx / 2.;
 
   let fy = #[inline(always)]
-  move |n1: i32| calc(vy, n1 as f64 / uy, 8192.).round() as i32;
+  move |n1: i32| calc(vy, n1 as f64 / uy, 6400.).round() as i32;
   let fx = #[inline(always)]
-  move |n1: i32| calc(vx, n1 as f64 / ux, 8192.).round() as i32;
+  move |n1: i32| calc(vx, n1 as f64 / ux, 6400.).round() as i32;
 
   let (i2, o2): (Sender<(i32, i32, i32, i32)>, Receiver<(i32, i32, i32, i32)>) = bounded(64);
   handle.push(thread::spawn(
     #[inline(always)]
     move || match xyloid::type_1() {
       Some(io) => {
-        let cy = fy((zy / 64.).round() as i32);
-        let cx = fx((zx / 64.).round() as i32);
-        const AS: i32 = 8;
+        let cy = fy((zy / 256.).round() as i32);
+        let cx = fx((zx / 256.).round() as i32);
+        const AS: i32 = 4;
+
+        println!("{} {} {} {}", cy, cx, zy, zx);
 
         let zz = #[inline(always)]
-        |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, AS, x1, y1, x2, y2, MS, MS * 16);
+        |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, AS, MS, MS * 16, x1, y1, x2, y2);
         let yy = #[inline(always)]
         |n1: i32, n2: i32| fy((n2 - 1) - (n1.max(1).min(16) / 1));
         let xx = #[inline(always)]
@@ -151,6 +153,29 @@ pub fn main() {
 }
 
 #[inline(always)]
+pub fn zz(io: xyloid::HANDLE, n1: i32, t1: Duration, t2: Duration, x1: i32, y1: i32, x2: i32, y2: i32) -> bool {
+  let (ay, ny) = stim(y1, y2);
+  let (ax, nx) = stim(x1, x2);
+  xyloid::xy(io, ax, ay);
+  match NO == nx && NO == ny {
+    T => match xyloid::is_h() {
+      T => T,
+      _ => {
+        xo(t1);
+        xyloid::key_h(io, F)
+      },
+    },
+    _ => match NO < n1 {
+      T => {
+        xo(t2);
+        zz(io, n1 - 1, t1, t2, x1, y1, nx, ny)
+      },
+      _ => T,
+    },
+  }
+}
+
+#[inline(always)]
 pub fn on_key<F1: Fn() -> bool, F2: Fn(xyloid::HANDLE, bool) -> bool>(f1: F1, f2: F2, io: xyloid::HANDLE, z1: BI) -> BI {
   on(
     f1,
@@ -196,36 +221,13 @@ pub fn on<F1: Fn() -> bool, F2: Fn(BI) -> BI, F3: Fn(BI) -> BI>(f1: F1, f2: F2, 
 }
 
 #[inline(always)]
-pub fn zz(io: xyloid::HANDLE, n1: i32, x1: i32, y1: i32, x2: i32, y2: i32, z1: Duration, z2: Duration) -> bool {
-  let (ay, ny) = stim(y1, y2);
-  let (ax, nx) = stim(x1, x2);
-  xyloid::xy(io, ax, ay);
-  match 0 == nx && 0 == ny {
-    T => match xyloid::is_h() {
-      T => T,
-      _ => {
-        xo(z1);
-        xyloid::key_h(io, F)
-      },
-    },
-    _ => match 0 < n1 {
-      T => {
-        xo(z2);
-        zz(io, n1 - 1, x1, y1, nx, ny, z1, z2)
-      },
-      _ => F,
-    },
-  }
-}
-
-#[inline(always)]
 pub fn xfov(hfov: f64, x: f64, y: f64) -> f64 {
-  (2.0 * ((hfov.to_radians() / 2.0).tan() * (y / x)).atan()).to_degrees()
+  (2. * ((hfov.to_radians() / 2.).tan() * (y / x)).atan()).to_degrees()
 }
 
 #[inline(always)]
 pub fn calc(radian: f64, factor: f64, size: f64) -> f64 {
-  (tan(radian, factor) / (2.0 * PI)) * size
+  (tan(radian, factor) / (2. * PI)) * size
 }
 
 #[inline(always)]
@@ -247,7 +249,7 @@ pub fn fov(n: f64) -> f64 {
 pub fn stim(n1: i32, n2: i32) -> (i32, i32) {
   let next = step(n1, n2);
 
-  match next.cmp(&0) {
+  match next.cmp(&NO) {
     Greater => (n1, next),
     Less => (-n1, next),
     Equal => (n2, next),
@@ -256,10 +258,10 @@ pub fn stim(n1: i32, n2: i32) -> (i32, i32) {
 
 #[inline(always)]
 pub fn step(n1: i32, n2: i32) -> i32 {
-  match n2.cmp(&0) {
-    Greater => (n2 - n1).max(0),
-    Less => (n2 + n1).min(0),
-    Equal => 0,
+  match n2.cmp(&NO) {
+    Greater => (n2 - n1).max(NO),
+    Less => (n2 + n1).min(NO),
+    Equal => NO,
   }
 }
 
