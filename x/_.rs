@@ -25,14 +25,14 @@ pub fn main() {
       Some(io) => {
         let cy = fy((zy / 64.).round() as i32);
         let cx = fx((zx / 64.).round() as i32);
-        const AS: i32 = 4;
+        const AS: i32 = 8;
 
         let zz = #[inline(always)]
         |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, AS, x1, y1, x2, y2, MS, MS * 16);
         let yy = #[inline(always)]
-        |n1: i32, n2: i32| fy(n2 - (n1.max(1).min(4) + 1));
+        |n1: i32, n2: i32| fy((n2 - 1) - (n1.max(1).min(16) / 1));
         let xx = #[inline(always)]
-        |n1: i32, n2: i32| fx(n2 + (n1.max(1).min(4) + 1));
+        |n1: i32, n2: i32| fx((n2 + 1) + (n1.max(1).min(16) / 2));
         let aa = #[inline(always)]
         |n1: i32, n2: i32| zz(cx, cy, n1, n2);
 
@@ -64,11 +64,11 @@ pub fn main() {
         while let Ok(n) = o1.recv() {
           match n {
             49..=i32::MAX => xy(fx(NO - 0), fy(NO - 0)),
-            41..=48 => xy(fx(NO - 1), fy(NO - 3)),
-            33..=40 => xy(fx(NO - 1), fy(NO - 3)),
-            25..=32 => xy(fx(NO - 1), fy(NO - 3)),
-            17..=24 => xy(fx(NO - 1), fy(NO - 3)),
-            9..=16 => xy(fx(NO - 0), fy(NO - 3)),
+            41..=48 => xy(fx(NO - 1), fy(NO - 4)),
+            33..=40 => xy(fx(NO - 1), fy(NO - 4)),
+            25..=32 => xy(fx(NO - 1), fy(NO - 4)),
+            17..=24 => xy(fx(NO - 1), fy(NO - 4)),
+            9..=16 => xy(fx(NO - 0), fy(NO - 4)),
             1..=8 => xy(fx(NO - 0), fy(NO - 0)),
             _ => match xyloid::is_h() {
               T => xyloid::key_h(io, T),
@@ -136,7 +136,7 @@ pub fn main() {
                 s = on_key(xyloid::is_s, xyloid::key_arrow_u, io, s);
                 xo(MS)
               },
-              _ => F,
+              _ => xo(MS),
             };
           }
         },
