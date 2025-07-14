@@ -18,34 +18,36 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
         let pixel = unsafe { std::slice::from_raw_parts(buffer.as_ptr() as *const u32, buffer.len() / 4) };
 
         let mut zz = 0;
+        let mut az = 0;
         let mut ay = 0;
         let mut ax = 0;
-        let mut az = 0;
 
         'y: for y in 0..ny {
-          let az_ = az;
+          let mut is = F;
 
           'x: for x in 0..nx {
             match f2(px(pixel, zz)) {
               T => {
-                let y_ = (ny / 2) - y;
-                let x_ = (nx / 2) - x;
+                let ay_ = (ny / 2) - y;
+                let ax_ = (nx / 2) - x;
 
                 match az {
                   0 => {
                     zz = zz + (nx - x);
                     az = az + 1;
-                    ay = y_;
-                    ax = x_;
+                    ay = ay_;
+                    ax = ax_;
                     break 'x;
                   },
                   _ => {
-                    zz = zz + (nx - x);
-                    az = az + 1;
-
-                    match 16 >= ax.abs_diff(x_) {
-                      T => break 'x,
-                      _ => break 'y,
+                    match 16 >= ax.abs_diff(ax_) {
+                      T => {
+                        zz = zz + (nx - x);
+                        az = az + 1;
+                        is = T;
+                        break 'x;
+                      },
+                      _ => F,
                     };
                   },
                 }
@@ -55,9 +57,9 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
           }
 
           match 0 < az {
-            T => match az_ == az {
-              T => break 'y,
-              _ => F,
+            T => match is {
+              T => T,
+              _ => break 'y,
             },
             _ => F,
           };
