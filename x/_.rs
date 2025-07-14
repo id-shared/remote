@@ -23,16 +23,6 @@ pub fn main() {
     #[inline(always)]
     move || match xyloid::type_1() {
       Some(io) => {
-        #[inline(always)]
-        pub fn axis(n1: i32) -> i32 {
-          match n1 {
-            9..=i32::MAX => 4,
-            5..=8 => 2,
-            1..=4 => 0,
-            _ => 0,
-          }
-        }
-
         let zz = #[inline(always)]
         |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, 16, MS, MS * 4, x1, y1, x2, y2);
         let yy = #[inline(always)]
@@ -48,10 +38,7 @@ pub fn main() {
           let xx = xx(an, ax);
 
           match az {
-            1 => {
-              println!("{}", an);
-              zz(cx, cy, xx, yy)
-            },
+            1 => zz(cx, cy, xx, yy),
             _ => match az % 5 {
               1 => zz(cx, cy, xx, NO),
               _ => F,
@@ -236,6 +223,16 @@ pub fn xfov(hfov: f64, x: f64, y: f64) -> f64 {
 #[inline(always)]
 pub fn calc(radian: f64, factor: f64, size: f64) -> f64 {
   (tan(radian, factor) / (2. * PI)) * size
+}
+
+#[inline(always)]
+pub fn axis(n1: i32) -> i32 {
+  match n1 {
+    9..=i32::MAX => 4,
+    5..=8 => 2,
+    1..=4 => 0,
+    _ => 0,
+  }
 }
 
 #[inline(always)]
