@@ -30,17 +30,19 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
               T => {
                 let y_ = (ny / 2) - y;
                 let x_ = (nx / 2) - x;
+
                 match az {
                   0 => {
                     zz = zz + (nx - x);
+                    az = az + 1;
                     ay = y_;
                     ax = x_;
-                    az = az + 1;
                     break 'x;
                   },
                   _ => {
                     zz = zz + (nx - x);
                     az = az + 1;
+
                     match 16 >= ax.abs_diff(x_) {
                       T => break 'x,
                       _ => break 'y,
