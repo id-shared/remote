@@ -14,33 +14,33 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
       let px = #[inline(always)]
       |x: &[u32], z: i32| unsafe { *x.get_unchecked(z as usize) };
 
-      while let Ok((az, nx, ny, buffer)) = o1.recv() {
+      while let Ok((an, nx, ny, buffer)) = o1.recv() {
         let pixel = unsafe { std::slice::from_raw_parts(buffer.as_ptr() as *const u32, buffer.len() / 4) };
 
         let mut zz = 0;
         let mut ay = 0;
         let mut ax = 0;
-        let mut an = 0;
+        let mut az = 0;
 
         'y: for y in 0..ny {
-          let an_ = an;
+          let az_ = az;
 
           'x: for x in 0..nx {
             match f2(px(pixel, zz)) {
               T => {
                 let y_ = (ny / 2) - y;
                 let x_ = (nx / 2) - x;
-                match an {
+                match az {
                   0 => {
                     zz = zz + (nx - x);
                     ay = y_;
                     ax = x_;
-                    an = an + 1;
+                    az = az + 1;
                     break 'x;
                   },
                   _ => {
                     zz = zz + (nx - x);
-                    an = an + 1;
+                    az = az + 1;
                     match 16 >= ax.abs_diff(x_) {
                       T => break 'x,
                       _ => break 'y,
@@ -52,8 +52,8 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
             };
           }
 
-          match 0 < an {
-            T => match an_ == an {
+          match 0 < az {
+            T => match az_ == az {
               T => break 'y,
               _ => F,
             },
@@ -61,7 +61,7 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
           };
         }
 
-        match 0 < an {
+        match 0 < az {
           T => f3((an, -ax, ay, az)),
           _ => F,
         };
@@ -76,14 +76,13 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
       let zone_x = x / 2;
       let data_2 = detail(zone_x, zone_y, zone_x / 8, zone_y / 8);
       let data_1 = detail(zone_x, zone_y, zone_x / 4, zone_y / 8);
-      let mut at = 0;
+      let mut an = 0;
       loop {
-        // TODO: make sure only 1 SS every 16ms.
-        at = f1(at);
+        an = f1(an);
 
-        match at {
-          17..=i32::MAX => sure(|| send(&i1, (at, data_2.nx, data_2.ny, screen(&data_2))), MS * 16),
-          1..=16 => sure(|| send(&i1, (at, data_1.nx, data_1.ny, screen(&data_1))), MS * 16),
+        match an {
+          17..=i32::MAX => sure(|| send(&i1, (an, data_2.nx, data_2.ny, screen(&data_2))), MS * 16),
+          1..=16 => sure(|| send(&i1, (an, data_1.nx, data_1.ny, screen(&data_1))), MS * 16),
           _ => xo(MS),
         };
       }
