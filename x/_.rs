@@ -26,9 +26,9 @@ pub fn main() {
         let zz = #[inline(always)]
         |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, 16, MS, MS * 4, x1, y1, x2, y2);
         let yy = #[inline(always)]
-        |n1: i32, n2: i32| fy((n2 - 1) - (n1.max(1).min(16) / 1));
+        |n1: i32, n2: i32| fy((n2 - 2) - (n1.min(4) * 2));
         let xx = #[inline(always)]
-        |n1: i32, n2: i32| fx((n2 + 1) + (n1.max(1).min(16) / 2));
+        |n1: i32, n2: i32| fx((n2 + 2) + (n1.min(4) * 1));
 
         let cy = fy((zy / 256.).round() as i32);
         let cx = fx((zx / 256.).round() as i32);

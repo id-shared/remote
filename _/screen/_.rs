@@ -24,10 +24,12 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
                 let ay = (ny / 2) - y;
                 let ax = (nx / 2) - x;
                 let mut at = 0;
-                for n in 1..(nx - x) {
+                'x: for n in 1..(nx - x) {
                   at = match f2(px(pixel, z + n)) {
                     T => at + 1,
-                    _ => at,
+                    _ => {
+                      break 'x;
+                    },
                   };
                 }
                 f3((at, -ax, ay, az));
