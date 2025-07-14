@@ -27,19 +27,26 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
 
           'x: for x in 0..nx {
             match f2(px(pixel, zz)) {
-              T => match an {
-                0 => {
-                  zz = zz + (nx - x);
-                  ay = (ny / 2) - y;
-                  ax = (nx / 2) - x;
-                  an = an + 1;
-                  break 'x;
-                },
-                _ => {
-                  zz = zz + (nx - x);
-                  an = an + 1;
-                  break 'x;
-                },
+              T => {
+                let y_ = (ny / 2) - y;
+                let x_ = (nx / 2) - x;
+                match an {
+                  0 => {
+                    zz = zz + (nx - x);
+                    ay = y_;
+                    ax = x_;
+                    an = an + 1;
+                    break 'x;
+                  },
+                  _ => {
+                    zz = zz + (nx - x);
+                    an = an + 1;
+                    match 16 >= ax.abs_diff(x_) {
+                      T => break 'x,
+                      _ => break 'y,
+                    };
+                  },
+                }
               },
               _ => zz = zz + 1,
             };
@@ -67,7 +74,7 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
     move || {
       let zone_y = y / 2;
       let zone_x = x / 2;
-      let data_2 = detail(zone_x, zone_y, zone_x / 4, zone_y / 8);
+      let data_2 = detail(zone_x, zone_y, zone_x / 8, zone_y / 8);
       let data_1 = detail(zone_x, zone_y, zone_x / 4, zone_y / 8);
       let mut at = 0;
       loop {
