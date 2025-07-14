@@ -78,8 +78,8 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
     move || {
       let zone_y = y / 2;
       let zone_x = x / 2;
-      let data_4 = data(zone_x / 4, zone_y / 8, zone_x, zone_y);
-      let data_3 = data(zone_x / 4, zone_y / 8, zone_x, zone_y);
+      let data_4 = data(zone_x / 8, zone_y / 8, zone_x, zone_y);
+      let data_3 = data(zone_x / 8, zone_y / 8, zone_x, zone_y);
       let data_2 = data(zone_x / 4, zone_y / 8, zone_x, zone_y);
       let data_1 = data(zone_x / 4, zone_y / 8, zone_x, zone_y);
       let mut an = 0;
