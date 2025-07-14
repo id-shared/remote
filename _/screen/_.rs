@@ -18,6 +18,8 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
         let pixel = unsafe { std::slice::from_raw_parts(buffer.as_ptr() as *const u32, buffer.len() / 4) };
 
         let mut zz = 0;
+        let mut xx = 0;
+
         let mut az = 0;
         let mut ay = 0;
         let mut ax = 0;
@@ -26,7 +28,7 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
           let mut is = F;
 
           'x: for x in 0..nx {
-            match f2(px(pixel, zz)) {
+            zz = match f2(px(pixel, zz)) {
               T => {
                 let ay_ = (ny / 2) - y;
                 let ax_ = (nx / 2) - x;
@@ -34,26 +36,28 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
                 match az {
                   0 => {
                     zz = zz + (nx - x);
+                    xx = ax_;
+
                     az = az + 1;
                     ay = ay_;
                     ax = ax_;
                     break 'x;
                   },
-                  _ => {
-                    match 16 >= ax.abs_diff(ax_) {
-                      T => {
-                        zz = zz + (nx - x);
-                        az = az + 1;
-                        is = T;
-                        break 'x;
-                      },
-                      _ => F,
-                    };
+                  _ => match 4 >= ax.abs_diff(xx) {
+                    T => {
+                      zz = zz + (nx - x);
+                      xx = ax_;
+
+                      az = az + 1;
+                      is = T;
+                      break 'x;
+                    },
+                    _ => zz + 1,
                   },
                 }
               },
-              _ => zz = zz + 1,
-            };
+              _ => zz + 1,
+            }
           }
 
           match 0 < az {
@@ -78,10 +82,10 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
     move || {
       let zone_y = y / 2;
       let zone_x = x / 2;
-      let data_4 = data(zone_x / 16, zone_y / 16, zone_x, zone_y);
-      let data_3 = data(zone_x / 12, zone_y / 12, zone_x, zone_y);
-      let data_2 = data(zone_x / 8, zone_y / 8, zone_x, zone_y);
-      let data_1 = data(zone_x / 4, zone_y / 4, zone_x, zone_y);
+      let data_4 = data(zone_x / 4, zone_y / 8, zone_x, zone_y);
+      let data_3 = data(zone_x / 4, zone_y / 8, zone_x, zone_y);
+      let data_2 = data(zone_x / 4, zone_y / 8, zone_x, zone_y);
+      let data_1 = data(zone_x / 4, zone_y / 8, zone_x, zone_y);
       let mut an = 0;
       loop {
         an = f1(an);

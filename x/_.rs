@@ -38,7 +38,10 @@ pub fn main() {
           let xx = xx(ax, az);
 
           match an {
-            1 => zz(cx, cy, xx, yy),
+            1 => {
+              println!("{}", an);
+              zz(cx, cy, xx, yy)
+            },
             _ => match an % 5 {
               1 => zz(cx, cy, xx, NO),
               _ => F,
