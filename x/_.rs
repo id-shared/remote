@@ -26,9 +26,9 @@ pub fn main() {
         let zz = #[inline(always)]
         |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, 16, MS, MS * 4, x1, y1, x2, y2);
         let yy = #[inline(always)]
-        |n1: i32, n2: i32| fy((n2 - 2) - (axis(n1) * 2));
+        |n1: i32, n2: i32| fy(n2 - (axis(n1) * 2));
         let xx = #[inline(always)]
-        |n1: i32, n2: i32| fx((n2 + 2) + (axis(n1) * 1));
+        |n1: i32, n2: i32| fx(n2 + (axis(n1) * 1));
 
         let cy = fy((zy / 256.).round() as i32);
         let cx = fx((zx / 256.).round() as i32);
@@ -228,10 +228,11 @@ pub fn calc(radian: f64, factor: f64, size: f64) -> f64 {
 #[inline(always)]
 pub fn axis(n1: i32) -> i32 {
   match n1 {
-    9..=i32::MAX => 4,
-    5..=8 => 2,
-    1..=4 => 0,
-    _ => 0,
+    13..=i32::MAX => 8,
+    9..=12 => 6,
+    5..=8 => 4,
+    1..=4 => 2,
+    _ => 1,
   }
 }
 
