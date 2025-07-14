@@ -16,29 +16,48 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
 
       while let Ok((az, nx, ny, buffer)) = o1.recv() {
         let pixel = unsafe { std::slice::from_raw_parts(buffer.as_ptr() as *const u32, buffer.len() / 4) };
-        let mut z: i32 = 0;
+
+        let mut zz = 0;
+        let mut ay = 0;
+        let mut ax = 0;
+        let mut an = 0;
+
         'y: for y in 0..ny {
-          for x in 0..nx {
-            z = match f2(px(pixel, z)) {
-              T => {
-                let ay = (ny / 2) - y;
-                let ax = (nx / 2) - x;
-                let mut at = 0;
-                'x: for n in 1..(nx - x) {
-                  at = match f2(px(pixel, z + n)) {
-                    T => at + 1,
-                    _ => {
-                      break 'x;
-                    },
-                  };
-                }
-                f3((at, -ax, ay, az));
-                break 'y;
+          let an_ = an;
+
+          'x: for x in 0..nx {
+            match f2(px(pixel, zz)) {
+              T => match an {
+                0 => {
+                  zz = zz + (nx - x);
+                  ay = (ny / 2) - y;
+                  ax = (nx / 2) - x;
+                  an = an + 1;
+                  break 'x;
+                },
+                _ => {
+                  zz = zz + (nx - x);
+                  an = an + 1;
+                  break 'x;
+                },
               },
-              _ => z + 1,
+              _ => zz = zz + 1,
             };
           }
+
+          match 0 < an {
+            T => match an_ == an {
+              T => break 'y,
+              _ => F,
+            },
+            _ => F,
+          };
         }
+
+        match 0 < an {
+          T => f3((an, -ax, ay, az)),
+          _ => F,
+        };
       }
     },
   ));
@@ -208,6 +227,7 @@ use {
     Pixel,
   },
   std::{
+    i32,
     mem::size_of,
     thread::{
       self,
