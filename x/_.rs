@@ -39,7 +39,7 @@ pub fn main() {
 
           match az {
             1 => zz(cx, cy, xx, yy),
-            _ => match az % 4 {
+            _ => match az % 5 {
               1 => zz(cx, cy, xx, NO),
               _ => F,
             },
