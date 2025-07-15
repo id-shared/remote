@@ -36,7 +36,7 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
                 let ax_ = (nx / 2) - x;
 
                 match is {
-                  T => match 2 >= (xx as u64).abs_diff(ax_ as u64) {
+                  T => match 4 >= (xx as u64).abs_diff(ax_ as u64) {
                     T => {
                       zz = zz + 1;
                       yy = ay_;
@@ -68,7 +68,7 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
           }
 
           match is {
-            T => match 2 >= (yy as u64).abs_diff(ay_ as u64) {
+            T => match 4 >= (yy as u64).abs_diff(ay_ as u64) {
               T => T,
               _ => break 'y,
             },
