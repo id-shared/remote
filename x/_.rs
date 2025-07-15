@@ -26,7 +26,7 @@ pub fn main() {
         #[inline(always)]
         pub fn yn(n1: i32) -> i32 {
           match n1 {
-            33..=i32::MAX => 16,
+            33..=i32::MAX => 8,
             17..=32 => 4,
             1..=16 => 2,
             _ => 0,
