@@ -31,29 +31,29 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
           let ay_ = (ny / 2) - y;
 
           'x: for x in 0..nx {
-            zz = match f2(px(pixel, zz)) {
+            az = match f2(px(pixel, az)) {
               T => {
                 let ax_ = (nx / 2) - x;
 
                 match is {
                   T => match 2 >= (xx as u64).abs_diff(ax_ as u64) {
                     T => {
-                      zz = zz + (nx - x);
+                      zz = zz + 1;
                       yy = ay_;
                       xx = ax_;
 
-                      az = az + 1;
+                      az = az + (nx - x);
 
                       break 'x;
                     },
-                    _ => zz + 1,
+                    _ => az + 1,
                   },
                   _ => {
-                    zz = zz + (nx - x);
+                    zz = zz + 1;
                     yy = ay_;
                     xx = ax_;
 
-                    az = az + 1;
+                    az = az + (nx - x);
                     ay = ay_;
                     ax = ax_;
 
@@ -63,7 +63,7 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
                   },
                 }
               },
-              _ => zz + 1,
+              _ => az + 1,
             }
           }
 
@@ -77,7 +77,7 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
         }
 
         match is {
-          T => f3((an, -ax, ay, az)),
+          T => f3((an, -ax, ay, zz - 1)),
           _ => F,
         };
       }
