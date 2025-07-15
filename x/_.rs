@@ -25,24 +25,12 @@ pub fn main() {
       Some(io) => {
         #[inline(always)]
         pub fn yn(n1: i32) -> i32 {
-          match n1 {
-            13..=i32::MAX => 16,
-            9..=12 => 8,
-            5..=8 => 4,
-            1..=4 => 2,
-            _ => 1,
-          }
+          n1
         }
 
         #[inline(always)]
         pub fn xn(n1: i32) -> i32 {
-          match n1 {
-            13..=i32::MAX => 8,
-            9..=12 => 4,
-            5..=8 => 2,
-            1..=4 => 1,
-            _ => 1,
-          }
+          n1 / 2
         }
 
         let zz = #[inline(always)]
