@@ -23,12 +23,34 @@ pub fn main() {
     #[inline(always)]
     move || match xyloid::type_1() {
       Some(io) => {
+        #[inline(always)]
+        pub fn yn(n1: i32) -> i32 {
+          match n1 {
+            13..=i32::MAX => 8,
+            9..=12 => 6,
+            5..=8 => 4,
+            1..=4 => 2,
+            _ => 1,
+          }
+        }
+
+        #[inline(always)]
+        pub fn xn(n1: i32) -> i32 {
+          match n1 {
+            13..=i32::MAX => 4,
+            9..=12 => 3,
+            5..=8 => 2,
+            1..=4 => 1,
+            _ => 1,
+          }
+        }
+
         let zz = #[inline(always)]
         |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, 16, MS, MS * 4, x1, y1, x2, y2);
         let yy = #[inline(always)]
-        |n1: i32, n2: i32| fy(n1 - (axis(n2) * 2));
+        |n1: i32, n2: i32| fy(n1 - yn(n2));
         let xx = #[inline(always)]
-        |n1: i32, n2: i32| fx(n1 + (axis(n2) * 1));
+        |n1: i32, n2: i32| fx(n1 + xn(n2));
 
         let cy = fy((zy / 256.).round() as i32);
         let cx = fx((zx / 256.).round() as i32);
@@ -229,17 +251,6 @@ pub fn calc(radian: f64, factor: f64, size: f64) -> f64 {
 }
 
 #[inline(always)]
-pub fn axis(n1: i32) -> i32 {
-  match n1 {
-    13..=i32::MAX => 8,
-    9..=12 => 6,
-    5..=8 => 4,
-    1..=4 => 2,
-    _ => 1,
-  }
-}
-
-#[inline(always)]
 pub fn send<T>(i: &Sender<T>, o: T) -> bool {
   i.try_send(o).is_ok()
 }
@@ -280,7 +291,7 @@ pub fn xo(n: Duration) -> bool {
   T
 }
 
-pub const APP: &str = "";
+pub const APP: &str = "VAL";
 pub const MS: Duration = Duration::from_millis(1);
 pub const NO: i32 = 0;
 pub const F: bool = false;
