@@ -39,7 +39,7 @@ pub fn main() {
 
           match an {
             1 => {
-              println!("{}", an);
+              println!("{}", az);
               zz(cx, cy, xx, yy)
             },
             _ => match an % 5 {
@@ -280,7 +280,7 @@ pub fn xo(n: Duration) -> bool {
   T
 }
 
-pub const APP: &str = "VAL";
+pub const APP: &str = "";
 pub const MS: Duration = Duration::from_millis(1);
 pub const NO: i32 = 0;
 pub const F: bool = false;
