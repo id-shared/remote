@@ -40,12 +40,12 @@ pub fn main() {
 
         #[inline(always)]
         pub fn yn(n1: i32) -> f64 {
-          2.0 * zn(n1)
+          2. * zn(n1)
         }
 
         #[inline(always)]
         pub fn xn(n1: i32) -> f64 {
-          0.5 * zn(n1)
+          1. * zn(n1)
         }
 
         let zz = #[inline(always)]
@@ -62,10 +62,10 @@ pub fn main() {
           let yy = yy(ay, az);
           let xx = xx(ax, az);
 
-          match an {
-            1 => println!("{} {} {} {}", an, ax, ay, az),
-            _ => (),
-          };
+          // match an {
+          //   1 => println!("{} {} {} {}", an, ax, ay, az),
+          //   _ => (),
+          // };
 
           match an {
             1 => zz(cx, cy, xx, yy),
@@ -87,6 +87,7 @@ pub fn main() {
       Some(io) => {
         let yy = #[inline(always)]
         |n1: f64| xyloid::xy(io, NO, fy(n1));
+
         let mut cy = NO;
 
         while let Ok(n) = o1.recv() {
