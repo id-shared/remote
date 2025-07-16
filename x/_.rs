@@ -14,9 +14,9 @@ pub fn main() {
   let ux = zx / 2.;
 
   let fy = #[inline(always)]
-  move |n1: f64| calc(vy, n1 / uy, 6400.).ceil() as i32;
+  move |n1: f64| calc(vy, n1 / uy, 6400.).round() as i32;
   let fx = #[inline(always)]
-  move |n1: f64| calc(vx, n1 / ux, 6400.).ceil() as i32;
+  move |n1: f64| calc(vx, n1 / ux, 6400.).round() as i32;
 
   let (i2, o2): (Sender<(i32, i32, i32, i32)>, Receiver<(i32, i32, i32, i32)>) = bounded(64);
   handle.push(thread::spawn(
