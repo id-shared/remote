@@ -3,7 +3,7 @@
 #![feature(trait_alias)]
 
 pub fn main() {
-  println!("Angle for chord length 1 is {:.64} pixels", calc((103.0_f64 / 2.).to_radians(), 960. / 960., 8192.));
+  println!("Angle for chord length 1 is {:.64} pixels", calc((103.0_f64 / 2.).to_radians(), 960. / 960., 6400.));
 
   let mut handle = vec![];
   let zy = screen::high();
