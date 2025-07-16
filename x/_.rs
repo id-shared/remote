@@ -58,8 +58,6 @@ pub fn main() {
         let cy = fy(zy / 256.);
         let cx = fx(zx / 256.);
 
-        println!("{}, {}", cx, cy);
-
         while let Ok((an, ax, ay, az)) = o2.recv() {
           let yy = yy(ay, az);
           let xx = xx(ax, az);
