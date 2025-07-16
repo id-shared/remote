@@ -54,27 +54,27 @@ pub fn main() {
         }
 
         let zz = #[inline(always)]
-        |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, 64, MS, x1, y1, x2, y2);
+        |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, 64, 2 * MS, x1, y1, x2, y2);
         let yy = #[inline(always)]
         |n1: i32, n2: i32| fy(n1 - yn(n2));
         let xx = #[inline(always)]
         |n1: i32, n2: i32| fx(n1 + xn(n2));
 
-        let cy = fy((zy / 1024.).round() as i32);
-        let cx = fx((zx / 1024.).round() as i32);
+        let cy = fy(2);
+        let cx = fx(2);
 
         while let Ok((an, ax, ay, az)) = o2.recv() {
           let yy = yy(ay, az);
           let xx = xx(ax, az);
 
-          match an {
-            1 => println!("{}", az),
-            _ => (),
-          };
+          // match an {
+          //   1 => println!("{}", az),
+          //   _ => (),
+          // };
 
           match an {
             1 => zz(cx, cy, xx, yy),
-            _ => match an % 5 {
+            _ => match an % 8 {
               1 => zz(cx, cy, xx, NO),
               _ => F,
             },
