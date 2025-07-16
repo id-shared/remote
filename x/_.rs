@@ -26,13 +26,13 @@ pub fn main() {
         #[inline(always)]
         pub fn zn(n1: i32) -> i32 {
           match n1 {
-            57..=i32::MAX => 8,
-            49..=56 => 7,
-            41..=48 => 6,
-            33..=40 => 5,
-            25..=32 => 4,
-            17..=24 => 3,
-            9..=16 => 2,
+            57..=i32::MAX => 4,
+            49..=56 => 4,
+            41..=48 => 3,
+            33..=40 => 3,
+            25..=32 => 2,
+            17..=24 => 2,
+            9..=16 => 1,
             1..=8 => 1,
             _ => 0,
           }
@@ -40,7 +40,7 @@ pub fn main() {
 
         #[inline(always)]
         pub fn yn(n1: i32) -> i32 {
-          (1.5 * zn(n1) as f64).round() as i32
+          (2. * zn(n1) as f64).round() as i32
         }
 
         #[inline(always)]
@@ -49,7 +49,7 @@ pub fn main() {
         }
 
         let zz = #[inline(always)]
-        |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, 64, 2 * MS, x1, y1, x2, y2);
+        |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, 16, 4 * MS, x1, y1, x2, y2);
         let yy = #[inline(always)]
         |n1: i32, n2: i32| fy(n1 - yn(n2));
         let xx = #[inline(always)]
@@ -94,9 +94,9 @@ pub fn main() {
             41..=48 => xy(fx(NO - 1), fy(NO - 4)),
             33..=40 => xy(fx(NO - 1), fy(NO - 4)),
             25..=32 => xy(fx(NO - 1), fy(NO - 4)),
-            17..=24 => xy(fx(NO - 1), fy(NO - 4)),
-            9..=16 => xy(fx(NO - 0), fy(NO - 4)),
-            1..=8 => xy(fx(NO - 0), fy(NO - 0)),
+            17..=24 => xy(fx(NO - 1), fy(NO - 2)),
+            9..=16 => xy(fx(NO - 0), fy(NO - 2)),
+            1..=8 => xy(fx(NO - 0), fy(NO - 2)),
             _ => match xyloid::is_h() {
               T => xyloid::key_h(io, T),
               _ => F,
