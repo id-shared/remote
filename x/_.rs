@@ -26,38 +26,51 @@ pub fn main() {
         #[inline(always)]
         pub fn yn(n1: i32) -> i32 {
           match n1 {
-            49..=i32::MAX => 16,
-            33..=48 => 8,
-            17..=32 => 4,
-            1..=16 => 2,
-            _ => 0,
+            57..=i32::MAX => 16,
+            49..=56 => 14,
+            41..=48 => 12,
+            33..=40 => 10,
+            25..=32 => 8,
+            17..=24 => 6,
+            9..=16 => 4,
+            1..=8 => 2,
+            _ => 1,
           }
         }
 
         #[inline(always)]
         pub fn xn(n1: i32) -> i32 {
           match n1 {
-            49..=i32::MAX => 8,
-            33..=48 => 4,
-            17..=32 => 2,
-            1..=16 => 0,
+            57..=i32::MAX => 8,
+            49..=56 => 7,
+            41..=48 => 6,
+            33..=40 => 5,
+            25..=32 => 4,
+            17..=24 => 3,
+            9..=16 => 2,
+            1..=8 => 1,
             _ => 0,
           }
         }
 
         let zz = #[inline(always)]
-        |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, 16, MS, MS * 4, x1, y1, x2, y2);
+        |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, 64, MS, x1, y1, x2, y2);
         let yy = #[inline(always)]
         |n1: i32, n2: i32| fy(n1 - yn(n2));
         let xx = #[inline(always)]
         |n1: i32, n2: i32| fx(n1 + xn(n2));
 
-        let cy = fy((zy / 256.).round() as i32);
-        let cx = fx((zx / 256.).round() as i32);
+        let cy = fy((zy / 1024.).round() as i32);
+        let cx = fx((zx / 1024.).round() as i32);
 
         while let Ok((an, ax, ay, az)) = o2.recv() {
           let yy = yy(ay, az);
           let xx = xx(ax, az);
+
+          match an {
+            1 => println!("{}", az),
+            _ => (),
+          };
 
           match an {
             1 => zz(cx, cy, xx, yy),
@@ -170,22 +183,19 @@ pub fn main() {
 }
 
 #[inline(always)]
-pub fn zz(io: xyloid::HANDLE, n1: i32, t1: Duration, t2: Duration, x1: i32, y1: i32, x2: i32, y2: i32) -> bool {
+pub fn zz(io: xyloid::HANDLE, n1: i32, t1: Duration, x1: i32, y1: i32, x2: i32, y2: i32) -> bool {
   let (ay, ny) = stim(y1, y2);
   let (ax, nx) = stim(x1, x2);
   xyloid::xy(io, ax, ay);
   match NO == nx && NO == ny {
     T => match xyloid::is_h() {
       T => T,
-      _ => {
-        xo(t1);
-        xyloid::key_h(io, F)
-      },
+      _ => xyloid::key_h(io, F),
     },
     _ => match NO < n1 {
       T => {
-        xo(t2);
-        zz(io, n1 - 1, t1, t2, x1, y1, nx, ny)
+        xo(t1);
+        zz(io, n1 - 1, t1, x1, y1, nx, ny)
       },
       _ => T,
     },
