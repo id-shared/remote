@@ -49,14 +49,16 @@ pub fn main() {
         }
 
         let zz = #[inline(always)]
-        |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, 16, 4 * MS, x1, y1, x2, y2);
+        |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, 4, 4 * MS, x1, y1, x2, y2);
         let yy = #[inline(always)]
         |n1: i32, n2: i32| fy(n1 as f64 - yn(n2));
         let xx = #[inline(always)]
         |n1: i32, n2: i32| fx(n1 as f64 + xn(n2));
 
-        let cy = fy(zy / 16. / 4.);
-        let cx = fx(zx / 16. / 4.);
+        let cy = fy(zy / 256.);
+        let cx = fx(zx / 256.);
+
+        println!("{}, {}", cx, cy);
 
         while let Ok((an, ax, ay, az)) = o2.recv() {
           let yy = yy(ay, az);
@@ -196,15 +198,16 @@ pub fn zz(io: xyloid::HANDLE, n1: i32, t1: Duration, x1: i32, y1: i32, x2: i32, 
   let (ay, ny) = stim(y1, y2);
   let (ax, nx) = stim(x1, x2);
   xyloid::xy(io, ax, ay);
+  let n1_ = n1 - 1;
   match NO == nx && NO == ny {
     T => match xyloid::is_h() {
       T => T,
       _ => xyloid::key_h(io, F),
     },
-    _ => match NO < n1 {
+    _ => match NO < n1_ {
       T => {
         xo(t1);
-        zz(io, n1 - 1, t1, (x1 / 2).max(4), (y1 / 2).max(4), nx, ny)
+        zz(io, n1_, t1, x1 * 2, y1 * 2, nx, ny)
       },
       _ => T,
     },
