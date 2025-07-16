@@ -18,13 +18,10 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
         let pixel = unsafe { std::slice::from_raw_parts(buffer.as_ptr() as *const u32, buffer.len() / 4) };
 
         let mut zz = 0;
-        let mut xx = 0;
-
         let mut az = 0;
         let mut ay = 0;
         let mut ax = 0;
-
-        let mut is = F;
+        let mut aa = F;
 
         for y in 0..ny {
           let ay_ = (ny / 2) - y;
@@ -34,28 +31,18 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
               T => {
                 let ax_ = (nx / 2) - x;
 
-                match is {
-                  T => match 16 >= (xx as u64).abs_diff(ax_ as u64) {
-                    T => {
-                      zz = zz + 1;
-                      xx = ax_;
-
-                      az = az + (nx - x);
-
-                      break 'x;
-                    },
-                    _ => az + 1,
+                match aa {
+                  T => {
+                    zz = zz + 1;
+                    az = az + (nx - x);
+                    break 'x;
                   },
                   _ => {
                     zz = zz + 1;
-                    xx = ax_;
-
                     az = az + (nx - x);
                     ay = ay_;
                     ax = ax_;
-
-                    is = T;
-
+                    aa = T;
                     break 'x;
                   },
                 }
@@ -65,7 +52,7 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
           }
         }
 
-        match is {
+        match aa {
           T => f3((an, -ax, ay, zz - 1)),
           _ => F,
         };
@@ -78,7 +65,7 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
     move || {
       let zone_y = y / 2;
       let zone_x = x / 2;
-      let data_2 = data(zone_x / 8, zone_y / 16, zone_x, zone_y);
+      let data_2 = data(zone_x / 8, zone_y / 8, zone_x, zone_y);
       let data_1 = data(zone_x / 4, zone_y / 8, zone_x, zone_y);
       let mut an = 0;
       loop {
