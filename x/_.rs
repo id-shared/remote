@@ -69,7 +69,7 @@ pub fn main() {
 
           match an {
             1 => zz(cx, cy, xx, yy),
-            _ => match an % 4 {
+            _ => match an % 5 {
               1 => zz(cx, cy, xx, NO),
               _ => F,
             },

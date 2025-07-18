@@ -63,10 +63,10 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      let data_4 = data(x / 16, y / 2, x, y);
-      let data_3 = data(x / 8, y / 4, x, y);
-      let data_2 = data(x / 8, y / 4, x, y);
-      let data_1 = data(x / 4, y / 8, x, y);
+      let data_4 = data(x / 16, y / 16, x, y);
+      let data_3 = data(x / 12, y / 16, x, y);
+      let data_2 = data(x / 8, y / 16, x, y);
+      let data_1 = data(x / 4, y / 16, x, y);
       let mut an = 0;
       loop {
         an = f1(an);
