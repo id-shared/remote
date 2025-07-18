@@ -24,26 +24,24 @@ pub fn main() {
     move || match xyloid::type_1() {
       Some(io) => {
         #[inline(always)]
-        pub fn zz(io: xyloid::HANDLE, n: i32, t: i32, r: f64, x: f64, y: f64, x1: f64, y1: f64) -> bool {
-          let (ay, ny) = stim(y as i32, y1 as i32);
-          let (ax, nx) = stim(x as i32, x1 as i32);
-          match NO < n {
+        pub fn zz(io: xyloid::HANDLE, i: f64, n: f64, t: f64, x: f64, y: f64) -> bool {
+          match i <= n {
             T => {
-              // println!("{} {} {} {}", n1, x1, y1, z1);
+              let rr = cubic_eio(i / n);
+              let ay = (rr * y).round();
+              let ax = (rr * x).round();
 
-              xyloid::xy(io, ax, ay);
-              match NO == nx && NO == ny {
-                T => match xyloid::is_h() {
-                  T => T,
-                  _ => xyloid::key_h(io, F),
-                },
-                _ => {
-                  xo(MS * (t as u32));
-                  zz(io, n - 1, t, r, x * r, y * r, nx as f64, ny as f64)
-                },
-              }
+              xyloid::xy(io, ax as i32, ay as i32);
+
+              println!("{} {} | {:.2} {} {}", i, n, rr, ax, ay);
+
+              xo(MS * (t as u32));
+              zz(io, i + 1., n, t, x - ax, y - ay)
             },
-            _ => T,
+            _ => match xyloid::is_h() {
+              T => T,
+              _ => xyloid::key_h(io, F),
+            },
           }
         }
 
@@ -80,18 +78,20 @@ pub fn main() {
           (zn(n1) as f64) / 4.
         }
 
-        const GRAPH_TIME: i32 = FRAME_FREQ * (FRAME_EACH - 1);
-        const GRAPH_SIZE: i32 = 8;
+        const GRAPH_TIME: f64 = (FRAME_FREQ * (FRAME_EACH - 1)) as f64;
+        const GRAPH_SIZE: f64 = 4.;
 
         const FRAME_FREQ: i32 = 16;
         const FRAME_EACH: i32 = 4;
 
         let zz = #[inline(always)]
-        |x1: f64, y1: f64| zz(io, GRAPH_SIZE, GRAPH_TIME / GRAPH_SIZE, 2., fx(ux / 64.), fy(uy / 64.), x1, y1);
+        |x1: f64, y1: f64| zz(io, 0., GRAPH_SIZE, GRAPH_TIME / GRAPH_SIZE, x1, y1);
         let yy = #[inline(always)]
         |n1: i32, n2: i32| fy(n1 as f64 - yn(n2));
         let xx = #[inline(always)]
         |n1: i32, n2: i32| fx(n1 as f64 + xn(n2));
+
+        zz(-1., 1.);
 
         while let Ok((an, ax, ay, az)) = o2.recv() {
           let yy = yy(ay, az);
