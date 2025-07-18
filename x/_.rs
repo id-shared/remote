@@ -25,18 +25,24 @@ pub fn main() {
       Some(io) => {
         #[inline(always)]
         pub fn zz(io: xyloid::HANDLE, i: f64, n: f64, t: f64, x: f64, y: f64) -> bool {
-          match i <= n {
-            T => {
-              let rr = cubic_eio(i / n);
-              let ay = (rr * y).round();
-              let ax = (rr * x).round();
+          match 0. == x && 0. == y {
+            T => match i <= n {
+              T => {
+                let rr = cubic_eio(i / n);
+                let ay = (rr * y).round();
+                let ax = (rr * x).round();
 
-              xyloid::xy(io, ax as i32, ay as i32);
+                xyloid::xy(io, ax as i32, ay as i32);
 
-              // println!("{} {} | {:.2} {} {}", i, n, rr, ax, ay);
+                // println!("{} {} | {:.2} {} {}", i, n, rr, ax, ay);
 
-              xo(MS * (t as u32));
-              zz(io, i + 1., n, t, x - ax, y - ay)
+                xo(MS * (t as u32));
+                zz(io, i + 1., n, t, x - ax, y - ay)
+              },
+              _ => match xyloid::is_h() {
+                T => T,
+                _ => xyloid::key_h(io, F),
+              },
             },
             _ => match xyloid::is_h() {
               T => T,
@@ -125,8 +131,8 @@ pub fn main() {
               T => {
                 yy(match cy {
                   49..=i32::MAX => NO,
-                  45..=48 => -1,
-                  41..=44 => -1,
+                  45..=48 => -2,
+                  41..=44 => -3,
                   37..=40 => -3,
                   33..=36 => -3,
                   29..=32 => -3,
