@@ -24,6 +24,31 @@ pub fn main() {
     move || match xyloid::type_1() {
       Some(io) => {
         #[inline(always)]
+        pub fn zz(io: xyloid::HANDLE, n1: i32, x1: i32, y1: i32, z1: i32, n2: i32, x2: i32, y2: i32, z2: i32) -> bool {
+          let (az, nz) = stim(z1, z2);
+          let (ay, ny) = stim(y1, y2);
+          let (ax, nx) = stim(x1, x2);
+          match NO < n1 {
+            T => {
+              println!("{} {} {} {}", n1, x1, y1, z1);
+
+              xyloid::xy(io, ax, ay);
+              match NO == nx && NO == ny {
+                T => match xyloid::is_h() {
+                  T => T,
+                  _ => xyloid::key_h(io, F),
+                },
+                _ => {
+                  xo(MS * az as u32);
+                  zz(io, n1 - 1, x1 * n2, y1 * n2, z1 * n2, n2, nx, ny, nz)
+                },
+              }
+            },
+            _ => T,
+          }
+        }
+
+        #[inline(always)]
         pub fn zn(n1: i32) -> i32 {
           match n1 {
             61..=i32::MAX => 16,
@@ -48,7 +73,7 @@ pub fn main() {
 
         #[inline(always)]
         pub fn yn(n1: i32) -> f64 {
-          (zn(n1) as f64) / 2.
+          (zn(n1) as f64) / 1.
         }
 
         #[inline(always)]
@@ -57,14 +82,11 @@ pub fn main() {
         }
 
         let zz = #[inline(always)]
-        |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, 4, x1, y1, 4, x2, y2, 16 * 4);
+        |x1: i32, y1: i32, z1: i32| zz(io, 4, fx(10.), fy(10.), 4, 2, x1, y1, z1);
         let yy = #[inline(always)]
         |n1: i32, n2: i32| fy(n1 as f64 - yn(n2));
         let xx = #[inline(always)]
         |n1: i32, n2: i32| fx(n1 as f64 + xn(n2));
-
-        let cy = fy(10.);
-        let cx = fx(10.);
 
         while let Ok((an, ax, ay, az)) = o2.recv() {
           let yy = yy(ay, az);
@@ -76,9 +98,9 @@ pub fn main() {
           // };
 
           match an {
-            1 => zz(cx, cy, xx, yy),
-            _ => match an % 4 {
-              1 => zz(cx, cy, xx, NO),
+            1 => zz(xx, yy, 16 * 4),
+            _ => match an % 5 {
+              1 => zz(xx, NO, 16 * 4),
               _ => F,
             },
           };
@@ -106,7 +128,7 @@ pub fn main() {
                   49..=i32::MAX => NO,
                   45..=48 => -2,
                   41..=44 => -2,
-                  37..=40 => -2,
+                  37..=40 => -4,
                   33..=36 => -4,
                   29..=32 => -4,
                   25..=28 => -4,
@@ -115,7 +137,7 @@ pub fn main() {
                   13..=16 => -4,
                   9..=12 => -2,
                   5..=8 => -2,
-                  1..=4 => -2,
+                  1..=4 => NO,
                   _ => NO,
                 } as f64);
                 cy + 1
@@ -206,30 +228,6 @@ pub fn main() {
 }
 
 #[inline(always)]
-pub fn zz(io: xyloid::HANDLE, n1: i32, x1: i32, y1: i32, z1: i32, x2: i32, y2: i32, z2: i32) -> bool {
-  let (az, nz) = stim(z1, z2);
-  let (ay, ny) = stim(y1, y2);
-  let (ax, nx) = stim(x1, x2);
-  match NO < n1 {
-    T => {
-      // println!("{} {} {} {}", n1, x1, y1, z1);/
-      xyloid::xy(io, ax, ay);
-      match NO == nx && NO == ny {
-        T => match xyloid::is_h() {
-          T => T,
-          _ => xyloid::key_h(io, F),
-        },
-        _ => {
-          xo(MS * az as u32);
-          zz(io, n1 - 1, x1 * 2, y1 * 2, z1 * 2, nx, ny, nz)
-        },
-      }
-    },
-    _ => T,
-  }
-}
-
-#[inline(always)]
 pub fn on_key<F1: Fn() -> bool, F2: Fn(xyloid::HANDLE, bool) -> bool>(f1: F1, f2: F2, io: xyloid::HANDLE, z1: BI) -> BI {
   on(
     f1,
@@ -287,6 +285,14 @@ pub fn calc(radian: f64, factor: f64, size: f64) -> f64 {
 #[inline(always)]
 pub fn send<T>(i: &Sender<T>, o: T) -> bool {
   i.try_send(o).is_ok()
+}
+
+#[inline(always)]
+pub fn cubic_eio(t: f64) -> f64 {
+  match 0.5 < t {
+    true => 1.0 - ((-2.0 * t + 2.0).powf(3.0)) / 2.0,
+    _ => 4.0 * t * t * t,
+  }
 }
 
 #[inline(always)]
@@ -355,3 +361,50 @@ use {
     },
   },
 };
+
+// #[inline(always)]
+// pub fn abc(io: xyloid::HANDLE, n1: i32, x1: i32, y1: i32, z1: i32) -> bool {
+//   // let (az, nz) = stim(z1, z2);
+//   // let (ay, ny) = stim(y1, y2);
+//   // let (ax, nx) = stim(x1, x2);
+//   // match NO < n1 {
+//   //   T => {
+//   //     println!("{} {} {} {}", n1, x1, y1, z1);
+
+//   //     xyloid::xy(io, ax, ay);
+//   //     match NO == nx && NO == ny {
+//   //       T => match xyloid::is_h() {
+//   //         T => T,
+//   //         _ => xyloid::key_h(io, F),
+//   //       },
+//   //       _ => {
+//   //         xo(MS * az as u32);
+//   //         zz(io, n1 - 1, x1 * 2, y1 * 2, z1 * 2, nx, ny, nz)
+//   //       },
+//   //     }
+//   //   },
+//   //   _ => T,
+//   // }
+
+//   let x1 = 12 as f64;
+//   let n1 = 10 as f64;
+
+//   let mut prev = 0;
+//   for n in 0..=(n1 as i32) {
+//     let z2 = cubic_eio(n as f64 / n1);
+//     let x2 = (x1 * z2).round() as i32;
+
+//     prev = match n > 0 {
+//       true => {
+//         let delta = x2 - prev;
+//         println!("{}", delta);
+//         x2
+//       },
+//       _ => x2,
+//     }
+//   }
+
+//   T
+// }
+
+// abc(io, 1, 1, 1, 1);
