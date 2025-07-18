@@ -40,7 +40,7 @@ pub fn main() {
 
         #[inline(always)]
         pub fn yn(n1: i32) -> f64 {
-          2. * zn(n1)
+          2.5 * zn(n1)
         }
 
         #[inline(always)]
@@ -198,7 +198,7 @@ pub fn zz(io: xyloid::HANDLE, n1: i32, x1: i32, y1: i32, z1: i32, x2: i32, y2: i
   let (ax, nx) = stim(x1, x2);
   match NO < n1 {
     T => {
-      println!("{} {} {}", x1, n1, z1);
+      // println!("{} {} {} {}", n1, x1, y1, z1);/
       xyloid::xy(io, ax, ay);
       match NO == nx && NO == ny {
         T => match xyloid::is_h() {
