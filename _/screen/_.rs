@@ -65,15 +65,19 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
     move || {
       let zone_y = y / 2;
       let zone_x = x / 2;
-      let data_2 = data(zone_x / 8, zone_y / 8, zone_x, zone_y);
-      let data_1 = data(zone_x / 4, zone_y / 8, zone_x, zone_y);
+      let data_4 = data(zone_x / 16, zone_y / 8, zone_x, zone_y);
+      let data_3 = data(zone_x / 8, zone_y / 8, zone_x, zone_y);
+      let data_2 = data(zone_x / 4, zone_y / 8, zone_x, zone_y);
+      let data_1 = data(zone_x / 2, zone_y / 8, zone_x, zone_y);
       let mut an = 0;
       loop {
         an = f1(an);
 
         match an {
-          17..=i32::MAX => sure(|| send(&i1, (an, data_2.nx, data_2.ny, screen(&data_2))), MS * 16),
-          1..=16 => sure(|| send(&i1, (an, data_1.nx, data_1.ny, screen(&data_1))), MS * 16),
+          12..=i32::MAX => sure(|| send(&i1, (an, data_4.nx, data_4.ny, screen(&data_4))), MS * 16),
+          9..12 => sure(|| send(&i1, (an, data_3.nx, data_3.ny, screen(&data_3))), MS * 16),
+          5..=8 => sure(|| send(&i1, (an, data_2.nx, data_2.ny, screen(&data_2))), MS * 16),
+          1..=4 => sure(|| send(&i1, (an, data_1.nx, data_1.ny, screen(&data_1))), MS * 16),
           _ => xo(MS),
         };
       }

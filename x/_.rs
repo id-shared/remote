@@ -49,14 +49,14 @@ pub fn main() {
         }
 
         let zz = #[inline(always)]
-        |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, 5, x1, y1, 5, x2, y2, 16 * 5);
+        |x1: i32, y1: i32, x2: i32, y2: i32| zz(io, 4, x1, y1, 4, x2, y2, 16 * 4);
         let yy = #[inline(always)]
         |n1: i32, n2: i32| fy(n1 as f64 - yn(n2));
         let xx = #[inline(always)]
         |n1: i32, n2: i32| fx(n1 as f64 + xn(n2));
 
-        let cy = fy(5.);
-        let cx = fx(5.);
+        let cy = fy(10.);
+        let cx = fx(10.);
 
         while let Ok((an, ax, ay, az)) = o2.recv() {
           let yy = yy(ay, az);
@@ -69,7 +69,7 @@ pub fn main() {
 
           match an {
             1 => zz(cx, cy, xx, yy),
-            _ => match an % 5 {
+            _ => match an % 4 {
               1 => zz(cx, cy, xx, NO),
               _ => F,
             },
