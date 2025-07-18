@@ -14,9 +14,9 @@ pub fn main() {
   let ux = zx / 2.;
 
   let fy = #[inline(always)]
-  move |n1: f64| calc(vy, n1 / uy, 6400.).round() as i32;
+  move |n1: f64| calc(vy, n1 / uy, 6400.).round();
   let fx = #[inline(always)]
-  move |n1: f64| calc(vx, n1 / ux, 6400.).round() as i32;
+  move |n1: f64| calc(vx, n1 / ux, 6400.).round();
 
   let (i2, o2): (Sender<(i32, i32, i32, i32)>, Receiver<(i32, i32, i32, i32)>) = bounded(64);
   handle.push(thread::spawn(
@@ -24,10 +24,10 @@ pub fn main() {
     move || match xyloid::type_1() {
       Some(io) => {
         #[inline(always)]
-        pub fn zz(io: xyloid::HANDLE, n1: i32, x1: i32, y1: i32, z1: i32, n2: i32, x2: i32, y2: i32, z2: i32) -> bool {
-          let (az, nz) = stim(z1, z2);
-          let (ay, ny) = stim(y1, y2);
-          let (ax, nx) = stim(x1, x2);
+        pub fn zz(io: xyloid::HANDLE, n1: i32, x1: f64, y1: f64, z1: f64, n2: f64, x2: f64, y2: f64, z2: f64) -> bool {
+          let (az, nz) = stim(z1 as i32, z2 as i32);
+          let (ay, ny) = stim(y1 as i32, y2 as i32);
+          let (ax, nx) = stim(x1 as i32, x2 as i32);
           match NO < n1 {
             T => {
               println!("{} {} {} {}", n1, x1, y1, z1);
@@ -39,8 +39,8 @@ pub fn main() {
                   _ => xyloid::key_h(io, F),
                 },
                 _ => {
-                  xo(MS * az as u32);
-                  zz(io, n1 - 1, x1 * n2, y1 * n2, z1 * n2, n2, nx, ny, nz)
+                  xo(MS * (az as u32));
+                  zz(io, n1 - 1, x1 * n2, y1 * n2, z1 * n2, n2, nx as f64, ny as f64, nz as f64)
                 },
               }
             },
@@ -82,7 +82,7 @@ pub fn main() {
         }
 
         let zz = #[inline(always)]
-        |x1: i32, y1: i32, z1: i32| zz(io, 4, fx(10.), fy(10.), 4, 2, x1, y1, z1);
+        |x1: f64, y1: f64, z1: f64| zz(io, 8, fx(ux / 64.), fy(uy / 64.), 8., 1.618_033_988_749_894_8, x1, y1, z1);
         let yy = #[inline(always)]
         |n1: i32, n2: i32| fy(n1 as f64 - yn(n2));
         let xx = #[inline(always)]
@@ -91,6 +91,7 @@ pub fn main() {
         while let Ok((an, ax, ay, az)) = o2.recv() {
           let yy = yy(ay, az);
           let xx = xx(ax, az);
+          let nn = 4;
 
           // match an {
           //   1 => println!("{} {} {} {}", an, ax, ay, az),
@@ -98,9 +99,9 @@ pub fn main() {
           // };
 
           match an {
-            1 => zz(xx, yy, 16 * 4),
-            _ => match an % 5 {
-              1 => zz(xx, NO, 16 * 4),
+            1 => zz(xx, yy, 16. * ((nn - 1) as f64)),
+            _ => match an % nn {
+              1 => zz(xx, 0., 64.),
               _ => F,
             },
           };
@@ -116,7 +117,7 @@ pub fn main() {
     move || match xyloid::type_1() {
       Some(io) => {
         let yy = #[inline(always)]
-        |n1: f64| xyloid::xy(io, NO, fy(n1));
+        |n1: f64| xyloid::xy(io, NO, fy(n1) as i32);
 
         let mut cy = NO;
 
