@@ -33,7 +33,7 @@ pub fn main() {
 
               xyloid::xy(io, ax as i32, ay as i32);
 
-              println!("{} {} | {:.2} {} {}", i, n, rr, ax, ay);
+              // println!("{} {} | {:.2} {} {}", i, n, rr, ax, ay);
 
               xo(MS * (t as u32));
               zz(io, i + 1., n, t, x - ax, y - ay)
@@ -79,7 +79,7 @@ pub fn main() {
         }
 
         const GRAPH_TIME: f64 = (FRAME_FREQ * (FRAME_EACH - 1)) as f64;
-        const GRAPH_SIZE: f64 = 4.;
+        const GRAPH_SIZE: f64 = 8.;
 
         const FRAME_FREQ: i32 = 16;
         const FRAME_EACH: i32 = 4;
@@ -90,8 +90,6 @@ pub fn main() {
         |n1: i32, n2: i32| fy(n1 as f64 - yn(n2));
         let xx = #[inline(always)]
         |n1: i32, n2: i32| fx(n1 as f64 + xn(n2));
-
-        zz(-1., 1.);
 
         while let Ok((an, ax, ay, az)) = o2.recv() {
           let yy = yy(ay, az);
@@ -127,15 +125,15 @@ pub fn main() {
               T => {
                 yy(match cy {
                   49..=i32::MAX => NO,
-                  45..=48 => -3,
-                  41..=44 => -3,
-                  37..=40 => -4,
-                  33..=36 => -4,
-                  29..=32 => -4,
+                  45..=48 => -1,
+                  41..=44 => -1,
+                  37..=40 => -3,
+                  33..=36 => -3,
+                  29..=32 => -3,
                   25..=28 => -4,
-                  21..=24 => -4,
+                  21..=24 => -5,
                   17..=20 => -5,
-                  13..=16 => -3,
+                  13..=16 => -4,
                   9..=12 => -2,
                   5..=8 => -1,
                   1..=4 => NO,
