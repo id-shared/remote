@@ -24,8 +24,7 @@ pub fn main() {
     move || match xyloid::type_1() {
       Some(io) => {
         #[inline(always)]
-        pub fn zz(io: xyloid::HANDLE, n1: f64, x1: f64, y1: f64, z1: f64, n2: f64, x2: f64, y2: f64, z2: f64) -> bool {
-          let (az, nz) = stim(z1 as i32, z2 as i32);
+        pub fn zz(io: xyloid::HANDLE, n1: f64, z1: f64, x1: f64, y1: f64, n2: f64, x2: f64, y2: f64) -> bool {
           let (ay, ny) = stim(y1 as i32, y2 as i32);
           let (ax, nx) = stim(x1 as i32, x2 as i32);
           match 0. < n1 {
@@ -39,8 +38,8 @@ pub fn main() {
                   _ => xyloid::key_h(io, F),
                 },
                 _ => {
-                  xo(MS * (az as u32));
-                  zz(io, n1 - 1., x1 * n2, y1 * n2, z1 * n2, n2, nx as f64, ny as f64, nz as f64)
+                  xo(MS * (z1 as u32));
+                  zz(io, n1 - 1., z1, x1 * n2, y1 * n2, n2, nx as f64, ny as f64)
                 },
               }
             },
@@ -86,7 +85,7 @@ pub fn main() {
         const N1: f64 = 4.;
 
         let zz = #[inline(always)]
-        |x1: f64, y1: f64, z1: f64| zz(io, N2, fx(ux / 64.), fy(uy / 64.), N3 / N2, 1.618_033_988_749_894_8, x1, y1, z1);
+        |x1: f64, y1: f64| zz(io, N2, 2., fx(ux / 64.), fy(uy / 64.), N3 / N2, x1, y1);
         let yy = #[inline(always)]
         |n1: i32, n2: i32| fy(n1 as f64 - yn(n2));
         let xx = #[inline(always)]
@@ -103,9 +102,9 @@ pub fn main() {
           // };
 
           match an {
-            1 => zz(xx, yy, N3),
+            1 => zz(xx, yy),
             _ => match an % nn {
-              1 => zz(xx, 0., 64.),
+              1 => zz(xx, 0.),
               _ => F,
             },
           };
