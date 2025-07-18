@@ -24,29 +24,34 @@ pub fn main() {
     move || match xyloid::type_1() {
       Some(io) => {
         #[inline(always)]
-        pub fn zz(io: xyloid::HANDLE, i: f64, n: f64, t: f64, x: f64, y: f64) -> bool {
-          match 0. == x && 0. == y {
-            T => match i <= n {
+        pub fn zz(io: xyloid::HANDLE, i: i32, n: i32, t: i32, x: f64, y: f64) -> bool {
+          match i <= n {
+            T => match 16. <= x.abs() {
               T => {
-                let rr = cubic_eio(i / n);
+                let rr = feio(i as f64 / n as f64);
                 let ay = (rr * y).round();
                 let ax = (rr * x).round();
 
+                println!("{} {} {} | {:.2} {} {}", i, n, t, rr, ax, ay);
+
                 xyloid::xy(io, ax as i32, ay as i32);
-
-                // println!("{} {} | {:.2} {} {}", i, n, rr, ax, ay);
-
                 xo(MS * (t as u32));
-                zz(io, i + 1., n, t, x - ax, y - ay)
+                zz(io, i + 1, n, t, x - ax, y - ay)
               },
-              _ => match xyloid::is_h() {
-                T => T,
-                _ => xyloid::key_h(io, F),
+              _ => {
+                xyloid::xy(io, x as i32, y as i32);
+                match xyloid::is_h() {
+                  T => T,
+                  _ => xyloid::key_h(io, F),
+                }
               },
             },
-            _ => match xyloid::is_h() {
-              T => T,
-              _ => xyloid::key_h(io, F),
+            _ => {
+              xyloid::xy(io, x as i32, y as i32);
+              match xyloid::is_h() {
+                T => T,
+                _ => xyloid::key_h(io, F),
+              }
             },
           }
         }
@@ -75,6 +80,12 @@ pub fn main() {
         }
 
         #[inline(always)]
+        pub fn feio(t: f64) -> f64 {
+          let t = t.clamp(0.0, 1.0);
+          (3.0 * t * t) - (2.0 * t * t * t)
+        }
+
+        #[inline(always)]
         pub fn yn(n1: i32) -> f64 {
           (zn(n1) as f64) / 1.
         }
@@ -84,14 +95,14 @@ pub fn main() {
           (zn(n1) as f64) / 4.
         }
 
-        const GRAPH_TIME: f64 = (FRAME_FREQ * (FRAME_EACH - 1)) as f64;
-        const GRAPH_SIZE: f64 = 8.;
+        const GRAPH_TIME: i32 = FRAME_FREQ * (FRAME_EACH - 1);
+        const GRAPH_SIZE: i32 = 4;
 
         const FRAME_FREQ: i32 = 16;
         const FRAME_EACH: i32 = 4;
 
         let zz = #[inline(always)]
-        |x1: f64, y1: f64| zz(io, 0., GRAPH_SIZE, GRAPH_TIME / GRAPH_SIZE, x1, y1);
+        |x1: f64, y1: f64| zz(io, NO, GRAPH_SIZE, GRAPH_TIME / GRAPH_SIZE, x1, y1);
         let yy = #[inline(always)]
         |n1: i32, n2: i32| fy(n1 as f64 - yn(n2));
         let xx = #[inline(always)]
@@ -302,14 +313,6 @@ pub fn send<T>(i: &Sender<T>, o: T) -> bool {
 }
 
 #[inline(always)]
-pub fn cubic_eio(t: f64) -> f64 {
-  match 0.5 < t {
-    true => 1.0 - ((-2.0 * t + 2.0).powf(3.0)) / 2.0,
-    _ => 4.0 * t * t * t,
-  }
-}
-
-#[inline(always)]
 fn tan(n1: f64, n2: f64) -> f64 {
   (n1.tan() * n2).atan()
 }
@@ -375,50 +378,3 @@ use {
     },
   },
 };
-
-// #[inline(always)]
-// pub fn abc(io: xyloid::HANDLE, n1: i32, x1: i32, y1: i32, z1: i32) -> bool {
-//   // let (az, nz) = stim(z1, z2);
-//   // let (ay, ny) = stim(y1, y2);
-//   // let (ax, nx) = stim(x1, x2);
-//   // match NO < n1 {
-//   //   T => {
-//   //     println!("{} {} {} {}", n1, x1, y1, z1);
-
-//   //     xyloid::xy(io, ax, ay);
-//   //     match NO == nx && NO == ny {
-//   //       T => match xyloid::is_h() {
-//   //         T => T,
-//   //         _ => xyloid::key_h(io, F),
-//   //       },
-//   //       _ => {
-//   //         xo(MS * az as u32);
-//   //         zz(io, n1 - 1, x1 * 2, y1 * 2, z1 * 2, nx, ny, nz)
-//   //       },
-//   //     }
-//   //   },
-//   //   _ => T,
-//   // }
-
-//   let x1 = 12 as f64;
-//   let n1 = 10 as f64;
-
-//   let mut prev = 0;
-//   for n in 0..=(n1 as i32) {
-//     let z2 = cubic_eio(n as f64 / n1);
-//     let x2 = (x1 * z2).round() as i32;
-
-//     prev = match n > 0 {
-//       true => {
-//         let delta = x2 - prev;
-//         println!("{}", delta);
-//         x2
-//       },
-//       _ => x2,
-//     }
-//   }
-
-//   T
-// }
-
-// abc(io, 1, 1, 1, 1);
