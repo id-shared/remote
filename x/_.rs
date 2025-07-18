@@ -3,13 +3,13 @@
 #![feature(trait_alias)]
 
 pub fn main() {
-  println!("Angle for chord length 1 is {:.64} pixels", calc((103.0_f64 / 2.).to_radians(), 960. / 960., 6400.));
+  println!("Angle for chord length 1 is {:.64} pixels", calc((103_f64 / 2.).to_radians(), 960. / 960., 6400.));
 
   let mut handle = vec![];
   let zy = screen::high();
   let zx = screen::wide();
   let vy = fov(70.53_f64);
-  let vx = fov(103.0_f64);
+  let vx = fov(103_f64);
   let uy = zy / 2.;
   let ux = zx / 2.;
 
@@ -24,28 +24,36 @@ pub fn main() {
     move || match xyloid::type_1() {
       Some(io) => {
         #[inline(always)]
-        pub fn zn(n1: i32) -> f64 {
+        pub fn zn(n1: i32) -> i32 {
           match n1 {
-            57..=i32::MAX => 4.0,
-            49..=56 => 3.5,
-            41..=48 => 3.0,
-            33..=40 => 2.5,
-            25..=32 => 2.0,
-            17..=24 => 1.5,
-            9..=16 => 1.0,
-            1..=8 => 0.5,
-            _ => 0.,
+            61..=i32::MAX => 16,
+            57..=60 => 15,
+            53..=56 => 14,
+            49..=52 => 13,
+            45..=48 => 12,
+            41..=44 => 11,
+            37..=40 => 10,
+            33..=36 => 9,
+            29..=32 => 8,
+            25..=28 => 7,
+            21..=24 => 6,
+            17..=20 => 5,
+            13..=16 => 4,
+            9..=12 => 3,
+            5..=8 => 2,
+            1..=4 => 1,
+            _ => 0,
           }
         }
 
         #[inline(always)]
         pub fn yn(n1: i32) -> f64 {
-          2.5 * zn(n1)
+          (zn(n1) as f64) / 2.
         }
 
         #[inline(always)]
         pub fn xn(n1: i32) -> f64 {
-          1. * zn(n1)
+          (zn(n1) as f64) / 4.
         }
 
         let zz = #[inline(always)]
@@ -94,16 +102,22 @@ pub fn main() {
           cy = match n {
             1..=i32::MAX => match xyloid::is_h() {
               T => {
-                match cy {
-                  49..=i32::MAX => yy(0.),
-                  41..=48 => yy(-2.),
-                  33..=40 => yy(-4.),
-                  25..=32 => yy(-4.),
-                  17..=24 => yy(-4.),
-                  9..=16 => yy(-2.),
-                  1..=8 => yy(-2.),
-                  _ => yy(0.),
-                };
+                yy(match cy {
+                  49..=i32::MAX => NO,
+                  45..=48 => -2,
+                  41..=44 => -2,
+                  37..=40 => -4,
+                  33..=36 => -4,
+                  29..=32 => -4,
+                  25..=28 => -4,
+                  21..=24 => -4,
+                  17..=20 => -4,
+                  13..=16 => -4,
+                  9..=12 => -4,
+                  5..=8 => -2,
+                  1..=4 => -2,
+                  _ => NO,
+                } as f64);
                 cy + 1
               },
               _ => NO,
