@@ -63,15 +63,18 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      let data_2 = data(x / 16, y / 16, x, y);
+      const HZ: Duration = Duration::from_millis(16);
+
+      let data_2 = data(x / 8, y / 16, x, y);
       let data_1 = data(x / 4, y / 16, x, y);
       let mut an = 0;
+
       loop {
         an = f1(an);
 
         match an {
-          2..=i32::MAX => sure(|| send(&i1, (an, data_2.nx, data_2.ny, screen(&data_2))), MS * 16),
-          1 => sure(|| send(&i1, (an, data_1.nx, data_1.ny, screen(&data_1))), MS * 16),
+          2..=i32::MAX => sure(|| send(&i1, (an, data_2.nx, data_2.ny, screen(&data_2))), HZ),
+          1 => sure(|| send(&i1, (an, data_1.nx, data_1.ny, screen(&data_1))), HZ),
           _ => xo(MS),
         };
       }
@@ -192,8 +195,8 @@ pub struct Data {
 pub fn test() {
   let img = image::open("test.png").expect("Failed to open image");
 
-  const SIZE: u8 = 255 - 4;
-  const DIFF: u8 = 32;
+  const TINT: u8 = 255 - 24;
+  const DIFF: u8 = 24;
 
   for pixel in img.pixels() {
     let rgba = pixel.2.to_rgba();
@@ -201,16 +204,16 @@ pub fn test() {
     let n2 = rgba[1];
     let n3 = rgba[2];
 
-    let result = match n1 >= SIZE {
-      T => match n3 >= SIZE {
-        T => {
-          let nn = n1.min(n3);
-          match nn >= n2 {
-            T => nn.abs_diff(n2) >= DIFF,
-            _ => F,
-          }
+    let result = match n1 > TINT && TINT > n2 && n3 > TINT {
+      T => match n1 > n3 {
+        T => match n3.abs_diff(n2) > DIFF {
+          T => T,
+          _ => F,
         },
-        _ => F,
+        _ => match n1.abs_diff(n2) > DIFF {
+          T => T,
+          _ => F,
+        },
       },
       _ => F,
     };

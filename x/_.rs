@@ -24,13 +24,14 @@ pub fn main() {
     move || match xyloid::type_1() {
       Some(io) => {
         const HZ: Duration = Duration::from_millis(16);
+
         #[inline(always)]
         pub fn zz(io: xyloid::HANDLE, i: i32, n: i32, x: f64, y: f64) -> bool {
           match i <= n {
             T => {
-              let rr = feio(i as f64 / n as f64);
-              let ay = (rr * y).round();
-              let ax = (rr * x).round();
+              let rr = ease(i as f64 / n as f64);
+              let ay = rr * y;
+              let ax = rr * x;
 
               // println!("{} {} | {:.2} {} {}", i, n, rr, ax, ay);
 
@@ -72,19 +73,19 @@ pub fn main() {
         }
 
         #[inline(always)]
-        pub fn feio(t: f64) -> f64 {
+        pub fn ease(t: f64) -> f64 {
           let t = t.clamp(0.0, 1.0);
           (3.0 * t * t) - (2.0 * t * t * t)
         }
 
         #[inline(always)]
         pub fn yn(n1: i32) -> f64 {
-          (zn(n1) as f64) / 1.5
+          (zn(n1) as f64) / 2.
         }
 
         #[inline(always)]
         pub fn xn(n1: i32) -> f64 {
-          (zn(n1) as f64) / 3.
+          (zn(n1) as f64) / 4.
         }
 
         let zz = #[inline(always)]
@@ -93,6 +94,11 @@ pub fn main() {
         |n: i32, n1: i32| fy(n as f64 - yn(n1));
         let xx = #[inline(always)]
         |n: i32, n1: i32| fx(n as f64 + xn(n1));
+
+        // for i in 1..=10 {
+        //   let n = i as f64 / 10.;
+        //   println!("{:.2}", ease(n));
+        // }
 
         while let Ok((an, ax, ay, az)) = o2.recv() {
           let yy = yy(ay, az);
@@ -163,8 +169,8 @@ pub fn main() {
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      const C2: u8 = 255 - 64;
-      const C1: u8 = 255 - 8;
+      const TINT: u8 = 255 - 24;
+      const DIFF: u8 = 24;
 
       screen::watch(
         #[inline(always)]
@@ -187,13 +193,16 @@ pub fn main() {
           let n2 = ((x >> 8) & 0xff) as u8;
           let n3 = (x & 0xff) as u8;
 
-          match n1 >= C1 {
-            T => match n3 >= C1 {
-              T => match C2 >= n2 {
+          match n1 > TINT && TINT > n2 && n3 > TINT {
+            T => match n1 > n3 {
+              T => match n3.abs_diff(n2) > DIFF {
                 T => T,
                 _ => F,
               },
-              _ => F,
+              _ => match n1.abs_diff(n2) > DIFF {
+                T => T,
+                _ => F,
+              },
             },
             _ => F,
           }
