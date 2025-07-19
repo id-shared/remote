@@ -88,6 +88,7 @@ pub fn main() {
         }
 
         const HZ: i32 = 16;
+        const AT: i32 = 4;
 
         let zz = #[inline(always)]
         |n: i32, x: f64, y: f64| zz(io, NO, n, (HZ * n) as f64, x, y);
@@ -101,11 +102,12 @@ pub fn main() {
           let xx = xx(ax, az);
 
           match an {
-            1 => zz(3, xx, yy),
-            _ => match an % 4 {
-              1 => zz(2, xx, 0.),
+            2..=i32::MAX => match an % AT {
+              1 => zz(1, xx, 0.),
               _ => F,
             },
+            1 => zz(AT, xx, yy),
+            _ => F,
           };
         }
       },
