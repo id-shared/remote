@@ -199,18 +199,18 @@ pub fn main() {
           let n2 = ((x >> 8) & 0xff) as u8;
           let n3 = (x & 0xff) as u8;
 
-          match SIZE >= n1 {
-            T => T,
-            _ => match SIZE >= n3 {
-              T => T,
-              _ => {
+          match n1 >= SIZE {
+            T => match n3 >= SIZE {
+              T => {
                 let nn = n1.min(n3);
                 match nn >= n2 {
                   T => nn.abs_diff(n2) >= DIFF,
                   _ => F,
                 }
               },
+              _ => F,
             },
+            _ => F,
           }
         },
         #[inline(always)]

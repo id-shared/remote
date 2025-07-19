@@ -202,9 +202,9 @@ pub fn test() {
     let n3 = rgba[2];
 
     let result = match SIZE >= n1 {
-      T => T,
+      T => F,
       _ => match SIZE >= n3 {
-        T => T,
+        T => F,
         _ => {
           let nn = n1.min(n3);
           match nn >= n2 {
