@@ -98,14 +98,14 @@ pub fn zz(handle: HANDLE, n: u32) -> bool {
 }
 
 #[inline(always)]
-pub fn xy(handle: HANDLE, x: i32, y: i32) -> bool {
+pub fn xy(handle: HANDLE, x: f64, y: f64) -> bool {
   io1(handle, MOUSE_INPUT_DATA {
     UnitId: 0,
     Flags: 0,
     Anonymous: Default::default(),
     RawButtons: 0,
-    LastX: x,
-    LastY: -1 * y,
+    LastX: (x.round()) as i32,
+    LastY: (-1. * y.round()) as i32,
     ExtraInformation: 0,
   })
 }

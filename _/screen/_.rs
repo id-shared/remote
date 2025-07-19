@@ -63,15 +63,15 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      let data_2 = data(x / 8, y / 8, x, y);
+      let data_2 = data(x / 8, y / 16, x, y);
       let data_1 = data(x / 4, y / 8, x, y);
       let mut an = 0;
       loop {
         an = f1(an);
 
         match an {
-          17..=i32::MAX => sure(|| send(&i1, (an, data_2.nx, data_2.ny, screen(&data_2))), MS * 16),
-          1..=16 => sure(|| send(&i1, (an, data_1.nx, data_1.ny, screen(&data_1))), MS * 16),
+          2..=i32::MAX => sure(|| send(&i1, (an, data_2.nx, data_2.ny, screen(&data_2))), MS * 16),
+          1 => sure(|| send(&i1, (an, data_1.nx, data_1.ny, screen(&data_1))), MS * 16),
           _ => xo(MS),
         };
       }
