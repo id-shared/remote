@@ -26,7 +26,7 @@ pub fn main() {
         #[inline(always)]
         pub fn zz(io: xyloid::HANDLE, a: bool, i: i32, n: i32, t: f64, x: f64, y: f64) -> bool {
           match a && i <= n {
-            T => match 16. >= x.abs() && 16. >= y.abs() {
+            T => match F && 16. >= x.abs() && 16. >= y.abs() {
               T => {
                 xyloid::xy(io, x as i32, y as i32);
                 match xyloid::is_h() {
@@ -175,8 +175,8 @@ pub fn main() {
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      const COLOR_SIZE: u8 = 255 - COLOR_DIFF;
-      const COLOR_DIFF: u8 = 24;
+      const C2: u8 = 255 - 64;
+      const C1: u8 = 255 - 16;
 
       screen::watch(
         #[inline(always)]
@@ -199,14 +199,8 @@ pub fn main() {
           let n2 = ((x >> 8) & 0xff) as u8;
           let n3 = (x & 0xff) as u8;
 
-          match n1 >= COLOR_SIZE && COLOR_SIZE >= n2 && n3 >= COLOR_SIZE {
-            T => {
-              let minimum = n1.min(n3);
-              match minimum >= n2 && minimum.abs_diff(n2) >= COLOR_DIFF {
-                T => T,
-                _ => F,
-              }
-            },
+          match n1 >= C1 && C2 >= n2 && n3 >= C1 {
+            T => T,
             _ => F,
           }
         },
