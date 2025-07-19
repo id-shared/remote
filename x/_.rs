@@ -40,7 +40,7 @@ pub fn main() {
                 let ax = (rr * x).round();
                 let at = (rr * t).round();
 
-                println!("{} {} {} | {:.2} {} {} {}", i, n, t, rr, at, ax, ay);
+                // println!("{} {} {} | {:.2} {} {} {}", i, n, t, rr, at, ax, ay);
 
                 xyloid::xy(io, ax as i32, ay as i32);
                 xo(MS * (at as u32));
@@ -114,7 +114,7 @@ pub fn main() {
           match an {
             1 => zz(T, xx, yy),
             _ => match an % nn {
-              1 => zz(F, xx, 0.),
+              1 => zz(T, xx, 0.),
               _ => F,
             },
           };
