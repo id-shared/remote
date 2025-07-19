@@ -23,20 +23,20 @@ pub fn main() {
     #[inline(always)]
     move || match xyloid::type_1() {
       Some(io) => {
+        const HZ: Duration = Duration::from_millis(16);
         #[inline(always)]
-        pub fn zz(io: xyloid::HANDLE, i: i32, n: i32, t: f64, x: f64, y: f64) -> bool {
+        pub fn zz(io: xyloid::HANDLE, i: i32, n: i32, x: f64, y: f64) -> bool {
           match i <= n {
             T => {
               let rr = feio(i as f64 / n as f64);
               let ay = (rr * y).round();
               let ax = (rr * x).round();
-              let at = (rr * t).round();
 
               // println!("{} {} {} | {:.2} {} {} {}", i, n, t, rr, at, ax, ay);
 
               xyloid::xy(io, ax, ay);
-              xo(MS * (at as u32));
-              zz(io, i + 1, n, t - at, x - ax, y - ay)
+              xo(HZ);
+              zz(io, i + 1, n, x - ax, y - ay)
             },
             _ => {
               xyloid::xy(io, x, y);
@@ -79,19 +79,16 @@ pub fn main() {
 
         #[inline(always)]
         pub fn yn(n1: i32) -> f64 {
-          (zn(n1) as f64) / 1.
+          (zn(n1) as f64) / 1.5
         }
 
         #[inline(always)]
         pub fn xn(n1: i32) -> f64 {
-          (zn(n1) as f64) / 4.
+          (zn(n1) as f64) / 3.
         }
 
-        const HZ: i32 = 16;
-        const AT: i32 = 5;
-
         let zz = #[inline(always)]
-        |n: i32, x: f64, y: f64| zz(io, N, n, (HZ * n) as f64, x, y);
+        |n: i32, x: f64, y: f64| zz(io, N, n, x, y);
         let yy = #[inline(always)]
         |n: i32, n1: i32| fy(n as f64 - yn(n1));
         let xx = #[inline(always)]
@@ -102,11 +99,11 @@ pub fn main() {
           let xx = xx(ax, az);
 
           match an {
-            2..=i32::MAX => match an % AT {
-              1 => zz(2, xx, 0.),
+            2..=i32::MAX => match an % 4 {
+              1 => zz(1, xx, 0.),
               _ => F,
             },
-            1 => zz(AT, xx, yy),
+            1 => zz(3, xx, yy),
             _ => F,
           };
         }
@@ -166,7 +163,7 @@ pub fn main() {
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      const C2: u8 = 255 - 32;
+      const C2: u8 = 255 - 64;
       const C1: u8 = 255 - 8;
 
       screen::watch(
