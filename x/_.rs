@@ -24,18 +24,28 @@ pub fn main() {
     move || match xyloid::type_1() {
       Some(io) => {
         #[inline(always)]
-        pub fn zz(io: xyloid::HANDLE, i: i32, n: i32, t: i32, x: f64, y: f64) -> bool {
-          match i <= n {
-            T => {
-              let rr = feio(i as f64 / n as f64);
-              let ay = (rr * y).round();
-              let ax = (rr * x).round();
+        pub fn zz(io: xyloid::HANDLE, a: bool, i: i32, n: i32, t: f64, x: f64, y: f64) -> bool {
+          match a && i <= n {
+            T => match 16. >= x.abs() && 16. >= y.abs() {
+              T => {
+                xyloid::xy(io, x as i32, y as i32);
+                match xyloid::is_h() {
+                  T => T,
+                  _ => xyloid::key_h(io, F),
+                }
+              },
+              _ => {
+                let rr = feio(i as f64 / n as f64);
+                let ay = (rr * y).round();
+                let ax = (rr * x).round();
+                let at = (rr * t).round();
 
-              // println!("{} {} {} | {:.2} {} {}", i, n, t, rr, ax, ay);
+                println!("{} {} {} | {:.2} {} {} {}", i, n, t, rr, at, ax, ay);
 
-              xyloid::xy(io, ax as i32, ay as i32);
-              xo(MS * (t as u32));
-              zz(io, i + 1, n, t, x - ax, y - ay)
+                xyloid::xy(io, ax as i32, ay as i32);
+                xo(MS * (at as u32));
+                zz(io, a, i + 1, n, t - at, x - ax, y - ay)
+              },
             },
             _ => {
               xyloid::xy(io, x as i32, y as i32);
@@ -86,26 +96,25 @@ pub fn main() {
           (zn(n1) as f64) / 4.
         }
 
-        const TIME: i32 = FREQ * (EACH - 1);
-        const FREQ: i32 = 16;
-        const EACH: i32 = 5;
+        const HZ: f64 = 16.;
+        const IN: f64 = 4.;
 
         let zz = #[inline(always)]
-        |x1: f64, y1: f64| zz(io, NO, EACH, TIME / EACH, x1, y1);
+        |a: bool, x: f64, y: f64| zz(io, a, NO, 16, HZ * (IN - 1.), x, y);
         let yy = #[inline(always)]
-        |n1: i32, n2: i32| fy(n1 as f64 - yn(n2));
+        |n: i32, n1: i32| fy(n as f64 - yn(n1));
         let xx = #[inline(always)]
-        |n1: i32, n2: i32| fx(n1 as f64 + xn(n2));
+        |n: i32, n1: i32| fx(n as f64 + xn(n1));
 
         while let Ok((an, ax, ay, az)) = o2.recv() {
           let yy = yy(ay, az);
           let xx = xx(ax, az);
-          let nn = EACH;
+          let nn = IN as i32;
 
           match an {
-            1 => zz(xx, yy),
+            1 => zz(T, xx, yy),
             _ => match an % nn {
-              1 => zz(xx, 0.),
+              1 => zz(F, xx, 0.),
               _ => F,
             },
           };
@@ -142,7 +151,7 @@ pub fn main() {
                   13..=16 => -5,
                   9..=12 => -3,
                   5..=8 => -1,
-                  1..=4 => NO,
+                  1..=4 => -1,
                   _ => NO,
                 } as f64);
                 cy + 1
