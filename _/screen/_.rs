@@ -63,7 +63,7 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      let data_2 = data(x / 8, y / 16, x, y);
+      let data_2 = data(x / 8, y / 8, x, y);
       let data_1 = data(x / 4, y / 8, x, y);
       let mut an = 0;
       loop {
@@ -201,18 +201,18 @@ pub fn test() {
     let n2 = rgba[1];
     let n3 = rgba[2];
 
-    let result = match SIZE >= n1 {
-      T => F,
-      _ => match SIZE >= n3 {
-        T => F,
-        _ => {
+    let result = match n1 >= SIZE {
+      T => match n3 >= SIZE {
+        T => {
           let nn = n1.min(n3);
           match nn >= n2 {
             T => nn.abs_diff(n2) >= DIFF,
             _ => F,
           }
         },
+        _ => F,
       },
+      _ => F,
     };
 
     match result {
