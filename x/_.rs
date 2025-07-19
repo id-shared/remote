@@ -32,7 +32,7 @@ pub fn main() {
               let ay = (rr * y).round();
               let ax = (rr * x).round();
 
-              // println!("{} {} {} | {:.2} {} {} {}", i, n, t, rr, at, ax, ay);
+              // println!("{} {} | {:.2} {} {}", i, n, rr, ax, ay);
 
               xyloid::xy(io, ax, ay);
               xo(HZ);
@@ -88,7 +88,7 @@ pub fn main() {
         }
 
         let zz = #[inline(always)]
-        |n: i32, x: f64, y: f64| zz(io, N, n, x, y);
+        |n: i32, x: f64, y: f64| zz(io, 1, n, x, y);
         let yy = #[inline(always)]
         |n: i32, n1: i32| fy(n as f64 - yn(n1));
         let xx = #[inline(always)]
@@ -100,7 +100,7 @@ pub fn main() {
 
           match an {
             2..=i32::MAX => match an % 4 {
-              1 => zz(1, xx, 0.),
+              1 => zz(0, xx, 0.),
               _ => F,
             },
             1 => zz(3, xx, yy),
