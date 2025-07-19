@@ -28,9 +28,9 @@ pub fn main() {
           match i <= n {
             T => {
               let rr = feio(i as f64 / n as f64);
-              let ay = rr * y;
-              let ax = rr * x;
-              let at = rr * t;
+              let ay = (rr * y).round();
+              let ax = (rr * x).round();
+              let at = (rr * t).round();
 
               // println!("{} {} {} | {:.2} {} {} {}", i, n, t, rr, at, ax, ay);
 
@@ -79,7 +79,7 @@ pub fn main() {
 
         #[inline(always)]
         pub fn yn(n1: i32) -> f64 {
-          (zn(n1) as f64) / 2.
+          (zn(n1) as f64) / 1.
         }
 
         #[inline(always)]
@@ -88,10 +88,10 @@ pub fn main() {
         }
 
         const HZ: i32 = 16;
-        const AT: i32 = 4;
+        const AT: i32 = 5;
 
         let zz = #[inline(always)]
-        |n: i32, x: f64, y: f64| zz(io, NO, n, (HZ * n) as f64, x, y);
+        |n: i32, x: f64, y: f64| zz(io, N, n, (HZ * n) as f64, x, y);
         let yy = #[inline(always)]
         |n: i32, n1: i32| fy(n as f64 - yn(n1));
         let xx = #[inline(always)]
@@ -103,7 +103,7 @@ pub fn main() {
 
           match an {
             2..=i32::MAX => match an % AT {
-              1 => zz(1, xx, 0.),
+              1 => zz(2, xx, 0.),
               _ => F,
             },
             1 => zz(AT, xx, yy),
@@ -121,40 +121,40 @@ pub fn main() {
     move || match xyloid::type_1() {
       Some(io) => {
         let yy = #[inline(always)]
-        |n1: f64| xyloid::xy(io, NO as f64, fy(n1));
+        |n1: f64| xyloid::xy(io, N as f64, fy(n1));
 
-        let mut cy = NO;
+        let mut cy = N;
 
         while let Ok(n) = o1.recv() {
           cy = match n {
             1..=i32::MAX => match xyloid::is_h() {
               T => {
                 yy(match cy {
-                  49..=i32::MAX => NO,
-                  45..=48 => -3,
-                  41..=44 => -3,
-                  37..=40 => -3,
-                  33..=36 => -3,
-                  29..=32 => -3,
-                  25..=28 => -3,
-                  21..=24 => -3,
-                  17..=20 => -5,
-                  13..=16 => -5,
-                  9..=12 => -3,
-                  5..=8 => -1,
-                  1..=4 => -1,
-                  _ => NO,
-                } as f64);
+                  49..=i32::MAX => 0.,
+                  45..=48 => -1.,
+                  41..=44 => -2.,
+                  37..=40 => -3.,
+                  33..=36 => -4.,
+                  29..=32 => -5.,
+                  25..=28 => -3.,
+                  21..=24 => -3.,
+                  17..=20 => -5.,
+                  13..=16 => -4.,
+                  9..=12 => -3.,
+                  5..=8 => -2.,
+                  1..=4 => -1.,
+                  _ => 0.,
+                });
                 cy + 1
               },
-              _ => NO,
+              _ => N,
             },
             _ => {
               match xyloid::is_h() {
                 T => xyloid::key_h(io, T),
                 _ => F,
               };
-              NO
+              N
             },
           };
         }
@@ -315,7 +315,7 @@ pub fn fov(n: f64) -> f64 {
 pub fn stim(n1: i32, n2: i32) -> (i32, i32) {
   let next = step(n1, n2);
 
-  match next.cmp(&NO) {
+  match next.cmp(&N) {
     Greater => (n1, next),
     Less => (-n1, next),
     Equal => (n2, next),
@@ -324,10 +324,10 @@ pub fn stim(n1: i32, n2: i32) -> (i32, i32) {
 
 #[inline(always)]
 pub fn step(n1: i32, n2: i32) -> i32 {
-  match n2.cmp(&NO) {
-    Greater => (n2 - n1).max(NO),
-    Less => (n2 + n1).min(NO),
-    Equal => NO,
+  match n2.cmp(&N) {
+    Greater => (n2 - n1).max(N),
+    Less => (n2 + n1).min(N),
+    Equal => N,
   }
 }
 
@@ -339,7 +339,8 @@ pub fn xo(n: Duration) -> bool {
 
 pub const APP: &str = "VAL";
 pub const MS: Duration = Duration::from_millis(1);
-pub const NO: i32 = 0;
+
+pub const N: i32 = 0;
 pub const F: bool = false;
 pub const T: bool = true;
 
