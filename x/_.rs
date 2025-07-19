@@ -175,8 +175,8 @@ pub fn main() {
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      const COLOR_SIZE: u8 = 255 - COLOR_DIFF;
-      const COLOR_DIFF: u8 = 24;
+      const SIZE: u8 = 255 - 4;
+      const DIFF: u8 = 32;
 
       screen::watch(
         #[inline(always)]
@@ -199,15 +199,18 @@ pub fn main() {
           let n2 = ((x >> 8) & 0xff) as u8;
           let n3 = (x & 0xff) as u8;
 
-          match n1 >= COLOR_SIZE && COLOR_SIZE >= n2 && n3 >= COLOR_SIZE {
-            T => {
-              let minimum = n1.min(n3);
-              match minimum >= n2 && minimum.abs_diff(n2) >= COLOR_DIFF {
-                T => T,
-                _ => F,
-              }
+          match SIZE >= n1 {
+            T => T,
+            _ => match SIZE >= n3 {
+              T => T,
+              _ => {
+                let nn = n1.min(n3);
+                match nn >= n2 {
+                  T => nn.abs_diff(n2) >= DIFF,
+                  _ => F,
+                }
+              },
             },
-            _ => F,
           }
         },
         #[inline(always)]

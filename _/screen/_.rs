@@ -192,20 +192,32 @@ pub struct Data {
 pub fn test() {
   let img = image::open("test.png").expect("Failed to open image");
 
+  const SIZE: u8 = 255 - 4;
+  const DIFF: u8 = 32;
+
   for pixel in img.pixels() {
     let rgba = pixel.2.to_rgba();
     let n1 = rgba[0];
     let n2 = rgba[1];
     let n3 = rgba[2];
 
-    let result = match n1 >= 231 && 231 >= n2 && n3 >= 231 {
-      T => n1.min(n3) >= n2 && n1.min(n3).abs_diff(n2) >= 24,
-      _ => T,
+    let result = match SIZE >= n1 {
+      T => T,
+      _ => match SIZE >= n3 {
+        T => T,
+        _ => {
+          let nn = n1.min(n3);
+          match nn >= n2 {
+            T => nn.abs_diff(n2) >= DIFF,
+            _ => F,
+          }
+        },
+      },
     };
 
     match result {
       T => (),
-      _ => println!("FA: {}, {}, {}, {}", 1, n1, n2, n3),
+      _ => println!("FA: {}, {}, {}", n1, n2, n3),
     }
   }
 }
