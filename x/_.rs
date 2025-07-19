@@ -32,7 +32,7 @@ pub fn main() {
               let ax = rr * x;
               let at = rr * t;
 
-              println!("{} {} {} | {:.2} {} {} {}", i, n, t, rr, at, ax, ay);
+              // println!("{} {} {} | {:.2} {} {} {}", i, n, t, rr, at, ax, ay);
 
               xyloid::xy(io, ax, ay);
               xo(MS * (at as u32));
@@ -88,10 +88,9 @@ pub fn main() {
         }
 
         const HZ: i32 = 16;
-        const IN: i32 = 2;
 
         let zz = #[inline(always)]
-        |n: i32, x: f64, y: f64| zz(io, NO, n, (HZ * (n - 1)) as f64, x, y);
+        |n: i32, x: f64, y: f64| zz(io, NO, n, (HZ * n) as f64, x, y);
         let yy = #[inline(always)]
         |n: i32, n1: i32| fy(n as f64 - yn(n1));
         let xx = #[inline(always)]
@@ -102,9 +101,9 @@ pub fn main() {
           let xx = xx(ax, az);
 
           match an {
-            1 => zz(IN, xx, yy),
-            _ => match an % IN {
-              1 => zz(1, xx, 0.),
+            1 => zz(3, xx, yy),
+            _ => match an % 4 {
+              1 => zz(2, xx, 0.),
               _ => F,
             },
           };
