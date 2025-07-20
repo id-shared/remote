@@ -246,6 +246,9 @@ pub fn test2() {
 
       println!("Device and context successfully created.");
 
+      let height = 1440;
+      let width = 2560;
+
       loop {
         // 6. Acquire next frame
         let mut frame_info = DXGI_OUTDUPL_FRAME_INFO::default();
@@ -261,8 +264,8 @@ pub fn test2() {
         tex.GetDesc(&mut desc);
 
         // 9. Create a CPU-readable texture to copy into
-        desc.Width = 2560;
-        desc.Height = 1440;
+        desc.Width = width;
+        desc.Height = height;
         desc.MipLevels = 1;
         desc.ArraySize = 1;
         desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -309,7 +312,7 @@ pub fn test2() {
         //   }
         // }
 
-        if let Some(img) = image::ImageBuffer::<image::Rgb<u8>, Vec<u8>>::from_raw(2560, 1440, data.chunks_exact(4).flat_map(|p| [p[2], p[1], p[0]]).collect()) {
+        if let Some(img) = image::ImageBuffer::<image::Rgb<u8>, Vec<u8>>::from_raw(width, height, data.chunks_exact(4).flat_map(|p| [p[2], p[1], p[0]]).collect()) {
           img.save("a.png").unwrap();
         }
 
