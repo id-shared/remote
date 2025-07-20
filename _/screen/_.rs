@@ -210,8 +210,8 @@ pub fn test2() {
 
   fn main() {
     unsafe {
+      let mut device_context: Option<ID3D11DeviceContext> = None;
       let mut device: Option<ID3D11Device> = None;
-      let mut context: Option<ID3D11DeviceContext> = None;
       let mut feature_level = D3D_FEATURE_LEVEL_12_2;
 
       D3D11CreateDevice(
@@ -223,17 +223,17 @@ pub fn test2() {
         D3D11_SDK_VERSION,                // sdkversion
         Some(&mut device),                // ppdevice
         Some(&mut feature_level),         // pfeaturelevel
-        Some(&mut context),               // ppimmediatecontext
+        Some(&mut device_context),        // ppimmediatecontext
       )
       .unwrap();
 
+      let device_context = device_context.unwrap();
       let device = device.unwrap();
-      let context = context.unwrap();
-      let dxgi_device: IDXGIDevice = device.cast().unwrap();
-      let adapter: IDXGIAdapter = dxgi_device.GetAdapter().unwrap();
-      let output: IDXGIOutput = adapter.EnumOutputs(0).unwrap();
-      let output1: IDXGIOutput1 = output.cast().unwrap();
-      let duplication = output1.DuplicateOutput(&device).unwrap();
+      let device_cast: IDXGIDevice = device.cast().unwrap();
+      let bridge: IDXGIAdapter = device_cast.GetAdapter().unwrap();
+      let output: IDXGIOutput = bridge.EnumOutputs(0).unwrap();
+      let output_cast: IDXGIOutput1 = output.cast().unwrap();
+      let framer = output_cast.DuplicateOutput(&device).unwrap();
 
       let left = 100;
       let top = 100;
@@ -247,7 +247,7 @@ pub fn test2() {
           || {
             let mut meta = DXGI_OUTDUPL_FRAME_INFO::default();
             let mut data: Option<IDXGIResource> = None;
-            match duplication.AcquireNextFrame(10000, &mut meta, &mut data).is_ok() {
+            match framer.AcquireNextFrame(10000, &mut meta, &mut data).is_ok() {
               T => {
                 let resource = data.unwrap();
 
@@ -272,11 +272,11 @@ pub fn test2() {
 
                 let tex: ID3D11Texture2D = resource.cast().unwrap();
                 let tex_cpu = tex_cpu.unwrap();
-                context.CopyResource(&tex_cpu, &tex);
+                device_context.CopyResource(&tex_cpu, &tex);
 
                 let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
-                context.Map(&tex_cpu, 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap();
-                context.Unmap(&tex_cpu, 0);
+                device_context.Map(&tex_cpu, 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap();
+                device_context.Unmap(&tex_cpu, 0);
 
                 let data = std::slice::from_raw_parts(mapped.pData as *const u8, (mapped.RowPitch * desc.Height) as usize);
 
@@ -286,7 +286,7 @@ pub fn test2() {
 
                 // xo(MS * 1000);
 
-                duplication.ReleaseFrame().unwrap();
+                framer.ReleaseFrame().unwrap();
                 curr = curr + 1;
 
                 if time.elapsed().as_millis_f64() > 1000.0 {
