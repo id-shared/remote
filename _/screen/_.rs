@@ -244,47 +244,79 @@ pub fn test2() {
       // 5. Duplicate the output
       let duplication = output1.DuplicateOutput(&device).unwrap();
 
-      // 6. Acquire next frame
-      let mut frame_info = DXGI_OUTDUPL_FRAME_INFO::default();
-      let mut resource: Option<IDXGIResource> = None;
-      duplication.AcquireNextFrame(500, &mut frame_info, &mut resource).unwrap();
-
-      // 7. Cast to ID3D11Texture2D
-      let resource = resource.unwrap();
-      let tex: ID3D11Texture2D = resource.cast().unwrap();
-
-      // 8. Get texture description
-      let mut desc = D3D11_TEXTURE2D_DESC::default();
-      tex.GetDesc(&mut desc);
-
-      // 9. Create a CPU-readable texture to copy into
-      desc.Usage = D3D11_USAGE_STAGING;
-      desc.BindFlags = 0;
-      desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ.0 as u32;
-      desc.MiscFlags = 0;
-
-      let mut tex_cpu: Option<ID3D11Texture2D> = None;
-      device.CreateTexture2D(&desc, None, Some(&mut tex_cpu)).unwrap();
-
-      let tex_cpu = tex_cpu.unwrap();
-
-      // 10. Copy from GPU texture to CPU-readable texture
-      context.CopyResource(&tex_cpu, &tex);
-
-      // 11. Map and access pixels
-      let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
-      context.Map(&tex_cpu, 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap();
-
-      // mapped.pData is a *mut c_void pointing to pixel data
-      println!("Mapped pitch: {}", mapped.RowPitch);
-
-      // Don't forget to unmap and release frame
-      context.Unmap(&tex_cpu, 0);
-      duplication.ReleaseFrame().unwrap();
-
-      println!("Frame captured.");
-
       println!("Device and context successfully created.");
+
+      loop {
+        // 6. Acquire next frame
+        let mut frame_info = DXGI_OUTDUPL_FRAME_INFO::default();
+        let mut resource: Option<IDXGIResource> = None;
+        duplication.AcquireNextFrame(500, &mut frame_info, &mut resource).unwrap();
+
+        // 7. Cast to ID3D11Texture2D
+        let resource = resource.unwrap();
+        let tex: ID3D11Texture2D = resource.cast().unwrap();
+
+        // 8. Get texture description
+        let mut desc = D3D11_TEXTURE2D_DESC::default();
+        tex.GetDesc(&mut desc);
+
+        // 9. Create a CPU-readable texture to copy into
+        desc.Width = 2560;
+        desc.Height = 1440;
+        desc.MipLevels = 1;
+        desc.ArraySize = 1;
+        desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+        desc.SampleDesc.Count = 1;
+        desc.Usage = D3D11_USAGE_STAGING;
+        desc.BindFlags = 0;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ.0 as u32;
+        desc.MiscFlags = 0;
+
+        println!("{}", desc.Height);
+
+        let mut tex_cpu: Option<ID3D11Texture2D> = None;
+        device.CreateTexture2D(&desc, None, Some(&mut tex_cpu)).unwrap();
+
+        let tex_cpu = tex_cpu.unwrap();
+
+        // 10. Copy from GPU texture to CPU-readable texture
+        context.CopyResource(&tex_cpu, &tex);
+
+        // 11. Map and access pixels
+        let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
+        context.Map(&tex_cpu, 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap();
+
+        // mapped.pData is a *mut c_void pointing to pixel data
+        println!("Mapped pitch: {}", mapped.RowPitch);
+
+        // Don't forget to unmap and release frame
+        context.Unmap(&tex_cpu, 0);
+
+        println!("Frame captured.");
+
+        let data = std::slice::from_raw_parts(mapped.pData as *const u8, (mapped.RowPitch * desc.Height) as usize);
+
+        // Process BGRA data (4 bytes per pixel)
+        // for y in 0..desc.Height {
+        //   for x in 0..desc.Width {
+        //     let pixel_start = (y * mapped.RowPitch as u32 + x * 4) as usize;
+        //     let b = data[pixel_start];
+        //     let g = data[pixel_start + 1];
+        //     let r = data[pixel_start + 2];
+        //     let a = data[pixel_start + 3];
+
+        //     println!("{}, {}, {}, {}", b, g, r, a);
+        //   }
+        // }
+
+        if let Some(img) = image::ImageBuffer::<image::Rgb<u8>, Vec<u8>>::from_raw(2560, 1440, data.chunks_exact(4).flat_map(|p| [p[2], p[1], p[0]]).collect()) {
+          img.save("a.png").unwrap();
+        }
+
+        duplication.ReleaseFrame().unwrap();
+
+        xo(MS * 1000);
+      }
     };
   }
 
