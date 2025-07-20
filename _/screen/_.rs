@@ -14,28 +14,13 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
 
         match sure(
           || {
-            let detail = D3D11_TEXTURE2D_DESC {
-              Width: io.x as u32,
-              Height: io.y as u32,
-              MipLevels: 1,
-              ArraySize: 1,
-              Format: DXGI_FORMAT_B8G8R8A8_UNORM,
-              SampleDesc: DXGI_SAMPLE_DESC {
-                Count: 1,
-                Quality: 0,
-              },
-              Usage: D3D11_USAGE_STAGING,
-              CPUAccessFlags: D3D11_CPU_ACCESS_READ.0 as u32,
-              BindFlags: 0,
-              MiscFlags: 0,
-            };
             let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
             let mut data: Option<IDXGIResource> = None;
             match unsafe { io.framer.AcquireNextFrame(HZ, &mut info, &mut data).is_ok() } {
               T => {
                 let data = data.unwrap();
                 let cast = data.cast().unwrap();
-                capture(&io.device, &io.context, &cast, &detail, io.l as u32, io.t as u32);
+                process(&io, &cast);
                 unsafe { io.framer.ReleaseFrame().unwrap() };
                 T
               },
@@ -58,24 +43,39 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
     }
   }
 
-  pub fn capture(device: &ID3D11Device, device_context: &ID3D11DeviceContext, source_texture: &ID3D11Texture2D, desc: &D3D11_TEXTURE2D_DESC, offset_x: u32, offset_y: u32) {
+  pub fn process(io: &IO, source_texture: &ID3D11Texture2D) {
     let mut staging_texture: Option<ID3D11Texture2D> = None;
+    let desc = D3D11_TEXTURE2D_DESC {
+      Width: io.x as u32,
+      Height: io.y as u32,
+      MipLevels: 1,
+      ArraySize: 1,
+      Format: DXGI_FORMAT_B8G8R8A8_UNORM,
+      SampleDesc: DXGI_SAMPLE_DESC {
+        Count: 1,
+        Quality: 0,
+      },
+      Usage: D3D11_USAGE_STAGING,
+      CPUAccessFlags: D3D11_CPU_ACCESS_READ.0 as u32,
+      BindFlags: 0,
+      MiscFlags: 0,
+    };
 
-    unsafe { device.CreateTexture2D(desc, None, Some(&mut staging_texture)).unwrap() };
+    unsafe { io.device.CreateTexture2D(&desc, None, Some(&mut staging_texture)).unwrap() };
 
     let region = D3D11_BOX {
-      left: offset_x,
-      top: offset_y,
+      left: io.l as u32,
+      top: io.t as u32,
       front: 0,
-      right: offset_x + desc.Width,
-      bottom: offset_y + desc.Height,
+      right: (io.l + io.x) as u32,
+      bottom: (io.t + io.y) as u32,
       back: 1,
     };
 
-    unsafe { device_context.CopySubresourceRegion(staging_texture.as_ref().unwrap(), 0, 0, 0, 0, source_texture, 0, Some(&region)) };
+    unsafe { io.context.CopySubresourceRegion(staging_texture.as_ref().unwrap(), 0, 0, 0, 0, source_texture, 0, Some(&region)) };
 
     let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
-    unsafe { device_context.Map(staging_texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
+    unsafe { io.context.Map(staging_texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
 
     let row_pitch = mapped.RowPitch as usize;
     let ptr = mapped.pData as *const u8;
@@ -95,7 +95,6 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
           let src_px = src_row.add(x * 4);
           let dst_px = dst_row.add(x * 4);
 
-          // BGRA to RGBA
           *dst_px = *src_px.add(2); // R
           *dst_px.add(1) = *src_px.add(1); // G
           *dst_px.add(2) = *src_px; // B
@@ -106,7 +105,7 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
 
     img.save("subregion.png").unwrap();
 
-    unsafe { device_context.Unmap(staging_texture.as_ref().unwrap(), 0) };
+    unsafe { io.context.Unmap(staging_texture.as_ref().unwrap(), 0) };
   }
 
   handle.push(thread::spawn(
