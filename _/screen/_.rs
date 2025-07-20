@@ -192,6 +192,9 @@ pub struct Data {
   ax: i32,
 }
 
+pub fn test2() {
+}
+
 pub fn test() {
   let img = image::open("test.png").expect("Failed to open image");
 

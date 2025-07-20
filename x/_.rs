@@ -18,6 +18,8 @@ pub fn main() {
   let fx = #[inline(always)]
   move |n1: f64| calc(vx, n1 / ux, 6400.);
 
+  screen::test2();
+
   let (i2, o2): (Sender<(i32, i32, i32, i32)>, Receiver<(i32, i32, i32, i32)>) = bounded(64);
   handle.push(thread::spawn(
     #[inline(always)]
@@ -106,7 +108,7 @@ pub fn main() {
 
           match an {
             2..=i32::MAX => match an % 4 {
-              1 => zz(0, xx, 0.),
+              N => zz(0, xx, 0.),
               _ => F,
             },
             1 => zz(3, xx, yy),
@@ -135,16 +137,16 @@ pub fn main() {
                 yy(match cy {
                   49..=i32::MAX => 0.,
                   45..=48 => -1.,
-                  41..=44 => -2.,
+                  41..=44 => -1.,
                   37..=40 => -3.,
-                  33..=36 => -4.,
-                  29..=32 => -5.,
+                  33..=36 => -3.,
+                  29..=32 => -3.,
                   25..=28 => -3.,
                   21..=24 => -3.,
                   17..=20 => -5.,
-                  13..=16 => -4.,
-                  9..=12 => -3.,
-                  5..=8 => -2.,
+                  13..=16 => -5.,
+                  9..=12 => -5.,
+                  5..=8 => -3.,
                   1..=4 => -1.,
                   _ => 0.,
                 });
@@ -169,8 +171,8 @@ pub fn main() {
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      const TINT: u8 = 255 - 24;
-      const DIFF: u8 = 24;
+      const CLR: u8 = 255 - 24;
+      const ABS: u8 = 24;
 
       screen::watch(
         #[inline(always)]
@@ -193,13 +195,13 @@ pub fn main() {
           let n2 = ((x >> 8) & 0xff) as u8;
           let n3 = (x & 0xff) as u8;
 
-          match n1 > TINT && TINT > n2 && n3 > TINT {
+          match n1 > CLR && n3 > CLR {
             T => match n1 > n3 {
-              T => match n3.abs_diff(n2) > DIFF {
+              T => match n3.abs_diff(n2) > ABS {
                 T => T,
                 _ => F,
               },
-              _ => match n1.abs_diff(n2) > DIFF {
+              _ => match n1.abs_diff(n2) > ABS {
                 T => T,
                 _ => F,
               },
