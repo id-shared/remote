@@ -204,7 +204,6 @@ pub fn test2() {
           *,
         },
       },
-      System::WinRT::Graphics::Capture::*,
     },
     core::*,
   };
@@ -246,8 +245,11 @@ pub fn test2() {
 
       println!("Device and context successfully created.");
 
-      let height = 1440;
+      // Set region of interest (crop area)
+      let left = 100;
+      let top = 100;
       let width = 2560;
+      let height = 1440;
 
       loop {
         // 6. Acquire next frame
@@ -261,15 +263,18 @@ pub fn test2() {
 
         // 8. Get texture description
         let mut desc = D3D11_TEXTURE2D_DESC::default();
-        tex.GetDesc(&mut desc);
-
-        // 9. Create a CPU-readable texture to copy into
         desc.Width = width;
         desc.Height = height;
         desc.MipLevels = 1;
         desc.ArraySize = 1;
         desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-        desc.SampleDesc.Count = 1;
+        desc.SampleDesc = DXGI_SAMPLE_DESC {
+          Quality: 0,
+          Count: 1,
+        };
+        tex.GetDesc(&mut desc);
+
+        // 9. Create a CPU-readable texture to copy into
         desc.Usage = D3D11_USAGE_STAGING;
         desc.BindFlags = 0;
         desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ.0 as u32;
@@ -298,19 +303,6 @@ pub fn test2() {
         println!("Frame captured.");
 
         let data = std::slice::from_raw_parts(mapped.pData as *const u8, (mapped.RowPitch * desc.Height) as usize);
-
-        // Process BGRA data (4 bytes per pixel)
-        // for y in 0..desc.Height {
-        //   for x in 0..desc.Width {
-        //     let pixel_start = (y * mapped.RowPitch as u32 + x * 4) as usize;
-        //     let b = data[pixel_start];
-        //     let g = data[pixel_start + 1];
-        //     let r = data[pixel_start + 2];
-        //     let a = data[pixel_start + 3];
-
-        //     println!("{}, {}, {}, {}", b, g, r, a);
-        //   }
-        // }
 
         if let Some(img) = image::ImageBuffer::<image::Rgb<u8>, Vec<u8>>::from_raw(width, height, data.chunks_exact(4).flat_map(|p| [p[2], p[1], p[0]]).collect()) {
           img.save("a.png").unwrap();
@@ -406,3 +398,16 @@ use {
     },
   },
 };
+
+// Process BGRA data (4 bytes per pixel)
+// for y in 0..desc.Height {
+//   for x in 0..desc.Width {
+//     let pixel_start = (y * mapped.RowPitch as u32 + x * 4) as usize;
+//     let b = data[pixel_start];
+//     let g = data[pixel_start + 1];
+//     let r = data[pixel_start + 2];
+//     let a = data[pixel_start + 3];
+
+//     println!("{}, {}, {}, {}", b, g, r, a);
+//   }
+// }
