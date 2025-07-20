@@ -2,6 +2,7 @@
 windows = { version = "0.61.3", features = [
   "Win32_UI_WindowsAndMessaging",
   "Win32_System_WinRT_Graphics_Capture",
+  "Win32_System_SystemServices",
   "Win32_Graphics_Gdi",
   "Win32_Graphics_Dxgi",
   "Win32_Graphics_Dxgi_Common",
@@ -9,7 +10,6 @@ windows = { version = "0.61.3", features = [
   "Win32_Graphics_Direct3D",
   "Win32_Foundation",
 ] }
-win_desktop_duplication = { version = "0.10" }
 image = { version = "0.25.6" }
 crossbeam = { version = "0.8.4" }
 

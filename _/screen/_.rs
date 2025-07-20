@@ -234,6 +234,18 @@ pub fn test2() {
             let mut data: Option<IDXGIResource> = None;
             match framer.AcquireNextFrame(1000, &mut meta, &mut data).is_ok() {
               T => {
+                let data = data.unwrap();
+                let data_cast: ID3D11Texture2D = data.cast().unwrap();
+                capture_box_to_png(
+                  &device,
+                  &device_context,
+                  &data_cast,
+                  0,
+                  0, // left, top
+                  200,
+                  100, // width, height
+                  "subregion.png",
+                );
                 let desc = D3D11_TEXTURE2D_DESC {
                   Width: width,
                   Height: height,
@@ -249,18 +261,41 @@ pub fn test2() {
                   BindFlags: 0,
                   MiscFlags: 0,
                 };
-                let data = data.unwrap();
-                let data_cast: ID3D11Texture2D = data.cast().unwrap();
 
                 let mut texture: Option<ID3D11Texture2D> = None;
                 device.CreateTexture2D(&desc, None, Some(&mut texture)).unwrap();
 
                 let tex_cpu = texture.unwrap();
-                device_context.CopyResource(&tex_cpu, &data_cast);
+                let box_region = D3D11_BOX {
+                  left: 0,
+                  top: 0,
+                  front: 0,
+                  right: width - (2560 - 64),
+                  bottom: height - (1440 - 64),
+                  back: 1,
+                };
+
+                device_context.CopySubresourceRegion(
+                  &tex_cpu,
+                  0, // dst subresource
+                  0, // dstX
+                  0, // dstY
+                  0, // dstZ
+                  &data_cast,
+                  0, // src subresource
+                  Some(&box_region),
+                );
 
                 let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
                 device_context.Map(&tex_cpu, 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap();
                 device_context.Unmap(&tex_cpu, 0);
+
+                println!("{}", mapped.RowPitch);
+
+                let data = std::slice::from_raw_parts(mapped.pData as *const u8, (mapped.RowPitch * desc.Height) as usize);
+                if let Some(img) = image::ImageBuffer::<image::Rgb<u8>, Vec<u8>>::from_raw(width, height, data.chunks_exact(4).flat_map(|p| [p[2], p[1], p[0]]).collect()) {
+                  img.save("a.png").unwrap();
+                }
 
                 framer.ReleaseFrame().unwrap();
 
@@ -275,13 +310,66 @@ pub fn test2() {
               _ => F,
             };
           },
-          HZ,
+          HZ * 100,
         );
       }
     };
   }
 
   main();
+}
+
+pub fn capture_box_to_png(device: &ID3D11Device, context: &ID3D11DeviceContext, source_texture: &ID3D11Texture2D, left: u32, top: u32, width: u32, height: u32, path: &str) {
+  let desc = D3D11_TEXTURE2D_DESC {
+    Width: width,
+    Height: height,
+    MipLevels: 1,
+    ArraySize: 1,
+    Format: DXGI_FORMAT_B8G8R8A8_UNORM,
+    SampleDesc: DXGI_SAMPLE_DESC {
+      Count: 1,
+      Quality: 0,
+    },
+    Usage: D3D11_USAGE_STAGING,
+    CPUAccessFlags: D3D11_CPU_ACCESS_READ.0 as u32,
+    BindFlags: 0,
+    MiscFlags: 0,
+  };
+
+  let mut staging_texture: Option<ID3D11Texture2D> = None;
+  unsafe {
+    device.CreateTexture2D(&desc, None, Some(&mut staging_texture)).unwrap();
+
+    let region = D3D11_BOX {
+      left,
+      top,
+      front: 0,
+      right: left + width,
+      bottom: top + height,
+      back: 1,
+    };
+
+    context.CopySubresourceRegion(staging_texture.as_ref().unwrap(), 0, 0, 0, 0, source_texture, 0, Some(&region));
+
+    let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
+    context.Map(staging_texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap();
+
+    let row_pitch = mapped.RowPitch as usize;
+    let ptr = mapped.pData as *const u8;
+
+    let mut img = ImageBuffer::<Rgba<u8>, Vec<u8>>::new(width, height);
+
+    for y in 0..height {
+      let row_start = unsafe { ptr.add(y as usize * row_pitch) };
+      for x in 0..width {
+        let pixel = unsafe { std::slice::from_raw_parts(row_start.add((x * 4) as usize), 4) };
+        img.put_pixel(x, y, Rgba([pixel[2], pixel[1], pixel[0], pixel[3]])); // BGRA → RGBA
+      }
+    }
+
+    context.Unmap(staging_texture.as_ref().unwrap(), 0);
+    img.save(path).unwrap();
+  }
 }
 
 pub fn test() {
@@ -326,7 +414,9 @@ use {
   },
   image::{
     GenericImageView,
+    ImageBuffer,
     Pixel,
+    Rgba,
   },
   std::{
     i32,
