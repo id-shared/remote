@@ -215,9 +215,17 @@ pub fn test2() {
       let output_cast: IDXGIOutput1 = output.cast().unwrap();
       let framer = output_cast.DuplicateOutput(&device).unwrap();
 
+      let wide = wide();
+      let high = high();
+
+      let ny = high / 8.;
+      let nx = wide / 4.;
+      let my = (high / 2.) - (ny / 2.);
+      let mx = (wide / 2.) - (nx / 2.);
+
       let desc = D3D11_TEXTURE2D_DESC {
-        Width: (wide() / 4.) as u32,
-        Height: (high() / 8.) as u32,
+        Width: nx as u32,
+        Height: ny as u32,
         MipLevels: 1,
         ArraySize: 1,
         Format: DXGI_FORMAT_B8G8R8A8_UNORM,
@@ -241,7 +249,7 @@ pub fn test2() {
               T => {
                 let data = data.unwrap();
                 let data_cast: ID3D11Texture2D = data.cast().unwrap();
-                capture_box_to_png(&device, &device_context, &data_cast, &desc, 100, 100);
+                capture_box_to_png(&device, &device_context, &data_cast, &desc, mx as u32, my as u32);
 
                 framer.ReleaseFrame().unwrap();
 
@@ -265,24 +273,24 @@ pub fn test2() {
   main();
 }
 
-pub fn capture_box_to_png(device: &ID3D11Device, context: &ID3D11DeviceContext, source_texture: &ID3D11Texture2D, desc: &D3D11_TEXTURE2D_DESC, left: u32, top: u32) {
+pub fn capture_box_to_png(device: &ID3D11Device, device_context: &ID3D11DeviceContext, source_texture: &ID3D11Texture2D, desc: &D3D11_TEXTURE2D_DESC, offset_x: u32, offset_y: u32) {
   let mut staging_texture: Option<ID3D11Texture2D> = None;
 
   unsafe { device.CreateTexture2D(desc, None, Some(&mut staging_texture)).unwrap() };
 
   let region = D3D11_BOX {
-    left,
-    top,
+    left: offset_x,
+    top: offset_y,
     front: 0,
-    right: left + desc.Width,
-    bottom: top + desc.Height,
+    right: offset_x + desc.Width,
+    bottom: offset_y + desc.Height,
     back: 1,
   };
 
-  unsafe { context.CopySubresourceRegion(staging_texture.as_ref().unwrap(), 0, 0, 0, 0, source_texture, 0, Some(&region)) };
+  unsafe { device_context.CopySubresourceRegion(staging_texture.as_ref().unwrap(), 0, 0, 0, 0, source_texture, 0, Some(&region)) };
 
   let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
-  unsafe { context.Map(staging_texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
+  unsafe { device_context.Map(staging_texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
 
   let row_pitch = mapped.RowPitch as usize;
   let ptr = mapped.pData as *const u8;
@@ -297,7 +305,7 @@ pub fn capture_box_to_png(device: &ID3D11Device, context: &ID3D11DeviceContext, 
     }
   }
 
-  unsafe { context.Unmap(staging_texture.as_ref().unwrap(), 0) };
+  unsafe { device_context.Unmap(staging_texture.as_ref().unwrap(), 0) };
   img.save("subregion.png").unwrap();
 }
 
