@@ -209,6 +209,8 @@ pub fn main() {
         },
         #[inline(always)]
         move |x| send(&i2, x),
+        zx,
+        zy,
       )
     },
   ));

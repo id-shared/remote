@@ -4,22 +4,39 @@
 
 pub trait Is<T> = Functor<T, bool>;
 pub trait At<T> = Functor<T, i32>;
-pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2: F2, f3: F3) -> () {
+pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2: F2, f3: F3, x: f64, y: f64) -> () {
   let mut handle = vec![];
 
-  pub fn test3(device: ID3D11Device, device_context: ID3D11DeviceContext, desc: D3D11_TEXTURE2D_DESC, framer: IDXGIOutputDuplication, mx: f64, my: f64, time: Instant, curr: u32) -> bool {
+  pub fn test3(io: IO, p: (Instant, u32)) -> bool {
     match name().contains("") {
       T => {
+        let (time, curr) = p;
+
         match sure(
           || {
+            let detail = D3D11_TEXTURE2D_DESC {
+              Width: io.x as u32,
+              Height: io.y as u32,
+              MipLevels: 1,
+              ArraySize: 1,
+              Format: DXGI_FORMAT_B8G8R8A8_UNORM,
+              SampleDesc: DXGI_SAMPLE_DESC {
+                Count: 1,
+                Quality: 0,
+              },
+              Usage: D3D11_USAGE_STAGING,
+              CPUAccessFlags: D3D11_CPU_ACCESS_READ.0 as u32,
+              BindFlags: 0,
+              MiscFlags: 0,
+            };
             let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
             let mut data: Option<IDXGIResource> = None;
-            match unsafe { framer.AcquireNextFrame(HZ, &mut info, &mut data).is_ok() } {
+            match unsafe { io.framer.AcquireNextFrame(HZ, &mut info, &mut data).is_ok() } {
               T => {
                 let data = data.unwrap();
                 let cast = data.cast().unwrap();
-                capture(&device, &device_context, &cast, &desc, mx as u32, my as u32);
-                unsafe { framer.ReleaseFrame().unwrap() };
+                capture(&io.device, &io.context, &cast, &detail, io.l as u32, io.t as u32);
+                unsafe { io.framer.ReleaseFrame().unwrap() };
                 T
               },
               _ => F,
@@ -30,11 +47,11 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
           T => match time.elapsed().as_millis_f64() > 1000. {
             T => {
               println!("FPS: {}", curr);
-              test3(device, device_context, desc, framer, mx, my, Instant::now(), 0)
+              test3(io, (Instant::now(), 0))
             },
-            _ => test3(device, device_context, desc, framer, mx, my, time, curr + 1),
+            _ => test3(io, (time, curr + 1)),
           },
-          _ => test3(device, device_context, desc, framer, mx, my, time, curr),
+          _ => test3(io, (time, curr)),
         }
       },
       _ => F,
@@ -89,72 +106,71 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
 
     img.save("subregion.png").unwrap();
 
-    // send(&i1, (1, desc.Width, desc.Height, ptr));
-
     unsafe { device_context.Unmap(staging_texture.as_ref().unwrap(), 0) };
   }
 
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      let mut device_context: Option<ID3D11DeviceContext> = None;
-      let mut device: Option<ID3D11Device> = None;
-      let mut feature_level = D3D_FEATURE_LEVEL_12_2;
+      let data = #[inline(always)]
+      |x1: f64, y1: f64| data((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
 
-      unsafe {
-        D3D11CreateDevice(
-          None,                             // pAdapter
-          D3D_DRIVER_TYPE_HARDWARE,         // drivertype
-          HMODULE::default(),               // software
-          D3D11_CREATE_DEVICE_BGRA_SUPPORT, // flags
-          None,                             // pfeaturelevels
-          D3D11_SDK_VERSION,                // sdkversion
-          Some(&mut device),                // ppdevice
-          Some(&mut feature_level),         // pfeaturelevel
-          Some(&mut device_context),        // ppimmediatecontext
-        )
-        .unwrap()
-      };
-
-      let device_context = device_context.unwrap();
-      let device = device.unwrap();
-      let device_cast: IDXGIDevice = device.cast().unwrap();
-      let bridge: IDXGIAdapter = unsafe { device_cast.GetAdapter().unwrap() };
-      let output: IDXGIOutput = unsafe { bridge.EnumOutputs(0).unwrap() };
-      let output_cast: IDXGIOutput1 = output.cast().unwrap();
-      let framer = unsafe { output_cast.DuplicateOutput(&device).unwrap() };
-
-      let wide = wide();
-      let high = high();
-
-      let ny = high / 8.;
-      let nx = wide / 4.;
-      let my = (high / 2.) - (ny / 2.);
-      let mx = (wide / 2.) - (nx / 2.);
-
-      let desc = D3D11_TEXTURE2D_DESC {
-        Width: nx as u32,
-        Height: ny as u32,
-        MipLevels: 1,
-        ArraySize: 1,
-        Format: DXGI_FORMAT_B8G8R8A8_UNORM,
-        SampleDesc: DXGI_SAMPLE_DESC {
-          Count: 1,
-          Quality: 0,
-        },
-        Usage: D3D11_USAGE_STAGING,
-        CPUAccessFlags: D3D11_CPU_ACCESS_READ.0 as u32,
-        BindFlags: 0,
-        MiscFlags: 0,
-      };
-
-      test3(device, device_context, desc, framer, mx, my, Instant::now(), 0);
+      test3(data(x / 4., y / 8.), (Instant::now(), 0));
     },
   ));
 
   for x in handle {
     x.join().unwrap();
   }
+}
+
+fn data(l: f64, t: f64, x: f64, y: f64) -> IO {
+  let mut context: Option<ID3D11DeviceContext> = None;
+  let mut device: Option<ID3D11Device> = None;
+  let mut level = D3D_FEATURE_LEVEL_12_2;
+
+  unsafe {
+    D3D11CreateDevice(
+      None,                             // pAdapter
+      D3D_DRIVER_TYPE_HARDWARE,         // drivertype
+      HMODULE::default(),               // software
+      D3D11_CREATE_DEVICE_BGRA_SUPPORT, // flags
+      None,                             // pfeaturelevels
+      D3D11_SDK_VERSION,                // sdkversion
+      Some(&mut device),                // ppdevice
+      Some(&mut level),                 // pfeaturelevel
+      Some(&mut context),               // ppimmediatecontext
+    )
+    .unwrap()
+  };
+
+  let device = device.unwrap();
+  let context = context.unwrap();
+  let device_cast: IDXGIDevice = device.cast().unwrap();
+  let bridge: IDXGIAdapter = unsafe { device_cast.GetAdapter().unwrap() };
+  let output: IDXGIOutput = unsafe { bridge.EnumOutputs(0).unwrap() };
+  let output_cast: IDXGIOutput1 = output.cast().unwrap();
+  let framer = unsafe { output_cast.DuplicateOutput(&device).unwrap() };
+
+  IO {
+    context,
+    device,
+    framer,
+    l,
+    t,
+    x,
+    y,
+  }
+}
+
+pub struct IO {
+  context: ID3D11DeviceContext,
+  device: ID3D11Device,
+  framer: IDXGIOutputDuplication,
+  l: f64,
+  t: f64,
+  x: f64,
+  y: f64,
 }
 
 fn sure<F: FnOnce() -> bool>(f1: F, n1: Duration) -> bool {
