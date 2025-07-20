@@ -56,33 +56,25 @@ pub fn turn(io: &IO, source_texture: &ID3D11Texture2D) {
   let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
   unsafe { io.context.Map(staging_texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
 
-  let row_pitch = mapped.RowPitch as usize;
-  let ptr = mapped.pData as *const u8;
+  let width = 640;
+  let height = 180;
+  let pitch = mapped.RowPitch as usize;
+  let data_ptr = mapped.pData as *const u8;
+  let target: u32 = 0xff_00_00_ff; // example BGRA
 
-  let mut img = ImageBuffer::<Rgba<u8>, Vec<u8>>::new(desc.Width, desc.Height);
-  let buffer = img.as_mut();
+  let mut count = 0;
 
-  let width = desc.Width as usize;
-  let height = desc.Height as usize;
-
-  unsafe {
-    for y in 0..height {
-      let src_row = ptr.add(y * row_pitch);
-      let dst_row = buffer.as_mut_ptr().add(y * width * 4);
-
-      for x in 0..width {
-        let src_px = src_row.add(x * 4);
-        let dst_px = dst_row.add(x * 4);
-
-        *dst_px = *src_px.add(2); // R
-        *dst_px.add(1) = *src_px.add(1); // G
-        *dst_px.add(2) = *src_px; // B
-        *dst_px.add(3) = *src_px.add(3); // A
+  for y in 0..height {
+    let row_ptr = unsafe { data_ptr.add(y * pitch) } as *const u32;
+    for x in 0..width {
+      let pixel = unsafe { *row_ptr.add(x) };
+      if pixel == target {
+        count += 1;
       }
     }
   }
 
-  img.save("subregion.png").unwrap();
+  println!("{}", count);
 
   unsafe { io.context.Unmap(staging_texture.as_ref().unwrap(), 0) };
 }
@@ -236,9 +228,7 @@ pub trait Functor<T1, T2> = Fn(T1) -> T2 + Send + Sync + 'static;
 use {
   image::{
     GenericImageView,
-    ImageBuffer,
     Pixel,
-    Rgba,
   },
   std::{
     thread::{
@@ -258,11 +248,36 @@ use {
         HWND,
       },
       Graphics::{
-        Direct3D::*,
-        Direct3D11::*,
+        Direct3D::{
+          D3D_DRIVER_TYPE_HARDWARE,
+          D3D_FEATURE_LEVEL_12_2,
+        },
+        Direct3D11::{
+          D3D11_BOX,
+          D3D11_CPU_ACCESS_READ,
+          D3D11_CREATE_DEVICE_BGRA_SUPPORT,
+          D3D11_MAP_READ,
+          D3D11_MAPPED_SUBRESOURCE,
+          D3D11_SDK_VERSION,
+          D3D11_TEXTURE2D_DESC,
+          D3D11_USAGE_STAGING,
+          D3D11CreateDevice,
+          ID3D11Device,
+          ID3D11DeviceContext,
+          ID3D11Texture2D,
+        },
         Dxgi::{
-          Common::*,
-          *,
+          Common::{
+            DXGI_FORMAT_B8G8R8A8_UNORM,
+            DXGI_SAMPLE_DESC,
+          },
+          DXGI_OUTDUPL_FRAME_INFO,
+          IDXGIAdapter,
+          IDXGIDevice,
+          IDXGIOutput,
+          IDXGIOutput1,
+          IDXGIOutputDuplication,
+          IDXGIResource,
         },
       },
       UI::WindowsAndMessaging::{
@@ -310,3 +325,31 @@ pub fn test() {
     }
   }
 }
+
+// let row_pitch = mapped.RowPitch as usize;
+// let ptr = mapped.pData as *const u8;
+
+// let mut img = ImageBuffer::<Rgba<u8>, Vec<u8>>::new(desc.Width, desc.Height);
+// let buffer = img.as_mut();
+
+// let width = desc.Width as usize;
+// let height = desc.Height as usize;
+
+// unsafe {
+//   for y in 0..height {
+//     let src_row = ptr.add(y * row_pitch);
+//     let dst_row = buffer.as_mut_ptr().add(y * width * 4);
+
+//     for x in 0..width {
+//       let src_px = src_row.add(x * 4);
+//       let dst_px = dst_row.add(x * 4);
+
+//       *dst_px = *src_px.add(2); // R
+//       *dst_px.add(1) = *src_px.add(1); // G
+//       *dst_px.add(2) = *src_px; // B
+//       *dst_px.add(3) = *src_px.add(3); // A
+//     }
+//   }
+// }
+
+// img.save("subregion.png").unwrap();
