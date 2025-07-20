@@ -7,8 +7,38 @@ pub trait At<T> = Functor<T, i32>;
 pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2: F2, f3: F3, x: i32, y: i32) -> () {
   let mut handle = vec![];
 
-  pub fn test3(device: ID3D11Device, device_context: ID3D11DeviceContext, desc: D3D11_TEXTURE2D_DESC, framer: IDXGIOutputDuplication, mx: u32, my: u32) -> bool {
-    T
+  pub fn test3(device: ID3D11Device, device_context: ID3D11DeviceContext, desc: D3D11_TEXTURE2D_DESC, framer: IDXGIOutputDuplication, mx: f64, my: f64, time: Instant, curr: u32) -> bool {
+    match name().contains("") {
+      T => {
+        match sure(
+          || {
+            let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
+            let mut data: Option<IDXGIResource> = None;
+            match unsafe { framer.AcquireNextFrame(HZ, &mut info, &mut data).is_ok() } {
+              T => {
+                let data = data.unwrap();
+                let cast = data.cast().unwrap();
+                capture(&device, &device_context, &cast, &desc, mx as u32, my as u32);
+                unsafe { framer.ReleaseFrame().unwrap() };
+                T
+              },
+              _ => F,
+            }
+          },
+          MS * HZ,
+        ) {
+          T => match time.elapsed().as_millis_f64() > 1000. {
+            T => {
+              println!("FPS: {}", curr);
+              test3(device, device_context, desc, framer, mx, my, Instant::now(), 0)
+            },
+            _ => test3(device, device_context, desc, framer, mx, my, time, curr + 1),
+          },
+          _ => test3(device, device_context, desc, framer, mx, my, time, curr),
+        }
+      },
+      _ => F,
+    }
   }
 
   pub fn main() {
@@ -63,40 +93,7 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
       MiscFlags: 0,
     };
 
-    let mut time = Instant::now();
-    let mut curr = 0;
-    loop {
-      sure(
-        || {
-          let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
-          let mut data: Option<IDXGIResource> = None;
-          match unsafe { framer.AcquireNextFrame(HZ, &mut info, &mut data).is_ok() } {
-            T => {
-              let data = data.unwrap();
-              let cast = data.cast().unwrap();
-              capture(&device, &device_context, &cast, &desc, mx as u32, my as u32);
-
-              unsafe { framer.ReleaseFrame().unwrap() };
-
-              match time.elapsed().as_millis_f64() > 1000. {
-                T => {
-                  println!("FPS: {}", curr);
-                  time = Instant::now();
-                  curr = 0;
-                  T
-                },
-                _ => {
-                  curr = curr + 1;
-                  T
-                },
-              }
-            },
-            _ => T,
-          }
-        },
-        Duration::from_millis(16),
-      );
-    }
+    test3(device, device_context, desc, framer, mx, my, Instant::now(), 0);
   }
 
   main();
@@ -215,11 +212,11 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
   }
 }
 
-fn sure<T, F: FnOnce() -> T>(f1: F, n1: Duration) -> T {
+fn sure<F: FnOnce() -> bool>(f1: F, n1: Duration) -> bool {
   let init = Instant::now();
   let back = f1();
   let rest = init.elapsed();
-  match n1 > rest {
+  match back && n1 > rest {
     T => {
       sleep(n1 - rest);
       back
