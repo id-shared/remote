@@ -63,8 +63,6 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      const HZ: Duration = Duration::from_millis(16);
-
       let data_2 = data(x / 8, y / 16, x, y);
       let data_1 = data(x / 4, y / 16, x, y);
       let mut an = 0;
@@ -177,7 +175,9 @@ pub fn xo(n: Duration) -> bool {
   T
 }
 
+pub const HZ: Duration = Duration::from_millis(16);
 pub const MS: Duration = Duration::from_millis(1);
+
 pub const F: bool = false;
 pub const T: bool = true;
 
@@ -193,21 +193,6 @@ pub struct Data {
 }
 
 pub fn test2() {
-  use windows::{
-    Win32::{
-      Foundation::*,
-      Graphics::{
-        Direct3D::*,
-        Direct3D11::*,
-        Dxgi::{
-          Common::*,
-          *,
-        },
-      },
-    },
-    core::*,
-  };
-
   fn main() {
     unsafe {
       let mut device_context: Option<ID3D11DeviceContext> = None;
@@ -247,11 +232,9 @@ pub fn test2() {
           || {
             let mut meta = DXGI_OUTDUPL_FRAME_INFO::default();
             let mut data: Option<IDXGIResource> = None;
-            match framer.AcquireNextFrame(10000, &mut meta, &mut data).is_ok() {
+            match framer.AcquireNextFrame(1000, &mut meta, &mut data).is_ok() {
               T => {
-                let resource = data.unwrap();
-
-                let mut desc = D3D11_TEXTURE2D_DESC {
+                let desc = D3D11_TEXTURE2D_DESC {
                   Width: width,
                   Height: height,
                   MipLevels: 1,
@@ -266,13 +249,14 @@ pub fn test2() {
                   BindFlags: 0,
                   MiscFlags: 0,
                 };
+                let data = data.unwrap();
+                let data_cast: ID3D11Texture2D = data.cast().unwrap();
 
-                let mut tex_cpu: Option<ID3D11Texture2D> = None;
-                device.CreateTexture2D(&desc, None, Some(&mut tex_cpu)).unwrap();
+                let mut texture: Option<ID3D11Texture2D> = None;
+                device.CreateTexture2D(&desc, None, Some(&mut texture)).unwrap();
 
-                let tex: ID3D11Texture2D = resource.cast().unwrap();
-                let tex_cpu = tex_cpu.unwrap();
-                device_context.CopyResource(&tex_cpu, &tex);
+                let tex_cpu = texture.unwrap();
+                device_context.CopyResource(&tex_cpu, &data_cast);
 
                 let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
                 device_context.Map(&tex_cpu, 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap();
@@ -284,12 +268,10 @@ pub fn test2() {
                   img.save("a.png").unwrap();
                 }
 
-                // xo(MS * 1000);
-
                 framer.ReleaseFrame().unwrap();
-                curr = curr + 1;
 
-                if time.elapsed().as_millis_f64() > 1000.0 {
+                curr = curr + 1;
+                if time.elapsed().as_millis_f64() > 1000. {
                   println!("FPS: {}", curr);
                   time = Instant::now();
                   curr = 0;
@@ -299,7 +281,7 @@ pub fn test2() {
               _ => F,
             };
           },
-          Duration::from_millis(1000),
+          HZ,
         );
       }
     };
@@ -365,27 +347,45 @@ use {
     },
     usize,
   },
-  windows::Win32::{
-    Foundation::HWND,
-    Graphics::Gdi::{
-      BitBlt,
-      CreateCompatibleBitmap,
-      CreateCompatibleDC,
-      GetBitmapBits,
-      GetDC,
-      HBITMAP,
-      HDC,
-      SRCCOPY,
-      SelectObject,
+  windows::{
+    Win32::{
+      Foundation::{
+        HWND,
+        *,
+      },
+      Graphics::{
+        Direct3D::{
+          D3D10_1_SRV_DIMENSION_BUFFER,
+          D3D10_1_SRV_DIMENSION_TEXTURE1D,
+          *,
+        },
+        Direct3D11::*,
+        Dxgi::{
+          Common::*,
+          *,
+        },
+        Gdi::{
+          BitBlt,
+          CreateCompatibleBitmap,
+          CreateCompatibleDC,
+          GetBitmapBits,
+          GetDC,
+          HBITMAP,
+          HDC,
+          SRCCOPY,
+          SelectObject,
+        },
+      },
+      UI::WindowsAndMessaging::{
+        GetForegroundWindow,
+        GetSystemMetrics,
+        GetWindowTextLengthW,
+        GetWindowTextW,
+        SM_CXSCREEN,
+        SM_CYSCREEN,
+      },
     },
-    UI::WindowsAndMessaging::{
-      GetForegroundWindow,
-      GetSystemMetrics,
-      GetWindowTextLengthW,
-      GetWindowTextW,
-      SM_CXSCREEN,
-      SM_CYSCREEN,
-    },
+    core::*,
   },
 };
 

@@ -23,8 +23,6 @@ pub fn main() {
     #[inline(always)]
     move || match xyloid::type_1() {
       Some(io) => {
-        const HZ: Duration = Duration::from_millis(16);
-
         #[inline(always)]
         pub fn zz(io: xyloid::HANDLE, i: i32, n: i32, x: f64, y: f64) -> bool {
           match i <= n {
@@ -348,6 +346,8 @@ pub fn xo(n: Duration) -> bool {
 }
 
 pub const APP: &str = "VAL";
+
+pub const HZ: Duration = Duration::from_millis(16);
 pub const MS: Duration = Duration::from_millis(1);
 
 pub const N: i32 = 0;

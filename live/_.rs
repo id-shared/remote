@@ -65,7 +65,7 @@ pub fn main() -> windows::core::Result<()> {
 
     if last_fps_print.elapsed().as_secs() >= 1 {
       let fps = frame_count as f64 / start_time.elapsed().as_secs_f64();
-      // println!("FPS: {:.2}", fps);
+      println!("FPS: {:.2}", fps);
       last_fps_print = Instant::now();
     }
   }
