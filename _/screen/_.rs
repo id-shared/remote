@@ -7,6 +7,59 @@ pub trait At<T> = Functor<T, i32>;
 pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2: F2, f3: F3, x: i32, y: i32) -> () {
   let mut handle = vec![];
 
+  let (i1, o1): (Sender<(i32, i32, i32, Vec<u8>)>, Receiver<(i32, i32, i32, Vec<u8>)>) = bounded(64);
+  handle.push(thread::spawn(
+    #[inline(always)]
+    move || {
+      let px = #[inline(always)]
+      |x: &[u32], z: i32| unsafe { *x.get_unchecked(z as usize) };
+
+      while let Ok((an, nx, ny, buffer)) = o1.recv() {
+        let pixel = unsafe { std::slice::from_raw_parts(buffer.as_ptr() as *const u32, buffer.len() / 4) };
+
+        let mut zz = 0;
+        let mut az = 0;
+        let mut ay = 0;
+        let mut ax = 0;
+        let mut aa = F;
+
+        for y in 0..ny {
+          let ay_ = (ny / 2) - y;
+
+          'x: for x in 0..nx {
+            az = match f2(px(pixel, az)) {
+              T => {
+                let ax_ = (nx / 2) - x;
+
+                match aa {
+                  T => {
+                    zz = zz + 1;
+                    az = az + (nx - x);
+                    break 'x;
+                  },
+                  _ => {
+                    zz = zz + 1;
+                    az = az + (nx - x);
+                    ay = ay_;
+                    ax = ax_;
+                    aa = T;
+                    break 'x;
+                  },
+                }
+              },
+              _ => az + 1,
+            }
+          }
+        }
+
+        match aa {
+          T => f3((an, -ax, ay, zz - 1)),
+          _ => F,
+        };
+      }
+    },
+  ));
+
   pub fn test3(device: ID3D11Device, device_context: ID3D11DeviceContext, desc: D3D11_TEXTURE2D_DESC, framer: IDXGIOutputDuplication, mx: f64, my: f64, time: Instant, curr: u32) -> bool {
     match name().contains("") {
       T => {
@@ -39,6 +92,41 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
       },
       _ => F,
     }
+  }
+
+  pub fn capture(device: &ID3D11Device, device_context: &ID3D11DeviceContext, source_texture: &ID3D11Texture2D, desc: &D3D11_TEXTURE2D_DESC, offset_x: u32, offset_y: u32) {
+    let mut staging_texture: Option<ID3D11Texture2D> = None;
+
+    unsafe { device.CreateTexture2D(desc, None, Some(&mut staging_texture)).unwrap() };
+
+    let region = D3D11_BOX {
+      left: offset_x,
+      top: offset_y,
+      front: 0,
+      right: offset_x + desc.Width,
+      bottom: offset_y + desc.Height,
+      back: 1,
+    };
+
+    unsafe { device_context.CopySubresourceRegion(staging_texture.as_ref().unwrap(), 0, 0, 0, 0, source_texture, 0, Some(&region)) };
+
+    let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
+    unsafe { device_context.Map(staging_texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
+
+    let row_pitch = mapped.RowPitch as usize;
+    let ptr = mapped.pData as *const u8;
+
+    // let mut img = ImageBuffer::<Rgba<u8>, Vec<u8>>::new(desc.Width, desc.Height);
+    // for y in 0..desc.Height {
+    //   let row_start = unsafe { ptr.add(y as usize * row_pitch) };
+    //   for x in 0..desc.Width {
+    //     let pixel = unsafe { std::slice::from_raw_parts(row_start.add((x * 4) as usize), 4) };
+    //     img.put_pixel(x, y, Rgba([pixel[2], pixel[1], pixel[0], pixel[3]])); // BGRA → RGBA
+    //   }
+    // }
+    // img.save("subregion.png").unwrap();
+
+    unsafe { device_context.Unmap(staging_texture.as_ref().unwrap(), 0) };
   }
 
   pub fn main() {
@@ -96,94 +184,10 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
     test3(device, device_context, desc, framer, mx, my, Instant::now(), 0);
   }
 
-  main();
-
-  pub fn capture(device: &ID3D11Device, device_context: &ID3D11DeviceContext, source_texture: &ID3D11Texture2D, desc: &D3D11_TEXTURE2D_DESC, offset_x: u32, offset_y: u32) {
-    let mut staging_texture: Option<ID3D11Texture2D> = None;
-
-    unsafe { device.CreateTexture2D(desc, None, Some(&mut staging_texture)).unwrap() };
-
-    let region = D3D11_BOX {
-      left: offset_x,
-      top: offset_y,
-      front: 0,
-      right: offset_x + desc.Width,
-      bottom: offset_y + desc.Height,
-      back: 1,
-    };
-
-    unsafe { device_context.CopySubresourceRegion(staging_texture.as_ref().unwrap(), 0, 0, 0, 0, source_texture, 0, Some(&region)) };
-
-    let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
-    unsafe { device_context.Map(staging_texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
-
-    let row_pitch = mapped.RowPitch as usize;
-    let ptr = mapped.pData as *const u8;
-
-    let mut img = ImageBuffer::<Rgba<u8>, Vec<u8>>::new(desc.Width, desc.Height);
-
-    for y in 0..desc.Height {
-      let row_start = unsafe { ptr.add(y as usize * row_pitch) };
-      for x in 0..desc.Width {
-        let pixel = unsafe { std::slice::from_raw_parts(row_start.add((x * 4) as usize), 4) };
-        img.put_pixel(x, y, Rgba([pixel[2], pixel[1], pixel[0], pixel[3]])); // BGRA → RGBA
-      }
-    }
-
-    unsafe { device_context.Unmap(staging_texture.as_ref().unwrap(), 0) };
-    img.save("subregion.png").unwrap();
-  }
-
-  let (i1, o1): (Sender<(i32, i32, i32, Vec<u8>)>, Receiver<(i32, i32, i32, Vec<u8>)>) = bounded(64);
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      let px = #[inline(always)]
-      |x: &[u32], z: i32| unsafe { *x.get_unchecked(z as usize) };
-
-      while let Ok((an, nx, ny, buffer)) = o1.recv() {
-        let pixel = unsafe { std::slice::from_raw_parts(buffer.as_ptr() as *const u32, buffer.len() / 4) };
-
-        let mut zz = 0;
-        let mut az = 0;
-        let mut ay = 0;
-        let mut ax = 0;
-        let mut aa = F;
-
-        for y in 0..ny {
-          let ay_ = (ny / 2) - y;
-
-          'x: for x in 0..nx {
-            az = match f2(px(pixel, az)) {
-              T => {
-                let ax_ = (nx / 2) - x;
-
-                match aa {
-                  T => {
-                    zz = zz + 1;
-                    az = az + (nx - x);
-                    break 'x;
-                  },
-                  _ => {
-                    zz = zz + 1;
-                    az = az + (nx - x);
-                    ay = ay_;
-                    ax = ax_;
-                    aa = T;
-                    break 'x;
-                  },
-                }
-              },
-              _ => az + 1,
-            }
-          }
-        }
-
-        match aa {
-          T => f3((an, -ax, ay, zz - 1)),
-          _ => F,
-        };
-      }
+      main();
     },
   ));
 
