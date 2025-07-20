@@ -129,65 +129,61 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
     unsafe { device_context.Unmap(staging_texture.as_ref().unwrap(), 0) };
   }
 
-  pub fn main() {
-    let mut device_context: Option<ID3D11DeviceContext> = None;
-    let mut device: Option<ID3D11Device> = None;
-    let mut feature_level = D3D_FEATURE_LEVEL_12_2;
-
-    unsafe {
-      D3D11CreateDevice(
-        None,                             // pAdapter
-        D3D_DRIVER_TYPE_HARDWARE,         // drivertype
-        HMODULE::default(),               // software
-        D3D11_CREATE_DEVICE_BGRA_SUPPORT, // flags
-        None,                             // pfeaturelevels
-        D3D11_SDK_VERSION,                // sdkversion
-        Some(&mut device),                // ppdevice
-        Some(&mut feature_level),         // pfeaturelevel
-        Some(&mut device_context),        // ppimmediatecontext
-      )
-      .unwrap()
-    };
-
-    let device_context = device_context.unwrap();
-    let device = device.unwrap();
-    let device_cast: IDXGIDevice = device.cast().unwrap();
-    let bridge: IDXGIAdapter = unsafe { device_cast.GetAdapter().unwrap() };
-    let output: IDXGIOutput = unsafe { bridge.EnumOutputs(0).unwrap() };
-    let output_cast: IDXGIOutput1 = output.cast().unwrap();
-    let framer = unsafe { output_cast.DuplicateOutput(&device).unwrap() };
-
-    let wide = wide();
-    let high = high();
-
-    let ny = high / 8.;
-    let nx = wide / 4.;
-    let my = (high / 2.) - (ny / 2.);
-    let mx = (wide / 2.) - (nx / 2.);
-
-    let desc = D3D11_TEXTURE2D_DESC {
-      Width: nx as u32,
-      Height: ny as u32,
-      MipLevels: 1,
-      ArraySize: 1,
-      Format: DXGI_FORMAT_B8G8R8A8_UNORM,
-      SampleDesc: DXGI_SAMPLE_DESC {
-        Count: 1,
-        Quality: 0,
-      },
-      Usage: D3D11_USAGE_STAGING,
-      CPUAccessFlags: D3D11_CPU_ACCESS_READ.0 as u32,
-      BindFlags: 0,
-      MiscFlags: 0,
-    };
-
-    test3(device, device_context, desc, framer, mx, my, Instant::now(), 0);
-  }
-
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      main();
+      let mut device_context: Option<ID3D11DeviceContext> = None;
+      let mut device: Option<ID3D11Device> = None;
+      let mut feature_level = D3D_FEATURE_LEVEL_12_2;
+
+      unsafe {
+        D3D11CreateDevice(
+          None,                             // pAdapter
+          D3D_DRIVER_TYPE_HARDWARE,         // drivertype
+          HMODULE::default(),               // software
+          D3D11_CREATE_DEVICE_BGRA_SUPPORT, // flags
+          None,                             // pfeaturelevels
+          D3D11_SDK_VERSION,                // sdkversion
+          Some(&mut device),                // ppdevice
+          Some(&mut feature_level),         // pfeaturelevel
+          Some(&mut device_context),        // ppimmediatecontext
+        )
+        .unwrap()
+      };
+
+      let device_context = device_context.unwrap();
+      let device = device.unwrap();
+      let device_cast: IDXGIDevice = device.cast().unwrap();
+      let bridge: IDXGIAdapter = unsafe { device_cast.GetAdapter().unwrap() };
+      let output: IDXGIOutput = unsafe { bridge.EnumOutputs(0).unwrap() };
+      let output_cast: IDXGIOutput1 = output.cast().unwrap();
+      let framer = unsafe { output_cast.DuplicateOutput(&device).unwrap() };
+
+      let wide = wide();
+      let high = high();
+
+      let ny = high / 8.;
+      let nx = wide / 4.;
+      let my = (high / 2.) - (ny / 2.);
+      let mx = (wide / 2.) - (nx / 2.);
+
+      let desc = D3D11_TEXTURE2D_DESC {
+        Width: nx as u32,
+        Height: ny as u32,
+        MipLevels: 1,
+        ArraySize: 1,
+        Format: DXGI_FORMAT_B8G8R8A8_UNORM,
+        SampleDesc: DXGI_SAMPLE_DESC {
+          Count: 1,
+          Quality: 0,
+        },
+        Usage: D3D11_USAGE_STAGING,
+        CPUAccessFlags: D3D11_CPU_ACCESS_READ.0 as u32,
+        BindFlags: 0,
+        MiscFlags: 0,
+      };
+
+      test3(device, device_context, desc, framer, mx, my, Instant::now(), 0);
     },
   ));
 
