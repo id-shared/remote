@@ -7,6 +7,130 @@ pub trait At<T> = Functor<T, i32>;
 pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2: F2, f3: F3, x: i32, y: i32) -> () {
   let mut handle = vec![];
 
+  pub fn test2() {
+    fn main() {
+      unsafe {
+        let mut device_context: Option<ID3D11DeviceContext> = None;
+        let mut device: Option<ID3D11Device> = None;
+        let mut feature_level = D3D_FEATURE_LEVEL_12_2;
+
+        D3D11CreateDevice(
+          None,                             // pAdapter
+          D3D_DRIVER_TYPE_HARDWARE,         // drivertype
+          HMODULE::default(),               // software
+          D3D11_CREATE_DEVICE_BGRA_SUPPORT, // flags
+          None,                             // pfeaturelevels
+          D3D11_SDK_VERSION,                // sdkversion
+          Some(&mut device),                // ppdevice
+          Some(&mut feature_level),         // pfeaturelevel
+          Some(&mut device_context),        // ppimmediatecontext
+        )
+        .unwrap();
+
+        let device_context = device_context.unwrap();
+        let device = device.unwrap();
+        let device_cast: IDXGIDevice = device.cast().unwrap();
+        let bridge: IDXGIAdapter = device_cast.GetAdapter().unwrap();
+        let output: IDXGIOutput = bridge.EnumOutputs(0).unwrap();
+        let output_cast: IDXGIOutput1 = output.cast().unwrap();
+        let framer = output_cast.DuplicateOutput(&device).unwrap();
+
+        let wide = wide();
+        let high = high();
+
+        let ny = high / 8.;
+        let nx = wide / 4.;
+        let my = (high / 2.) - (ny / 2.);
+        let mx = (wide / 2.) - (nx / 2.);
+
+        let desc = D3D11_TEXTURE2D_DESC {
+          Width: nx as u32,
+          Height: ny as u32,
+          MipLevels: 1,
+          ArraySize: 1,
+          Format: DXGI_FORMAT_B8G8R8A8_UNORM,
+          SampleDesc: DXGI_SAMPLE_DESC {
+            Count: 1,
+            Quality: 0,
+          },
+          Usage: D3D11_USAGE_STAGING,
+          CPUAccessFlags: D3D11_CPU_ACCESS_READ.0 as u32,
+          BindFlags: 0,
+          MiscFlags: 0,
+        };
+        let mut time = Instant::now();
+        let mut curr = 0;
+        loop {
+          sure(
+            || {
+              let mut meta = DXGI_OUTDUPL_FRAME_INFO::default();
+              let mut data: Option<IDXGIResource> = None;
+              match framer.AcquireNextFrame(HZ, &mut meta, &mut data).is_ok() {
+                T => {
+                  let data = data.unwrap();
+                  let data_cast = data.cast().unwrap();
+                  capture_box_to_png(&device, &device_context, &data_cast, &desc, mx as u32, my as u32);
+
+                  framer.ReleaseFrame().unwrap();
+
+                  curr = curr + 1;
+                  if time.elapsed().as_millis_f64() > 1000. {
+                    println!("FPS: {}", curr);
+                    time = Instant::now();
+                    curr = 0;
+                  }
+                  T
+                },
+                _ => F,
+              };
+            },
+            MS * HZ,
+          );
+        }
+      };
+    }
+
+    main();
+  }
+
+  pub fn capture_box_to_png(device: &ID3D11Device, device_context: &ID3D11DeviceContext, source_texture: &ID3D11Texture2D, desc: &D3D11_TEXTURE2D_DESC, offset_x: u32, offset_y: u32) {
+    let mut staging_texture: Option<ID3D11Texture2D> = None;
+
+    unsafe { device.CreateTexture2D(desc, None, Some(&mut staging_texture)).unwrap() };
+
+    let region = D3D11_BOX {
+      left: offset_x,
+      top: offset_y,
+      front: 0,
+      right: offset_x + desc.Width,
+      bottom: offset_y + desc.Height,
+      back: 1,
+    };
+
+    unsafe { device_context.CopySubresourceRegion(staging_texture.as_ref().unwrap(), 0, 0, 0, 0, source_texture, 0, Some(&region)) };
+
+    let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
+    unsafe { device_context.Map(staging_texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
+
+    let row_pitch = mapped.RowPitch as usize;
+    let ptr = mapped.pData as *const u8;
+
+    let mut img = ImageBuffer::<Rgba<u8>, Vec<u8>>::new(desc.Width, desc.Height);
+
+    for y in 0..desc.Height {
+      let row_start = unsafe { ptr.add(y as usize * row_pitch) };
+      for x in 0..desc.Width {
+        let pixel = unsafe { std::slice::from_raw_parts(row_start.add((x * 4) as usize), 4) };
+        img.put_pixel(x, y, Rgba([pixel[2], pixel[1], pixel[0], pixel[3]])); // BGRA → RGBA
+      }
+    }
+
+    unsafe { device_context.Unmap(staging_texture.as_ref().unwrap(), 0) };
+    img.save("subregion.png").unwrap();
+  }
+
+  test2();
+
   let (i1, o1): (Sender<(i32, i32, i32, Vec<u8>)>, Receiver<(i32, i32, i32, Vec<u8>)>) = bounded(64);
   handle.push(thread::spawn(
     #[inline(always)]
@@ -185,128 +309,6 @@ pub struct Data {
   ny: i32,
   ay: i32,
   ax: i32,
-}
-
-pub fn test2() {
-  fn main() {
-    unsafe {
-      let mut device_context: Option<ID3D11DeviceContext> = None;
-      let mut device: Option<ID3D11Device> = None;
-      let mut feature_level = D3D_FEATURE_LEVEL_12_2;
-
-      D3D11CreateDevice(
-        None,                             // pAdapter
-        D3D_DRIVER_TYPE_HARDWARE,         // drivertype
-        HMODULE::default(),               // software
-        D3D11_CREATE_DEVICE_BGRA_SUPPORT, // flags
-        None,                             // pfeaturelevels
-        D3D11_SDK_VERSION,                // sdkversion
-        Some(&mut device),                // ppdevice
-        Some(&mut feature_level),         // pfeaturelevel
-        Some(&mut device_context),        // ppimmediatecontext
-      )
-      .unwrap();
-
-      let device_context = device_context.unwrap();
-      let device = device.unwrap();
-      let device_cast: IDXGIDevice = device.cast().unwrap();
-      let bridge: IDXGIAdapter = device_cast.GetAdapter().unwrap();
-      let output: IDXGIOutput = bridge.EnumOutputs(0).unwrap();
-      let output_cast: IDXGIOutput1 = output.cast().unwrap();
-      let framer = output_cast.DuplicateOutput(&device).unwrap();
-
-      let wide = wide();
-      let high = high();
-
-      let ny = high / 8.;
-      let nx = wide / 4.;
-      let my = (high / 2.) - (ny / 2.);
-      let mx = (wide / 2.) - (nx / 2.);
-
-      let desc = D3D11_TEXTURE2D_DESC {
-        Width: nx as u32,
-        Height: ny as u32,
-        MipLevels: 1,
-        ArraySize: 1,
-        Format: DXGI_FORMAT_B8G8R8A8_UNORM,
-        SampleDesc: DXGI_SAMPLE_DESC {
-          Count: 1,
-          Quality: 0,
-        },
-        Usage: D3D11_USAGE_STAGING,
-        CPUAccessFlags: D3D11_CPU_ACCESS_READ.0 as u32,
-        BindFlags: 0,
-        MiscFlags: 0,
-      };
-      let mut time = Instant::now();
-      let mut curr = 0;
-      loop {
-        sure(
-          || {
-            let mut meta = DXGI_OUTDUPL_FRAME_INFO::default();
-            let mut data: Option<IDXGIResource> = None;
-            match framer.AcquireNextFrame(HZ, &mut meta, &mut data).is_ok() {
-              T => {
-                let data = data.unwrap();
-                let data_cast: ID3D11Texture2D = data.cast().unwrap();
-                capture_box_to_png(&device, &device_context, &data_cast, &desc, mx as u32, my as u32);
-
-                framer.ReleaseFrame().unwrap();
-
-                curr = curr + 1;
-                if time.elapsed().as_millis_f64() > 1000. {
-                  println!("FPS: {}", curr);
-                  time = Instant::now();
-                  curr = 0;
-                }
-                T
-              },
-              _ => F,
-            };
-          },
-          MS * HZ,
-        );
-      }
-    };
-  }
-
-  main();
-}
-
-pub fn capture_box_to_png(device: &ID3D11Device, device_context: &ID3D11DeviceContext, source_texture: &ID3D11Texture2D, desc: &D3D11_TEXTURE2D_DESC, offset_x: u32, offset_y: u32) {
-  let mut staging_texture: Option<ID3D11Texture2D> = None;
-
-  unsafe { device.CreateTexture2D(desc, None, Some(&mut staging_texture)).unwrap() };
-
-  let region = D3D11_BOX {
-    left: offset_x,
-    top: offset_y,
-    front: 0,
-    right: offset_x + desc.Width,
-    bottom: offset_y + desc.Height,
-    back: 1,
-  };
-
-  unsafe { device_context.CopySubresourceRegion(staging_texture.as_ref().unwrap(), 0, 0, 0, 0, source_texture, 0, Some(&region)) };
-
-  let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
-  unsafe { device_context.Map(staging_texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
-
-  let row_pitch = mapped.RowPitch as usize;
-  let ptr = mapped.pData as *const u8;
-
-  let mut img = ImageBuffer::<Rgba<u8>, Vec<u8>>::new(desc.Width, desc.Height);
-
-  for y in 0..desc.Height {
-    let row_start = unsafe { ptr.add(y as usize * row_pitch) };
-    for x in 0..desc.Width {
-      let pixel = unsafe { std::slice::from_raw_parts(row_start.add((x * 4) as usize), 4) };
-      img.put_pixel(x, y, Rgba([pixel[2], pixel[1], pixel[0], pixel[3]])); // BGRA → RGBA
-    }
-  }
-
-  unsafe { device_context.Unmap(staging_texture.as_ref().unwrap(), 0) };
-  img.save("subregion.png").unwrap();
 }
 
 pub fn test() {

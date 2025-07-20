@@ -243,8 +243,6 @@ pub fn main() {
     },
   ));
 
-  screen::test2();
-
   for x in handle {
     x.join().unwrap();
   }
