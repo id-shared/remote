@@ -34,7 +34,7 @@ pub fn main() {
               // println!("{} {} | {:.2} {} {}", i, n, rr, ax, ay);
 
               xyloid::xy(io, ax, ay);
-              xo(HZ);
+              xo(MS * HZ);
               zz(io, i + 1, n, x - ax, y - ay)
             },
             _ => {
@@ -259,18 +259,18 @@ pub fn on_key<F1: Fn() -> bool, F2: Fn(xyloid::HANDLE, bool) -> bool>(f1: F1, f2
       match n {
         17..=32 => {
           f2(io, F);
-          xo(Duration::from_millis((4 * 16) + ((n - 16) * 2)));
+          xo(MS * ((4 * 16) + ((n - 16) * 2)) as u32);
           f2(io, T)
         },
         6..=16 => {
           f2(io, F);
-          xo(Duration::from_millis(4 * n));
+          xo(MS * (4 * n) as u32);
           f2(io, T)
         },
         0..=5 => T,
         _ => {
           f2(io, F);
-          xo(Duration::from_millis(96));
+          xo(MS * 96);
           f2(io, T)
         },
       };
@@ -345,16 +345,16 @@ pub fn xo(n: Duration) -> bool {
   T
 }
 
+pub type BI = (bool, Instant);
+
 pub const APP: &str = "VAL";
 
-pub const HZ: Duration = Duration::from_millis(16);
 pub const MS: Duration = Duration::from_millis(1);
+pub const HZ: u32 = 16;
 
 pub const N: i32 = 0;
 pub const F: bool = false;
 pub const T: bool = true;
-
-pub type BI = (bool, Instant);
 
 use {
   crossbeam::channel::{
