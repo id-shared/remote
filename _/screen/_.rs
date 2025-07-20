@@ -251,6 +251,8 @@ pub fn test2() {
       let width = 2560;
       let height = 1440;
 
+      let mut time = Instant::now();
+      let mut curr = 0;
       loop {
         // 6. Acquire next frame
         let mut frame_info = DXGI_OUTDUPL_FRAME_INFO::default();
@@ -280,7 +282,7 @@ pub fn test2() {
         desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ.0 as u32;
         desc.MiscFlags = 0;
 
-        println!("{}", desc.Height);
+        // println!("{}", desc.Height);
 
         let mut tex_cpu: Option<ID3D11Texture2D> = None;
         device.CreateTexture2D(&desc, None, Some(&mut tex_cpu)).unwrap();
@@ -295,22 +297,27 @@ pub fn test2() {
         context.Map(&tex_cpu, 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap();
 
         // mapped.pData is a *mut c_void pointing to pixel data
-        println!("Mapped pitch: {}", mapped.RowPitch);
+        // println!("Mapped pitch: {}", mapped.RowPitch);
 
         // Don't forget to unmap and release frame
         context.Unmap(&tex_cpu, 0);
 
-        println!("Frame captured.");
+        // let data = std::slice::from_raw_parts(mapped.pData as *const u8, (mapped.RowPitch * desc.Height) as usize);
 
-        let data = std::slice::from_raw_parts(mapped.pData as *const u8, (mapped.RowPitch * desc.Height) as usize);
+        // if let Some(img) = image::ImageBuffer::<image::Rgb<u8>, Vec<u8>>::from_raw(width, height, data.chunks_exact(4).flat_map(|p| [p[2], p[1], p[0]]).collect()) {
+        //   img.save("a.png").unwrap();
+        // }
 
-        if let Some(img) = image::ImageBuffer::<image::Rgb<u8>, Vec<u8>>::from_raw(width, height, data.chunks_exact(4).flat_map(|p| [p[2], p[1], p[0]]).collect()) {
-          img.save("a.png").unwrap();
-        }
+        // xo(MS * 1000);
 
         duplication.ReleaseFrame().unwrap();
+        curr = curr + 1;
 
-        xo(MS * 1000);
+        if time.elapsed().as_millis_f64() > 1000.0 {
+          println!("FPS: {}", curr);
+          time = Instant::now();
+          curr = 0;
+        }
       }
     };
   }
