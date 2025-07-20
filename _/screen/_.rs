@@ -193,58 +193,39 @@ pub struct Data {
 }
 
 pub fn test2() {
-  use win_desktop_duplication::{
-    devices::*,
-    tex_reader::*,
-    *,
+  use windows::{
+    Win32::{
+      Foundation::*,
+      Graphics::{
+        Direct3D::*,
+        Direct3D11::*,
+        Dxgi::*,
+      },
+    },
+    core::*,
   };
 
   fn main() {
-    // TODO: I only want to capture 64x64 from the center.
-    set_process_dpi_awareness();
-    co_init();
+    unsafe {
+      let mut device: Option<ID3D11Device> = None;
+      let mut context: Option<ID3D11DeviceContext> = None;
+      let mut feature_level = D3D_FEATURE_LEVEL_11_0;
 
-    let adapter = AdapterFactory::new().get_adapter_by_idx(0).unwrap();
-    let output = adapter.get_display_by_idx(0).unwrap();
+      D3D11CreateDevice(
+        None,                             // pAdapter
+        D3D_DRIVER_TYPE_HARDWARE,         // drivertype
+        HMODULE::default(),               // software
+        D3D11_CREATE_DEVICE_BGRA_SUPPORT, // flags
+        None,                             // pfeaturelevels
+        D3D11_SDK_VERSION,                // sdkversion
+        Some(&mut device),                // ppdevice
+        Some(&mut feature_level),         // pfeaturelevel
+        Some(&mut context),               // ppimmediatecontext
+      )
+      .unwrap();
 
-    let mut dupl = DesktopDuplicationApi::new(adapter, output.clone()).unwrap();
-
-    let (device, ctx) = dupl.get_device_and_ctx();
-    let mut texture_reader = TextureReader::new(device, ctx);
-
-    let mut pic_data: Vec<u8> = vec![0; 0];
-    loop {
-      // output.wait_for_vsync().unwrap();
-      let tex = dupl.acquire_next_frame_now();
-
-      if let Ok(tex) = tex {
-        let _ = texture_reader.get_data(&mut pic_data, &tex);
-
-        if !pic_data.is_empty() {
-          let width = tex.desc().width;
-          let height = tex.desc().height;
-
-          // for chunk in pic_data.chunks(4) {
-          //   if (chunk[2] != 0 && chunk[2] <= 240) {
-          //     println!("{}, {}, {}, {}", chunk[0], chunk[1], chunk[2], chunk[3]);
-          //   }
-          // }
-
-          use image::{
-            ImageBuffer,
-            Rgba,
-          };
-
-          let buffer: ImageBuffer<Rgba<u8>, Vec<u8>> = ImageBuffer::from_raw(width, height, pic_data.chunks_exact(4).flat_map(|p| [p[2], p[1], p[0], 255]).collect()).expect("Failed to create ImageBuffer from raw data");
-
-          buffer.save("apple.png").expect("Failed to save PNG");
-
-          println!("hm");
-
-          xo(MS * 1000);
-        }
-      }
-    }
+      println!("Device and context successfully created.");
+    };
   }
 
   main();
