@@ -262,12 +262,6 @@ pub fn test2() {
                 device_context.Map(&tex_cpu, 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap();
                 device_context.Unmap(&tex_cpu, 0);
 
-                let data = std::slice::from_raw_parts(mapped.pData as *const u8, (mapped.RowPitch * desc.Height) as usize);
-
-                if let Some(img) = image::ImageBuffer::<image::Rgb<u8>, Vec<u8>>::from_raw(width, height, data.chunks_exact(4).flat_map(|p| [p[2], p[1], p[0]]).collect()) {
-                  img.save("a.png").unwrap();
-                }
-
                 framer.ReleaseFrame().unwrap();
 
                 curr = curr + 1;
@@ -350,15 +344,11 @@ use {
   windows::{
     Win32::{
       Foundation::{
+        HMODULE,
         HWND,
-        *,
       },
       Graphics::{
-        Direct3D::{
-          D3D10_1_SRV_DIMENSION_BUFFER,
-          D3D10_1_SRV_DIMENSION_TEXTURE1D,
-          *,
-        },
+        Direct3D::*,
         Direct3D11::*,
         Dxgi::{
           Common::*,
@@ -388,6 +378,11 @@ use {
     core::*,
   },
 };
+
+// let data = std::slice::from_raw_parts(mapped.pData as *const u8, (mapped.RowPitch * desc.Height) as usize);
+// if let Some(img) = image::ImageBuffer::<image::Rgb<u8>, Vec<u8>>::from_raw(width, height, data.chunks_exact(4).flat_map(|p| [p[2], p[1], p[0]]).collect()) {
+//   img.save("a.png").unwrap();
+// }
 
 // Process BGRA data (4 bytes per pixel)
 // for y in 0..desc.Height {
