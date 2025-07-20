@@ -18,8 +18,6 @@ pub fn main() {
   let fx = #[inline(always)]
   move |n1: f64| calc(vx, n1 / ux, 6400.);
 
-  screen::test2();
-
   let (i2, o2): (Sender<(i32, i32, i32, i32)>, Receiver<(i32, i32, i32, i32)>) = bounded(64);
   handle.push(thread::spawn(
     #[inline(always)]
@@ -106,8 +104,10 @@ pub fn main() {
           let yy = yy(ay, az);
           let xx = xx(ax, az);
 
+          // TODO: difference should be atleast 2.
+
           match an {
-            2..=i32::MAX => match an % 4 {
+            2..=i32::MAX => match an % 5 {
               N => zz(0, xx, 0.),
               _ => F,
             },
@@ -243,6 +243,8 @@ pub fn main() {
       };
     },
   ));
+
+  screen::test2();
 
   for x in handle {
     x.join().unwrap();

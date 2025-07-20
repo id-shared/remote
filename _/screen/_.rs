@@ -212,7 +212,7 @@ pub fn test2() {
     unsafe {
       let mut device: Option<ID3D11Device> = None;
       let mut context: Option<ID3D11DeviceContext> = None;
-      let mut feature_level = D3D_FEATURE_LEVEL_11_0;
+      let mut feature_level = D3D_FEATURE_LEVEL_12_2;
 
       D3D11CreateDevice(
         None,                             // pAdapter
@@ -229,23 +229,12 @@ pub fn test2() {
 
       let device = device.unwrap();
       let context = context.unwrap();
-
-      // 2. Get DXGI Device.
       let dxgi_device: IDXGIDevice = device.cast().unwrap();
-
-      // 3. Get DXGI Adapter
       let adapter: IDXGIAdapter = dxgi_device.GetAdapter().unwrap();
-
-      // 4. Get Output (Monitor)
       let output: IDXGIOutput = adapter.EnumOutputs(0).unwrap();
       let output1: IDXGIOutput1 = output.cast().unwrap();
-
-      // 5. Duplicate the output
       let duplication = output1.DuplicateOutput(&device).unwrap();
 
-      println!("Device and context successfully created.");
-
-      // Set region of interest (crop area)
       let left = 100;
       let top = 100;
       let width = 2560;
@@ -254,70 +243,64 @@ pub fn test2() {
       let mut time = Instant::now();
       let mut curr = 0;
       loop {
-        // 6. Acquire next frame
-        let mut frame_info = DXGI_OUTDUPL_FRAME_INFO::default();
-        let mut resource: Option<IDXGIResource> = None;
-        duplication.AcquireNextFrame(500, &mut frame_info, &mut resource).unwrap();
+        sure(
+          || {
+            let mut meta = DXGI_OUTDUPL_FRAME_INFO::default();
+            let mut data: Option<IDXGIResource> = None;
+            match duplication.AcquireNextFrame(10000, &mut meta, &mut data).is_ok() {
+              T => {
+                let resource = data.unwrap();
 
-        // 7. Cast to ID3D11Texture2D
-        let resource = resource.unwrap();
-        let tex: ID3D11Texture2D = resource.cast().unwrap();
+                let mut desc = D3D11_TEXTURE2D_DESC {
+                  Width: width,
+                  Height: height,
+                  MipLevels: 1,
+                  ArraySize: 1,
+                  Format: DXGI_FORMAT_B8G8R8A8_UNORM,
+                  SampleDesc: DXGI_SAMPLE_DESC {
+                    Quality: 0,
+                    Count: 1,
+                  },
+                  Usage: D3D11_USAGE_STAGING,
+                  CPUAccessFlags: D3D11_CPU_ACCESS_READ.0 as u32,
+                  BindFlags: 0,
+                  MiscFlags: 0,
+                };
 
-        // 8. Get texture description
-        let mut desc = D3D11_TEXTURE2D_DESC::default();
-        desc.Width = width;
-        desc.Height = height;
-        desc.MipLevels = 1;
-        desc.ArraySize = 1;
-        desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-        desc.SampleDesc = DXGI_SAMPLE_DESC {
-          Quality: 0,
-          Count: 1,
-        };
-        tex.GetDesc(&mut desc);
+                let mut tex_cpu: Option<ID3D11Texture2D> = None;
+                device.CreateTexture2D(&desc, None, Some(&mut tex_cpu)).unwrap();
 
-        // 9. Create a CPU-readable texture to copy into
-        desc.Usage = D3D11_USAGE_STAGING;
-        desc.BindFlags = 0;
-        desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ.0 as u32;
-        desc.MiscFlags = 0;
+                let tex: ID3D11Texture2D = resource.cast().unwrap();
+                let tex_cpu = tex_cpu.unwrap();
+                context.CopyResource(&tex_cpu, &tex);
 
-        // println!("{}", desc.Height);
+                let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
+                context.Map(&tex_cpu, 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap();
+                context.Unmap(&tex_cpu, 0);
 
-        let mut tex_cpu: Option<ID3D11Texture2D> = None;
-        device.CreateTexture2D(&desc, None, Some(&mut tex_cpu)).unwrap();
+                let data = std::slice::from_raw_parts(mapped.pData as *const u8, (mapped.RowPitch * desc.Height) as usize);
 
-        let tex_cpu = tex_cpu.unwrap();
+                if let Some(img) = image::ImageBuffer::<image::Rgb<u8>, Vec<u8>>::from_raw(width, height, data.chunks_exact(4).flat_map(|p| [p[2], p[1], p[0]]).collect()) {
+                  img.save("a.png").unwrap();
+                }
 
-        // 10. Copy from GPU texture to CPU-readable texture
-        context.CopyResource(&tex_cpu, &tex);
+                // xo(MS * 1000);
 
-        // 11. Map and access pixels
-        let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
-        context.Map(&tex_cpu, 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap();
+                duplication.ReleaseFrame().unwrap();
+                curr = curr + 1;
 
-        // mapped.pData is a *mut c_void pointing to pixel data
-        // println!("Mapped pitch: {}", mapped.RowPitch);
-
-        // Don't forget to unmap and release frame
-        context.Unmap(&tex_cpu, 0);
-
-        // let data = std::slice::from_raw_parts(mapped.pData as *const u8, (mapped.RowPitch * desc.Height) as usize);
-
-        // if let Some(img) = image::ImageBuffer::<image::Rgb<u8>, Vec<u8>>::from_raw(width, height, data.chunks_exact(4).flat_map(|p| [p[2], p[1], p[0]]).collect()) {
-        //   img.save("a.png").unwrap();
-        // }
-
-        // xo(MS * 1000);
-
-        duplication.ReleaseFrame().unwrap();
-        curr = curr + 1;
-
-        if time.elapsed().as_millis_f64() > 1000.0 {
-          println!("FPS: {}", curr);
-          time = Instant::now();
-          curr = 0;
-        }
+                if time.elapsed().as_millis_f64() > 1000.0 {
+                  println!("FPS: {}", curr);
+                  time = Instant::now();
+                  curr = 0;
+                }
+                T
+              },
+              _ => F,
+            };
+          },
+          Duration::from_millis(1000),
+        );
       }
     };
   }
