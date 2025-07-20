@@ -116,15 +116,33 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
     let row_pitch = mapped.RowPitch as usize;
     let ptr = mapped.pData as *const u8;
 
-    // let mut img = ImageBuffer::<Rgba<u8>, Vec<u8>>::new(desc.Width, desc.Height);
-    // for y in 0..desc.Height {
-    //   let row_start = unsafe { ptr.add(y as usize * row_pitch) };
-    //   for x in 0..desc.Width {
-    //     let pixel = unsafe { std::slice::from_raw_parts(row_start.add((x * 4) as usize), 4) };
-    //     img.put_pixel(x, y, Rgba([pixel[2], pixel[1], pixel[0], pixel[3]])); // BGRA → RGBA
-    //   }
-    // }
-    // img.save("subregion.png").unwrap();
+    let mut img = ImageBuffer::<Rgba<u8>, Vec<u8>>::new(desc.Width, desc.Height);
+    let buffer = img.as_mut();
+
+    let width = desc.Width as usize;
+    let height = desc.Height as usize;
+
+    unsafe {
+      for y in 0..height {
+        let src_row = ptr.add(y * row_pitch);
+        let dst_row = buffer.as_mut_ptr().add(y * width * 4);
+
+        for x in 0..width {
+          let src_px = src_row.add(x * 4);
+          let dst_px = dst_row.add(x * 4);
+
+          // BGRA to RGBA
+          *dst_px = *src_px.add(2); // R
+          *dst_px.add(1) = *src_px.add(1); // G
+          *dst_px.add(2) = *src_px; // B
+          *dst_px.add(3) = *src_px.add(3); // A
+        }
+      }
+    }
+
+    img.save("subregion.png").unwrap();
+
+    // send(&i1, (1, desc.Width, desc.Height, ptr));
 
     unsafe { device_context.Unmap(staging_texture.as_ref().unwrap(), 0) };
   }
