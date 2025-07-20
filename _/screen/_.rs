@@ -199,8 +199,12 @@ pub fn test2() {
       Graphics::{
         Direct3D::*,
         Direct3D11::*,
-        Dxgi::*,
+        Dxgi::{
+          Common::*,
+          *,
+        },
       },
+      System::WinRT::Graphics::Capture::*,
     },
     core::*,
   };
@@ -223,6 +227,62 @@ pub fn test2() {
         Some(&mut context),               // ppimmediatecontext
       )
       .unwrap();
+
+      let device = device.unwrap();
+      let context = context.unwrap();
+
+      // 2. Get DXGI Device.
+      let dxgi_device: IDXGIDevice = device.cast().unwrap();
+
+      // 3. Get DXGI Adapter
+      let adapter: IDXGIAdapter = dxgi_device.GetAdapter().unwrap();
+
+      // 4. Get Output (Monitor)
+      let output: IDXGIOutput = adapter.EnumOutputs(0).unwrap();
+      let output1: IDXGIOutput1 = output.cast().unwrap();
+
+      // 5. Duplicate the output
+      let duplication = output1.DuplicateOutput(&device).unwrap();
+
+      // 6. Acquire next frame
+      let mut frame_info = DXGI_OUTDUPL_FRAME_INFO::default();
+      let mut resource: Option<IDXGIResource> = None;
+      duplication.AcquireNextFrame(500, &mut frame_info, &mut resource).unwrap();
+
+      // 7. Cast to ID3D11Texture2D
+      let resource = resource.unwrap();
+      let tex: ID3D11Texture2D = resource.cast().unwrap();
+
+      // 8. Get texture description
+      let mut desc = D3D11_TEXTURE2D_DESC::default();
+      tex.GetDesc(&mut desc);
+
+      // 9. Create a CPU-readable texture to copy into
+      desc.Usage = D3D11_USAGE_STAGING;
+      desc.BindFlags = 0;
+      desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ.0 as u32;
+      desc.MiscFlags = 0;
+
+      let mut tex_cpu: Option<ID3D11Texture2D> = None;
+      device.CreateTexture2D(&desc, None, Some(&mut tex_cpu)).unwrap();
+
+      let tex_cpu = tex_cpu.unwrap();
+
+      // 10. Copy from GPU texture to CPU-readable texture
+      context.CopyResource(&tex_cpu, &tex);
+
+      // 11. Map and access pixels
+      let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
+      context.Map(&tex_cpu, 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap();
+
+      // mapped.pData is a *mut c_void pointing to pixel data
+      println!("Mapped pitch: {}", mapped.RowPitch);
+
+      // Don't forget to unmap and release frame
+      context.Unmap(&tex_cpu, 0);
+      duplication.ReleaseFrame().unwrap();
+
+      println!("Frame captured.");
 
       println!("Device and context successfully created.");
     };
