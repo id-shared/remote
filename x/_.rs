@@ -94,22 +94,26 @@ pub fn main() {
         |n: u32, n1: i32| fx(n1 as f64 + f_xn(n)) as i32;
         let zz = #[inline(always)]
         |n: u32, x: i32, y: i32| {
-          let ay = yy(n, y).clamp(-1 * BS, BS);
-          let ax = xx(n, x).clamp(-1 * BS, BS);
+          let ny = yy(n, y);
+          let nx = xx(n, x);
 
-          println!("{}", ax.abs());
+          println!("Abc: {}", nx.abs());
 
-          match BS >= ax.abs() {
+          match BS >= nx.abs() {
             T => {
-              xyloid::xy(io, ax as f64, ay as f64);
-              xo(MS * 16);
-              // match xyloid::is_h() {
-              //   T => T,
-              //   _ => xyloid::key_h(io, F),
-              // }
-              T
+              xyloid::xy(io, nx as f64, ny as f64);
+              xo(MS * 4);
+              match xyloid::is_h() {
+                T => T,
+                _ => xyloid::key_h(io, F),
+              }
             },
-            _ => xyloid::xy(io, ax as f64, ay as f64),
+            _ => {
+              let ay = ny.clamp(-1 * BS, BS);
+              let ax = nx.clamp(-1 * BS, BS);
+
+              xyloid::xy(io, ax as f64, ay as f64)
+            },
           }
         };
 

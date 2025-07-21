@@ -52,12 +52,11 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: 
               T => {
                 let send = (an, -ax, ay);
 
+                h(send);
+
                 match sent == send {
                   T => sent,
-                  _ => {
-                    h(send);
-                    send
-                  },
+                  _ => send,
                 }
               },
               _ => sent,
