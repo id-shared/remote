@@ -58,7 +58,7 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: 
         }
       };
 
-      each(on, data(x / 4., y / 8.));
+      each(on, data(x / 8., y / 8.));
     },
   ));
 

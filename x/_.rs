@@ -93,25 +93,21 @@ pub fn main() {
         let xx = #[inline(always)]
         |n: u32, n1: i32| fx(n1 as f64 + f_xn(n)) as i32;
         let zz = #[inline(always)]
-        |x: i32, y: i32| {
-          println!("Abc: {}", x.abs());
+        |x: i32, y: i32| match BS >= x.abs() {
+          T => {
+            xyloid::xy(io, x as f64, y as f64);
+            xo(MS * 4);
+            match xyloid::is_h() {
+              T => T,
+              _ => xyloid::key_h(io, F),
+            }
+          },
+          _ => {
+            let ay = y.clamp(-1 * BS, BS);
+            let ax = x.clamp(-1 * BS, BS);
 
-          match BS >= x.abs() {
-            T => {
-              xyloid::xy(io, x as f64, y as f64);
-              xo(MS * 4);
-              match xyloid::is_h() {
-                T => T,
-                _ => xyloid::key_h(io, F),
-              }
-            },
-            _ => {
-              let ay = y.clamp(-1 * BS, BS);
-              let ax = x.clamp(-1 * BS, BS);
-
-              xyloid::xy(io, ax as f64, ay as f64)
-            },
-          }
+            xyloid::xy(io, ax as f64, ay as f64)
+          },
         };
 
         // for i in 1..=10 {
@@ -142,7 +138,7 @@ pub fn main() {
           println!("Current: {}, {}, {}, {}", curr, an, ax, ay);
 
           match curr {
-            1..=u32::MAX => match curr % 3 {
+            1..=u32::MAX => match curr % 2 {
               N => zz(nx, N as i32),
               _ => F,
             },
