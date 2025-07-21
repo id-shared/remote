@@ -61,10 +61,7 @@ pub fn watch<F: Func<u32, u32>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: F,
           }
         },
         move |n: u32| match n {
-          49..=u32::MAX => view(x / 16., y / 8.),
-          33..=48 => view(x / 12., y / 8.),
-          17..=32 => view(x / 8., y / 8.),
-          1..=16 => view(x / 4., y / 8.),
+          1..=u32::MAX => view(x / 4., y / 8.),
           _ => view(x / 4., y / 8.),
         },
         io(),

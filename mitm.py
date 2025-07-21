@@ -1,8 +1,10 @@
 from mitmproxy import http
-import asyncio
+import time
 
+wait = time.time()
 safe = 3921
 curr = 0
+
 async def request(flow: http.HTTPFlow) -> None:
   reqs = flow.request
   kind = reqs.method
@@ -11,6 +13,8 @@ async def request(flow: http.HTTPFlow) -> None:
   port = reqs.port
   urn = f"https://{host}:{port}{path}"
   url = reqs.url
+
+  global wait
   global safe
   global curr
 
@@ -32,31 +36,21 @@ async def request(flow: http.HTTPFlow) -> None:
       else:
         if curr == 0:
           if safe >= (i_int - 256):
-            flow.intercept()
-            return
+            if (time.time() - wait) > 60:
+              flow.intercept()
+              return
+            else:
+              return
           else:
             return
         else:
           curr = min(0, curr - 1)
-          flow.intercept()
-          await asyncio.sleep(40)
-          flow.resume()
-          return
+          if curr == 0:
+            wait = time.time()
+            return
+          else:
+            return
     else:
       return
   else:
     return
-
-# flow.request.headers["Host"] = "ap2.vg.ac.pvp.net"
-# flow.request.host = "ap2.vg.ac.pvp.net"
-# flow.request.port = 443
-
-# flow.response = http.Response.make(
-#   status_code=200,
-#   content=prev.content,
-#   headers=dict(prev.headers)
-# )
-
-# flow.intercept()
-# await asyncio.sleep(60)
-# flow.resume()
