@@ -12,56 +12,59 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: 
       let data = #[inline(always)]
       |x1: f64, y1: f64| data((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
 
-      let on = move |z: (Buffer, Detail)| match f(T) {
-        T => {
-          let ((nn, un, xn, yn), sent) = z;
+      let on = move |z: (Buffer, Detail)| {
+        let ((nn, un, xn, yn), sent) = z;
 
-          let mut is: bool = F;
-          let mut ay: i32 = 0;
-          let mut ax: i32 = 0;
-          let mut an: u32 = N;
+        match f(T) {
+          T => {
+            let mut is: bool = F;
+            let mut ay: i32 = 0;
+            let mut ax: i32 = 0;
+            let mut an: u32 = N;
 
-          for y in 0..yn {
-            let yn_ = unsafe { nn.add(y * un) } as *const u32;
-            let ay_ = (yn as i32 / 2) - y as i32;
+            for y in 0..yn {
+              let yn_ = unsafe { nn.add(y * un) } as *const u32;
+              let ay_ = (yn as i32 / 2) - y as i32;
 
-            'x: for x in 0..xn {
-              let xn_ = unsafe { *yn_.add(x) };
-              let ax_ = (xn as i32 / 2) - x as i32;
+              'x: for x in 0..xn {
+                let xn_ = unsafe { *yn_.add(x) };
+                let ax_ = (xn as i32 / 2) - x as i32;
 
-              match g(xn_) {
-                T => match is {
-                  T => {
-                    an = an + 1;
-                    break 'x;
+                match g(xn_) {
+                  T => match is {
+                    T => {
+                      an = an + 1;
+                      break 'x;
+                    },
+                    _ => {
+                      ay = ay_;
+                      ax = ax_;
+                      an = an + 1;
+                      is = T;
+                      break 'x;
+                    },
                   },
-                  _ => {
-                    ay = ay_;
-                    ax = ax_;
-                    an = an + 1;
-                    is = T;
-                    break 'x;
-                  },
-                },
-                _ => F,
-              };
+                  _ => F,
+                };
+              }
             }
-          }
+            match is {
+              T => {
+                let send = (an, -ax, ay);
 
-          let send = (an, -ax, ay);
-
-          match is {
-            T => match sent == send {
-              T => send,
-              _ => {
-                h(send);
-                send
+                match sent == send {
+                  T => sent,
+                  _ => {
+                    h(send);
+                    send
+                  },
+                }
               },
-            },
-            _ => send,
-          }
-        },
-        _ => (0, 0, 0),
+              _ => sent,
+            }
+          },
+          _ => sent,
+        }
       };
 
       each(on, data(x / 4., y / 8.));
