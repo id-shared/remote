@@ -93,15 +93,12 @@ pub fn main() {
         let xx = #[inline(always)]
         |n: u32, n1: i32| fx(n1 as f64 + f_xn(n)) as i32;
         let zz = #[inline(always)]
-        |n: u32, x: i32, y: i32| {
-          let ny = yy(n, y);
-          let nx = xx(n, x);
+        |x: i32, y: i32| {
+          println!("Abc: {}", x.abs());
 
-          println!("Abc: {}", nx.abs());
-
-          match BS >= nx.abs() {
+          match BS >= x.abs() {
             T => {
-              xyloid::xy(io, nx as f64, ny as f64);
+              xyloid::xy(io, x as f64, y as f64);
               xo(MS * 4);
               match xyloid::is_h() {
                 T => T,
@@ -109,8 +106,8 @@ pub fn main() {
               }
             },
             _ => {
-              let ay = ny.clamp(-1 * BS, BS);
-              let ax = nx.clamp(-1 * BS, BS);
+              let ay = y.clamp(-1 * BS, BS);
+              let ax = x.clamp(-1 * BS, BS);
 
               xyloid::xy(io, ax as f64, ay as f64)
             },
@@ -126,8 +123,8 @@ pub fn main() {
         let mut curr = N;
 
         while let Ok((an, ax, ay)) = o2.recv() {
-          // let yy = yy(an, ay);
-          // let xx = xx(an, ax);
+          let ny = yy(an, ay);
+          let nx = xx(an, ax);
 
           // TODO: difference should be atleast 2.
 
@@ -142,18 +139,14 @@ pub fn main() {
             },
           };
 
-          println!("Current: {}", curr);
-
-          println!("{}, {}, {}, {}", curr, an, ax, ay);
-
-          // zz(an, ax, ay);
+          println!("Current: {}, {}, {}, {}", curr, an, ax, ay);
 
           match curr {
-            1..=u32::MAX => match curr % 2 {
-              N => zz(an, ax, N as i32),
+            1..=u32::MAX => match curr % 3 {
+              N => zz(nx, N as i32),
               _ => F,
             },
-            _ => zz(an, ax, ay),
+            _ => zz(nx, ny),
           };
         }
       },

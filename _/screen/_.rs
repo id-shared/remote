@@ -12,8 +12,8 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: 
       let data = #[inline(always)]
       |x1: f64, y1: f64| data((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
 
-      let on = move |z: (Buffer, Detail)| {
-        let ((nn, un, xn, yn), sent) = z;
+      let on = move |z: Buffer| {
+        let (nn, un, xn, yn) = z;
 
         match f(T) {
           T => {
@@ -48,21 +48,13 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: 
                 };
               }
             }
+
             match is {
-              T => {
-                let send = (an, -ax, ay);
-
-                h(send);
-
-                match sent == send {
-                  T => sent,
-                  _ => send,
-                }
-              },
-              _ => sent,
+              T => h((an, -ax, ay)),
+              _ => F,
             }
           },
-          _ => sent,
+          _ => F,
         }
       };
 
@@ -114,9 +106,8 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: 
     (data_ptr, pitch, wide, high)
   }
 
-  fn each<G: FuncMut<(Buffer, Detail), Detail>>(mut g: G, z: IO) -> bool {
+  fn each<G: FuncMut<Buffer, bool>>(mut g: G, z: IO) -> bool {
     let mut time = Instant::now();
-    let mut prev = (0, 0, 0);
     let mut curr = N;
     loop {
       match T {
@@ -129,7 +120,7 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: 
                 T => {
                   let data = data.unwrap();
                   let cast = data.cast().unwrap();
-                  prev = g((turn(cast, &z), prev));
+                  g(turn(cast, &z));
                   unsafe { z.framer.ReleaseFrame().unwrap() };
                   T
                 },
