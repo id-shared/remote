@@ -12,22 +12,27 @@ pub fn watch<F1: Func<i32, i32>, F2: Func<u32, bool>, F3: Func<(i32, i32, i32, i
       |x1: f64, y1: f64| data((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
 
       each(
-        |x| {
-          let (wide, high, pitch, data_ptr) = x;
+        move |x| {
+          let (nn, un, xn, yn) = x;
 
           let mut an = 0;
 
-          for y in 0..high {
-            let yn = unsafe { data_ptr.add(y * pitch) } as *const u32;
-            'x: for x in 0..wide {
-              let xn = unsafe { *yn.add(x) };
+          for y in 0..yn {
+            let yn = unsafe { nn.add(y * un) } as *const u32;
+            'x: for x in 0..xn {
+              let px = unsafe { *yn.add(x) };
 
-              an = an + 1;
-              break 'x;
+              match f2(px) {
+                T => {
+                  an = an + 1;
+                  break 'x;
+                },
+                _ => F,
+              };
             }
           }
 
-          // println!("{}", an);
+          println!("{}", an);
 
           T
         },
@@ -41,7 +46,7 @@ pub fn watch<F1: Func<i32, i32>, F2: Func<u32, bool>, F3: Func<(i32, i32, i32, i
   }
 }
 
-pub fn turn<F: Func2<(usize, usize, usize, *const u8), bool>>(f: F, x: &ID3D11Texture2D, z: &IO) -> bool {
+pub fn turn<F: Func2<(*const u8, usize, usize, usize), bool>>(f: &F, x: &ID3D11Texture2D, z: &IO) -> bool {
   let high = z.y as usize;
   let wide = z.x as usize;
   let desc = D3D11_TEXTURE2D_DESC {
@@ -80,14 +85,14 @@ pub fn turn<F: Func2<(usize, usize, usize, *const u8), bool>>(f: F, x: &ID3D11Te
   let pitch = mapped.RowPitch as usize;
   let data_ptr = mapped.pData as *const u8;
 
-  let back = f((wide, high, pitch, data_ptr));
+  let back = f((data_ptr, pitch, wide, high));
 
   unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
 
   back
 }
 
-pub fn each<F: Func2<(usize, usize, usize, *const u8), bool>>(f: F, z: IO) -> bool {
+pub fn each<F: Func<(*const u8, usize, usize, usize), bool>>(f: F, z: IO) -> bool {
   let mut time = Instant::now();
   let mut curr = N;
   loop {
@@ -99,7 +104,7 @@ pub fn each<F: Func2<(usize, usize, usize, *const u8), bool>>(f: F, z: IO) -> bo
           T => {
             let data = data.unwrap();
             let cast = data.cast().unwrap();
-            turn(f, &cast, &z);
+            turn(&f, &cast, &z);
             unsafe { z.framer.ReleaseFrame().unwrap() };
             T
           },
@@ -174,7 +179,7 @@ pub struct IO {
   y: f64,
 }
 
-fn sure<F: FnOnce() -> bool>(f1: F, n1: Duration) -> bool {
+fn sure<F: Fn() -> bool>(f1: F, n1: Duration) -> bool {
   let init = Instant::now();
   let back = f1();
   let rest = init.elapsed();
@@ -225,7 +230,7 @@ pub fn xo(n: Duration) -> bool {
   T
 }
 
-pub trait Func2<T1, T2> = Fn(T1) -> T2 + Copy + Send + Sync + 'static;
+pub trait Func2<T1, T2> = Fn(T1) -> T2 + Send + Sync + 'static;
 pub trait Func<T1, T2> = Fn(T1) -> T2 + Send + Sync + 'static;
 
 pub const APP: &str = "VAL";
