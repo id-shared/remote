@@ -2,7 +2,7 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F1: Func<i32, i32>, F2: Func<u32, bool>, F3: Func<(u32, i32, i32), bool>>(f1: F1, f2: F2, f3: F3, x: f64, y: f64) -> () {
+pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<(u32, i32, i32), bool>>(f: F, g: G, h: H, x: f64, y: f64) -> () {
   let mut handle = vec![];
 
   handle.push(thread::spawn(
@@ -28,7 +28,7 @@ pub fn watch<F1: Func<i32, i32>, F2: Func<u32, bool>, F3: Func<(u32, i32, i32), 
               let xn_ = unsafe { *yn_.add(x) };
               let ax_ = (xn as i32 / 2) - x as i32;
 
-              match f2(xn_) {
+              match g(xn_) {
                 T => match is {
                   T => {
                     an = an + 1;
@@ -47,9 +47,10 @@ pub fn watch<F1: Func<i32, i32>, F2: Func<u32, bool>, F3: Func<(u32, i32, i32), 
             }
           }
 
-          println!("{}", an);
+          // println!("{}", an);
+
           match is {
-            T => f3((an, -ax, ay)),
+            T => h((an, -ax, ay)),
             _ => F,
           };
 
@@ -65,7 +66,7 @@ pub fn watch<F1: Func<i32, i32>, F2: Func<u32, bool>, F3: Func<(u32, i32, i32), 
   }
 }
 
-pub fn turn<F: Func2<(*const u8, usize, usize, usize), bool>>(f: &F, x: &ID3D11Texture2D, z: &IO) -> bool {
+pub fn turn<G: Func<(*const u8, usize, usize, usize), bool>>(g: &G, x: &ID3D11Texture2D, z: &IO) -> bool {
   let high = z.y as usize;
   let wide = z.x as usize;
   let desc = D3D11_TEXTURE2D_DESC {
@@ -104,14 +105,14 @@ pub fn turn<F: Func2<(*const u8, usize, usize, usize), bool>>(f: &F, x: &ID3D11T
   let pitch = mapped.RowPitch as usize;
   let data_ptr = mapped.pData as *const u8;
 
-  let back = f((data_ptr, pitch, wide, high));
+  let back = g((data_ptr, pitch, wide, high));
 
   unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
 
   back
 }
 
-pub fn each<F: Func<(*const u8, usize, usize, usize), bool>>(f: F, z: IO) -> bool {
+pub fn each<G: Func<(*const u8, usize, usize, usize), bool>>(g: G, z: IO) -> bool {
   let mut time = Instant::now();
   let mut curr = N;
   loop {
@@ -123,7 +124,7 @@ pub fn each<F: Func<(*const u8, usize, usize, usize), bool>>(f: F, z: IO) -> boo
           T => {
             let data = data.unwrap();
             let cast = data.cast().unwrap();
-            turn(&f, &cast, &z);
+            turn(&g, &cast, &z);
             unsafe { z.framer.ReleaseFrame().unwrap() };
             T
           },
@@ -249,7 +250,6 @@ pub fn xo(n: Duration) -> bool {
   T
 }
 
-pub trait Func2<T1, T2> = Fn(T1) -> T2 + Send + Sync + 'static;
 pub trait Func<T1, T2> = Fn(T1) -> T2 + Send + Sync + 'static;
 
 pub const APP: &str = "VAL";

@@ -118,7 +118,7 @@ pub fn main() {
     },
   ));
 
-  let (i1, o1): (Sender<i32>, Receiver<i32>) = bounded(64);
+  let (i1, o1): (Sender<bool>, Receiver<bool>) = bounded(64);
   handle.push(thread::spawn(
     #[inline(always)]
     move || match xyloid::type_1() {
@@ -128,9 +128,9 @@ pub fn main() {
 
         let mut cy = N;
 
-        while let Ok(n) = o1.recv() {
-          cy = match n {
-            1..=i32::MAX => match xyloid::is_h() {
+        while let Ok(a) = o1.recv() {
+          cy = match a {
+            T => match xyloid::is_h() {
               T => {
                 yy(match cy {
                   49..=i32::MAX => 0.,
@@ -174,18 +174,18 @@ pub fn main() {
 
       screen::watch(
         #[inline(always)]
-        move |n| match screen::name().contains(APP) {
+        move |a| match screen::name().contains(APP) {
           T => match xyloid::is_mouse_l() {
             T => {
-              send(&i1, n + 1);
-              n + 1
+              send(&i1, a);
+              T
             },
             _ => {
-              send(&i1, 0);
-              0
+              send(&i1, a);
+              F
             },
           },
-          _ => 0,
+          _ => F,
         },
         #[inline(always)]
         move |x| {
