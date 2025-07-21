@@ -98,19 +98,34 @@ pub fn main() {
         //   println!("{:.2}", ease(n));
         // }
 
+        let mut time = Instant::now();
+        let mut curr = N;
+
         while let Ok((an, ax, ay)) = o2.recv() {
           let yy = yy(an, ay);
           let xx = xx(an, ax);
 
           // TODO: difference should be atleast 2.
 
-          match 1 {
-            2..=i32::MAX => match 1 % 5 {
+          curr = match time.elapsed().as_millis_f64() < 128. {
+            T => {
+              time = Instant::now();
+              curr + 1
+            },
+            _ => {
+              time = Instant::now();
+              N
+            },
+          };
+
+          println!("Current: {}", curr);
+
+          match curr {
+            1..=u32::MAX => match curr % 5 {
               N => zz(0, xx, 0.),
               _ => F,
             },
-            1 => zz(3, xx, yy),
-            _ => F,
+            _ => zz(3, xx, yy),
           };
         }
       },
