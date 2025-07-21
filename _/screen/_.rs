@@ -64,7 +64,7 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<(u32, i32, i32), b
     },
   ));
 
-  fn turn<G: Func<Buffer, bool>>(g: &G, x: &ID3D11Texture2D, z: &IO) -> bool {
+  fn turn(x: ID3D11Texture2D, z: &IO) -> Buffer {
     let high = z.y as usize;
     let wide = z.x as usize;
     let desc = D3D11_TEXTURE2D_DESC {
@@ -95,7 +95,7 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<(u32, i32, i32), b
       back: 1,
     };
 
-    unsafe { z.context.CopySubresourceRegion(texture.as_ref().unwrap(), 0, 0, 0, 0, x, 0, Some(&region)) };
+    unsafe { z.context.CopySubresourceRegion(texture.as_ref().unwrap(), 0, 0, 0, 0, &x, 0, Some(&region)) };
 
     let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
     unsafe { z.context.Map(texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
@@ -103,11 +103,9 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<(u32, i32, i32), b
     let pitch = mapped.RowPitch as usize;
     let data_ptr = mapped.pData as *const u8;
 
-    let back = g((data_ptr, pitch, wide, high));
-
     unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
 
-    back
+    (data_ptr, pitch, wide, high)
   }
 
   fn each<G: Func<Buffer, bool>>(g: G, z: IO) -> bool {
@@ -124,7 +122,7 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<(u32, i32, i32), b
                 T => {
                   let data = data.unwrap();
                   let cast = data.cast().unwrap();
-                  turn(&g, &cast, &z);
+                  g(turn(cast, &z));
                   unsafe { z.framer.ReleaseFrame().unwrap() };
                   T
                 },
@@ -344,7 +342,7 @@ use {
   },
 };
 
-fn test() {
+pub fn test() {
   let img = image::open("test.png").expect("Failed to open image");
 
   const TINT: u8 = 255 - 24;
