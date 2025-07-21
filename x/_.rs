@@ -85,9 +85,8 @@ pub fn main() {
                 _ => (xx(v, x), T),
               };
 
-              match !is_x {
-                T => zz(ax, ay),
-                _ => match xyloid::is_h() {
+              match is_x && is_y {
+                T => match xyloid::is_h() {
                   T => zz(ax, ay),
                   _ => {
                     zz(ax, ay);
@@ -95,6 +94,7 @@ pub fn main() {
                     kh(F)
                   },
                 },
+                _ => zz(ax, ay),
               }
             },
             _ => F,
