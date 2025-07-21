@@ -74,7 +74,7 @@ pub fn turn(io: &IO, source_texture: &ID3D11Texture2D) {
     }
   }
 
-  println!("{}", count);
+  // println!("{}", count);
 
   unsafe { io.context.Unmap(staging_texture.as_ref().unwrap(), 0) };
 }
@@ -88,7 +88,7 @@ pub fn each(io: IO, p: (Instant, u32)) -> bool {
         || {
           let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
           let mut data: Option<IDXGIResource> = None;
-          match unsafe { io.framer.AcquireNextFrame(HZ, &mut info, &mut data).is_ok() } {
+          match unsafe { io.framer.AcquireNextFrame(1, &mut info, &mut data).is_ok() } {
             T => {
               let data = data.unwrap();
               let cast = data.cast().unwrap();
