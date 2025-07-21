@@ -11,7 +11,28 @@ pub fn watch<F1: Func<i32, i32>, F2: Func<u32, bool>, F3: Func<(i32, i32, i32, i
       let data = #[inline(always)]
       |x1: f64, y1: f64| data((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
 
-      each(|_x| T, &data(x / 4., y / 8.));
+      each(
+        |x| {
+          let (wide, high, pitch, data_ptr) = x;
+
+          let mut an = 0;
+
+          for y in 0..high {
+            let yn = unsafe { data_ptr.add(y * pitch) } as *const u32;
+            'x: for x in 0..wide {
+              let xn = unsafe { *yn.add(x) };
+
+              an = an + 1;
+              break 'x;
+            }
+          }
+
+          // println!("{}", an);
+
+          T
+        },
+        data(x / 4., y / 8.),
+      );
     },
   ));
 
@@ -20,7 +41,7 @@ pub fn watch<F1: Func<i32, i32>, F2: Func<u32, bool>, F3: Func<(i32, i32, i32, i
   }
 }
 
-pub fn turn<F: Func2<(*const u8, usize), bool>>(f: F, x: &ID3D11Texture2D, z: &IO) -> bool {
+pub fn turn<F: Func2<(usize, usize, usize, *const u8), bool>>(f: F, x: &ID3D11Texture2D, z: &IO) -> bool {
   let high = z.y as usize;
   let wide = z.x as usize;
   let desc = D3D11_TEXTURE2D_DESC {
@@ -59,28 +80,14 @@ pub fn turn<F: Func2<(*const u8, usize), bool>>(f: F, x: &ID3D11Texture2D, z: &I
   let pitch = mapped.RowPitch as usize;
   let data_ptr = mapped.pData as *const u8;
 
-  let back = f((data_ptr, pitch));
+  let back = f((wide, high, pitch, data_ptr));
 
   unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
 
   back
 }
 
-// let mut an = 0;
-
-// for y in 0..high {
-//   let yn = unsafe { data_ptr.add(y * pitch) } as *const u32;
-//   'x: for x in 0..wide {
-//     let xn = unsafe { *yn.add(x) };
-
-//     an = an + 1;
-//     break 'x;
-//   }
-// }
-
-// println!("{}", an);
-
-pub fn each<F: Func2<(*const u8, usize), bool>>(f: F, z: &IO) -> bool {
+pub fn each<F: Func2<(usize, usize, usize, *const u8), bool>>(f: F, z: IO) -> bool {
   let mut time = Instant::now();
   let mut curr = N;
   loop {
