@@ -133,7 +133,7 @@ pub fn main() {
             T => match xyloid::is_h() {
               T => {
                 yy(match cy {
-                  49..=i32::MAX => 0.,
+                  49..=u32::MAX => 0.,
                   45..=48 => -1.,
                   41..=44 => -1.,
                   37..=40 => -3.,
@@ -322,7 +322,7 @@ pub fn fov(n: f64) -> f64 {
 pub fn stim(n1: i32, n2: i32) -> (i32, i32) {
   let next = step(n1, n2);
 
-  match next.cmp(&N) {
+  match next.cmp(&0) {
     Greater => (n1, next),
     Less => (-n1, next),
     Equal => (n2, next),
@@ -331,10 +331,10 @@ pub fn stim(n1: i32, n2: i32) -> (i32, i32) {
 
 #[inline(always)]
 pub fn step(n1: i32, n2: i32) -> i32 {
-  match n2.cmp(&N) {
-    Greater => (n2 - n1).max(N),
-    Less => (n2 + n1).min(N),
-    Equal => N,
+  match n2.cmp(&0) {
+    Greater => (n2 - n1).max(0),
+    Less => (n2 + n1).min(0),
+    Equal => 0,
   }
 }
 
@@ -351,7 +351,7 @@ pub const APP: &str = "VAL";
 pub const MS: Duration = Duration::from_millis(1);
 pub const HZ: u32 = 16;
 
-pub const N: i32 = 0;
+pub const N: u32 = 0;
 pub const F: bool = false;
 pub const T: bool = true;
 

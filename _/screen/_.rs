@@ -19,7 +19,7 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<(u32, i32, i32), b
             let mut is: bool = F;
             let mut ay: i32 = 0;
             let mut ax: i32 = 0;
-            let mut an: u32 = 0;
+            let mut an: u32 = N;
 
             for y in 0..yn {
               let yn_ = unsafe { nn.add(y * un) } as *const u32;
@@ -48,7 +48,7 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<(u32, i32, i32), b
               }
             }
 
-            println!("{}", an);
+            println!("{}, {}, {}", an, -ax, ay);
 
             match is {
               T => h((an, -ax, ay)),
@@ -271,7 +271,7 @@ pub const APP: &str = "VAL";
 pub const MS: Duration = Duration::from_millis(1);
 pub const HZ: u32 = 16;
 
-pub const N: i32 = 0;
+pub const N: u32 = 0;
 pub const F: bool = false;
 pub const T: bool = true;
 
