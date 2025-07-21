@@ -220,23 +220,23 @@ pub fn main() {
     move || {
       match xyloid::type_1() {
         Some(io) => {
-          fn each(io: xyloid::HANDLE, d: BI, a: BI, w: BI, s: BI) -> bool {
+          let mut d = (F, Instant::now());
+          let mut a = (F, Instant::now());
+          let mut w = (F, Instant::now());
+          let mut s = (F, Instant::now());
+
+          loop {
             match screen::name().contains(APP) {
               T => {
-                xo(MS);
-                each(
-                  io,
-                  on_key(xyloid::is_d, xyloid::key_arrow_l, io, d), // d
-                  on_key(xyloid::is_a, xyloid::key_arrow_r, io, a), // a
-                  on_key(xyloid::is_w, xyloid::key_arrow_d, io, w), // w
-                  on_key(xyloid::is_s, xyloid::key_arrow_u, io, s), // s
-                )
+                d = on_key(xyloid::is_d, xyloid::key_arrow_l, io, d);
+                a = on_key(xyloid::is_a, xyloid::key_arrow_r, io, a);
+                w = on_key(xyloid::is_w, xyloid::key_arrow_d, io, w);
+                s = on_key(xyloid::is_s, xyloid::key_arrow_u, io, s);
+                xo(MS)
               },
               _ => xo(MS),
-            }
+            };
           }
-
-          each(io, (F, Instant::now()), (F, Instant::now()), (F, Instant::now()), (F, Instant::now()))
         },
         _ => F,
       };

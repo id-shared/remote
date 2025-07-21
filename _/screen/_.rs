@@ -11,7 +11,7 @@ pub fn watch<F1: Func<i32, i32>, F2: Func<u32, bool>, F3: Func<(i32, i32, i32, i
       let data = #[inline(always)]
       |x1: f64, y1: f64| data((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
 
-      each(|_x| T, (Instant::now(), 0), data(x / 4., y / 8.));
+      each(|_x| T, &data(x / 4., y / 8.));
     },
   ));
 
@@ -59,20 +59,6 @@ pub fn turn<F: Func2<(*const u8, usize), bool>>(f: F, x: &ID3D11Texture2D, z: &I
   let pitch = mapped.RowPitch as usize;
   let data_ptr = mapped.pData as *const u8;
 
-  let mut an = 0;
-
-  for y in 0..high {
-    let yn = unsafe { data_ptr.add(y * pitch) } as *const u32;
-    'x: for x in 0..wide {
-      let xn = unsafe { *yn.add(x) };
-
-      an = an + 1;
-      break 'x;
-    }
-  }
-
-  // println!("{}", an);
-
   let back = f((data_ptr, pitch));
 
   unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
@@ -80,39 +66,55 @@ pub fn turn<F: Func2<(*const u8, usize), bool>>(f: F, x: &ID3D11Texture2D, z: &I
   back
 }
 
-pub fn each<F: Func2<(*const u8, usize), bool>>(f: F, p: (Instant, u32), z: IO) -> bool {
-  match name().contains("") {
-    T => {
-      let (time, curr) = p;
+// let mut an = 0;
 
-      match sure(
-        || {
-          let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
-          let mut data: Option<IDXGIResource> = None;
-          match unsafe { z.framer.AcquireNextFrame(1, &mut info, &mut data).is_ok() } {
-            T => {
-              let data = data.unwrap();
-              let cast = data.cast().unwrap();
-              turn(f, &cast, &z);
-              unsafe { z.framer.ReleaseFrame().unwrap() };
-              T
-            },
-            _ => F,
-          }
-        },
-        MS * HZ,
-      ) {
-        T => match time.elapsed().as_millis_f64() > 1000. {
+// for y in 0..high {
+//   let yn = unsafe { data_ptr.add(y * pitch) } as *const u32;
+//   'x: for x in 0..wide {
+//     let xn = unsafe { *yn.add(x) };
+
+//     an = an + 1;
+//     break 'x;
+//   }
+// }
+
+// println!("{}", an);
+
+pub fn each<F: Func2<(*const u8, usize), bool>>(f: F, z: &IO) -> bool {
+  let mut time = Instant::now();
+  let mut curr = N;
+  loop {
+    match sure(
+      || {
+        let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
+        let mut data: Option<IDXGIResource> = None;
+        match unsafe { z.framer.AcquireNextFrame(HZ, &mut info, &mut data).is_ok() } {
           T => {
-            println!("FPS: {}", curr);
-            each(f, (Instant::now(), 0), z)
+            let data = data.unwrap();
+            let cast = data.cast().unwrap();
+            turn(f, &cast, &z);
+            unsafe { z.framer.ReleaseFrame().unwrap() };
+            T
           },
-          _ => each(f, (time, curr + 1), z),
+          _ => F,
+        }
+      },
+      MS * HZ,
+    ) {
+      T => match time.elapsed().as_millis_f64() > 1000. {
+        T => {
+          println!("FPS: {}", curr);
+          time = Instant::now();
+          curr = N;
+          T
         },
-        _ => each(f, (time, curr), z),
-      }
-    },
-    _ => F,
+        _ => {
+          curr = curr + 1;
+          F
+        },
+      },
+      _ => F,
+    };
   }
 }
 
