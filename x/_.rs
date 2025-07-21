@@ -56,36 +56,39 @@ pub fn main() {
           (f_zn(n1) as f64) / 4.
         }
 
+        let zz = #[inline(always)]
+        |x: f64, y: f64| match xyloid::is_h() {
+          T => xyloid::xy(io, x, N as f64),
+          _ => xyloid::xy(io, x, y),
+        };
         let yy = #[inline(always)]
         |n: u32, n1: i32| fy(n1 as f64 - f_yn(n));
         let xx = #[inline(always)]
         |n: u32, n1: i32| fx(n1 as f64 + f_xn(n));
+        let kh = #[inline(always)]
+        |a: bool| xyloid::key_h(io, a);
 
         const BS: i32 = 64;
-        let mut ok = F;
         while let Ok((c, v, x, y)) = o2.recv() {
           // TODO: difference should be atleast 2.
-          println!("Current: {}, {}, {}, {}", c, v, x, y);
+          println!("{}, {}, {}, {}", c, v, x, y);
 
-          match c % 2 {
-            1 => match x.abs() >= BS {
-              T => {
-                xyloid::xy(io, xx(v, x.min(BS).max(-BS)), yy(v, y.min(BS).max(-BS)));
-                ok = F;
-                ok
-              },
-              _ => {
-                xyloid::xy(io, xx(v, x), N as f64);
-                xo(MS * 4);
-                match xyloid::is_h() {
-                  T => T,
-                  _ => xyloid::key_h(io, F),
-                };
-                ok = T;
-                ok
-              },
+          let ay = match y.abs() >= BS {
+            T => yy(v, y.min(BS).max(-BS)),
+            _ => yy(v, y),
+          };
+          let ax = match x.abs() >= BS {
+            T => xx(v, x.min(BS).max(-BS)),
+            _ => xx(v, x),
+          };
+
+          match xyloid::is_h() {
+            T => zz(ax, ay),
+            _ => {
+              zz(ax, ay);
+              xo(MS * 4);
+              kh(F)
             },
-            _ => F,
           };
         }
       },
