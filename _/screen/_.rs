@@ -2,9 +2,7 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub trait Is<T> = Functor<T, bool>;
-pub trait At<T> = Functor<T, i32>;
-pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2: F2, f3: F3, x: f64, y: f64) -> () {
+pub fn watch<F1: Func<i32, i32>, F2: Func<u32, bool>, F3: Func<(i32, i32, i32, i32), bool>>(f1: F1, f2: F2, f3: F3, x: f64, y: f64) -> () {
   let mut handle = vec![];
 
   handle.push(thread::spawn(
@@ -13,7 +11,7 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
       let data = #[inline(always)]
       |x1: f64, y1: f64| data((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
 
-      each(data(x / 4., y / 8.), (Instant::now(), 0));
+      each(|_x| T, (Instant::now(), 0), data(x / 4., y / 8.));
     },
   ));
 
@@ -22,11 +20,12 @@ pub fn watch<F1: At<i32>, F2: Is<u32>, F3: Is<(i32, i32, i32, i32)>>(f1: F1, f2:
   }
 }
 
-pub fn turn(io: &IO, source_texture: &ID3D11Texture2D) {
-  let mut staging_texture: Option<ID3D11Texture2D> = None;
+pub fn turn<F: Func2<(*const u8, usize), bool>>(f: F, x: &ID3D11Texture2D, z: &IO) -> bool {
+  let high = z.y as usize;
+  let wide = z.x as usize;
   let desc = D3D11_TEXTURE2D_DESC {
-    Width: io.x as u32,
-    Height: io.y as u32,
+    Width: wide as u32,
+    Height: high as u32,
     MipLevels: 1,
     ArraySize: 1,
     Format: DXGI_FORMAT_B8G8R8A8_UNORM,
@@ -40,46 +39,48 @@ pub fn turn(io: &IO, source_texture: &ID3D11Texture2D) {
     MiscFlags: 0,
   };
 
-  unsafe { io.device.CreateTexture2D(&desc, None, Some(&mut staging_texture)).unwrap() };
+  let mut texture: Option<ID3D11Texture2D> = None;
+  unsafe { z.device.CreateTexture2D(&desc, None, Some(&mut texture)).unwrap() };
 
   let region = D3D11_BOX {
-    left: io.l as u32,
-    top: io.t as u32,
+    left: z.l as u32,
+    top: z.t as u32,
     front: 0,
-    right: (io.l + io.x) as u32,
-    bottom: (io.t + io.y) as u32,
+    right: (z.l + z.x) as u32,
+    bottom: (z.t + z.y) as u32,
     back: 1,
   };
 
-  unsafe { io.context.CopySubresourceRegion(staging_texture.as_ref().unwrap(), 0, 0, 0, 0, source_texture, 0, Some(&region)) };
+  unsafe { z.context.CopySubresourceRegion(texture.as_ref().unwrap(), 0, 0, 0, 0, x, 0, Some(&region)) };
 
   let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
-  unsafe { io.context.Map(staging_texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
+  unsafe { z.context.Map(texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
 
-  let width = 640;
-  let height = 180;
   let pitch = mapped.RowPitch as usize;
   let data_ptr = mapped.pData as *const u8;
-  let target: u32 = 0xff_00_00_ff; // example BGRA
 
-  let mut count = 0;
+  let mut an = 0;
 
-  for y in 0..height {
-    let row_ptr = unsafe { data_ptr.add(y * pitch) } as *const u32;
-    for x in 0..width {
-      let pixel = unsafe { *row_ptr.add(x) };
-      if pixel == target {
-        count += 1;
-      }
+  for y in 0..high {
+    let yn = unsafe { data_ptr.add(y * pitch) } as *const u32;
+    'x: for x in 0..wide {
+      let xn = unsafe { *yn.add(x) };
+
+      an = an + 1;
+      break 'x;
     }
   }
 
-  // println!("{}", count);
+  // println!("{}", an);
 
-  unsafe { io.context.Unmap(staging_texture.as_ref().unwrap(), 0) };
+  let back = f((data_ptr, pitch));
+
+  unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
+
+  back
 }
 
-pub fn each(io: IO, p: (Instant, u32)) -> bool {
+pub fn each<F: Func2<(*const u8, usize), bool>>(f: F, p: (Instant, u32), z: IO) -> bool {
   match name().contains("") {
     T => {
       let (time, curr) = p;
@@ -88,12 +89,12 @@ pub fn each(io: IO, p: (Instant, u32)) -> bool {
         || {
           let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
           let mut data: Option<IDXGIResource> = None;
-          match unsafe { io.framer.AcquireNextFrame(1, &mut info, &mut data).is_ok() } {
+          match unsafe { z.framer.AcquireNextFrame(1, &mut info, &mut data).is_ok() } {
             T => {
               let data = data.unwrap();
               let cast = data.cast().unwrap();
-              turn(&io, &cast);
-              unsafe { io.framer.ReleaseFrame().unwrap() };
+              turn(f, &cast, &z);
+              unsafe { z.framer.ReleaseFrame().unwrap() };
               T
             },
             _ => F,
@@ -104,11 +105,11 @@ pub fn each(io: IO, p: (Instant, u32)) -> bool {
         T => match time.elapsed().as_millis_f64() > 1000. {
           T => {
             println!("FPS: {}", curr);
-            each(io, (Instant::now(), 0))
+            each(f, (Instant::now(), 0), z)
           },
-          _ => each(io, (time, curr + 1)),
+          _ => each(f, (time, curr + 1), z),
         },
-        _ => each(io, (time, curr)),
+        _ => each(f, (time, curr), z),
       }
     },
     _ => F,
@@ -215,6 +216,9 @@ pub fn xo(n: Duration) -> bool {
   T
 }
 
+pub trait Func2<T1, T2> = Fn(T1) -> T2 + Copy + Send + Sync + 'static;
+pub trait Func<T1, T2> = Fn(T1) -> T2 + Send + Sync + 'static;
+
 pub const APP: &str = "VAL";
 
 pub const MS: Duration = Duration::from_millis(1);
@@ -224,7 +228,6 @@ pub const N: i32 = 0;
 pub const F: bool = false;
 pub const T: bool = true;
 
-pub trait Functor<T1, T2> = Fn(T1) -> T2 + Send + Sync + 'static;
 use {
   image::{
     GenericImageView,

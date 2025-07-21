@@ -1,8 +1,8 @@
 x-z:
-  clear && cargo run --bin x --release
+  clear && RUST_BACKTRACE=1 cargo run --bin x --release
 
 x:
-  clear && cargo run --bin x
+  clear && RUST_BACKTRACE=1 cargo run --bin x
 
 use:
   cargo run --bin use
