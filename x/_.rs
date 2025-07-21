@@ -18,7 +18,7 @@ pub fn main() {
   let fx = #[inline(always)]
   move |n1: f64| calc(vx, n1 / ux, 6400.);
 
-  let (i2, o2): (Sender<(i32, i32, i32, i32)>, Receiver<(i32, i32, i32, i32)>) = bounded(64);
+  let (i2, o2): (Sender<(u32, i32, i32)>, Receiver<(u32, i32, i32)>) = bounded(64);
   handle.push(thread::spawn(
     #[inline(always)]
     move || match xyloid::type_1() {
@@ -48,9 +48,9 @@ pub fn main() {
         }
 
         #[inline(always)]
-        pub fn zn(n1: i32) -> i32 {
+        pub fn zn(n1: u32) -> u32 {
           match n1 {
-            61..=i32::MAX => 16,
+            61..=u32::MAX => 16,
             57..=60 => 15,
             53..=56 => 14,
             49..=52 => 13,
@@ -77,35 +77,35 @@ pub fn main() {
         }
 
         #[inline(always)]
-        pub fn yn(n1: i32) -> f64 {
+        pub fn yn(n1: u32) -> f64 {
           (zn(n1) as f64) / 2.
         }
 
         #[inline(always)]
-        pub fn xn(n1: i32) -> f64 {
+        pub fn xn(n1: u32) -> f64 {
           (zn(n1) as f64) / 4.
         }
 
         let zz = #[inline(always)]
         |n: i32, x: f64, y: f64| zz(io, 1, n, x, y);
         let yy = #[inline(always)]
-        |n: i32, n1: i32| fy(n as f64 - yn(n1));
+        |n: u32, n1: i32| fy(n1 as f64 - yn(n));
         let xx = #[inline(always)]
-        |n: i32, n1: i32| fx(n as f64 + xn(n1));
+        |n: u32, n1: i32| fx(n1 as f64 + xn(n));
 
         // for i in 1..=10 {
         //   let n = i as f64 / 10.;
         //   println!("{:.2}", ease(n));
         // }
 
-        while let Ok((an, ax, ay, az)) = o2.recv() {
-          let yy = yy(ay, az);
-          let xx = xx(ax, az);
+        while let Ok((an, ax, ay)) = o2.recv() {
+          let yy = yy(an, ay);
+          let xx = xx(an, ax);
 
           // TODO: difference should be atleast 2.
 
-          match an {
-            2..=i32::MAX => match an % 5 {
+          match 1 {
+            2..=i32::MAX => match 1 % 5 {
               N => zz(0, xx, 0.),
               _ => F,
             },

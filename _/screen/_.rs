@@ -2,7 +2,7 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F1: Func<i32, i32>, F2: Func<u32, bool>, F3: Func<(i32, i32, i32, i32), bool>>(f1: F1, f2: F2, f3: F3, x: f64, y: f64) -> () {
+pub fn watch<F1: Func<i32, i32>, F2: Func<u32, bool>, F3: Func<(u32, i32, i32), bool>>(f1: F1, f2: F2, f3: F3, x: f64, y: f64) -> () {
   let mut handle = vec![];
 
   handle.push(thread::spawn(
@@ -15,17 +15,32 @@ pub fn watch<F1: Func<i32, i32>, F2: Func<u32, bool>, F3: Func<(i32, i32, i32, i
         move |x| {
           let (nn, un, xn, yn) = x;
 
-          let mut an = 0;
+          let mut is: bool = F;
+          let mut ay: i32 = 0;
+          let mut ax: i32 = 0;
+          let mut an: u32 = 0;
 
           for y in 0..yn {
-            let yn = unsafe { nn.add(y * un) } as *const u32;
-            'x: for x in 0..xn {
-              let px = unsafe { *yn.add(x) };
+            let yn_ = unsafe { nn.add(y * un) } as *const u32;
+            let ay_ = (yn as i32 / 2) - y as i32;
 
-              match f2(px) {
-                T => {
-                  an = an + 1;
-                  break 'x;
+            'x: for x in 0..xn {
+              let xn_ = unsafe { *yn_.add(x) };
+              let ax_ = (xn as i32 / 2) - x as i32;
+
+              match f2(xn_) {
+                T => match is {
+                  T => {
+                    an = an + 1;
+                    break 'x;
+                  },
+                  _ => {
+                    ay = ay_;
+                    ax = ax_;
+                    an = an + 1;
+                    is = T;
+                    break 'x;
+                  },
                 },
                 _ => F,
               };
@@ -33,6 +48,10 @@ pub fn watch<F1: Func<i32, i32>, F2: Func<u32, bool>, F3: Func<(i32, i32, i32, i
           }
 
           println!("{}", an);
+          match is {
+            T => f3((an, -ax, ay)),
+            _ => F,
+          };
 
           T
         },
