@@ -56,44 +56,36 @@ pub fn main() {
           (f_zn(n1) as f64) / 4.
         }
 
-        const BS: i32 = 64;
-
         let yy = #[inline(always)]
-        |n: u32, n1: i32| fy(n1 as f64 - f_yn(n)) as i32;
+        |n: u32, n1: i32| fy(n1 as f64 - f_yn(n));
         let xx = #[inline(always)]
-        |n: u32, n1: i32| fx(n1 as f64 + f_xn(n)) as i32;
-        let zz = #[inline(always)]
-        |x: i32, y: i32| match BS >= x.abs() {
-          T => {
-            xyloid::xy(io, x as f64, y as f64);
-            xo(MS * 4);
-            match xyloid::is_h() {
-              T => T,
-              _ => xyloid::key_h(io, F),
-            }
-          },
-          _ => {
-            let ay = y.clamp(-1 * BS, BS);
-            let ax = x.clamp(-1 * BS, BS);
+        |n: u32, n1: i32| fx(n1 as f64 + f_xn(n));
 
-            xyloid::xy(io, ax as f64, ay as f64)
-          },
-        };
-
-        while let Ok((an, av, ax, ay)) = o2.recv() {
-          let ny = yy(av, ay);
-          let nx = xx(av, ax);
-
+        const BS: i32 = 64;
+        let mut ok = F;
+        while let Ok((c, v, x, y)) = o2.recv() {
           // TODO: difference should be atleast 2.
+          println!("Current: {}, {}, {}, {}", c, v, x, y);
 
-          println!("Current: {}, {}, {}, {}", an, av, ax, ay);
-
-          match an {
-            1..=u32::MAX => match an % 2 {
-              N => zz(nx, N as i32),
-              _ => F,
+          match c % 2 {
+            1 => match x.abs() >= BS {
+              T => {
+                xyloid::xy(io, xx(v, x.min(BS).max(-BS)), yy(v, y.min(BS).max(-BS)));
+                ok = F;
+                ok
+              },
+              _ => {
+                xyloid::xy(io, xx(v, x), N as f64);
+                xo(MS * 4);
+                match xyloid::is_h() {
+                  T => T,
+                  _ => xyloid::key_h(io, F),
+                };
+                ok = T;
+                ok
+              },
             },
-            _ => zz(nx, ny),
+            _ => F,
           };
         }
       },
@@ -157,18 +149,18 @@ pub fn main() {
 
       screen::watch(
         #[inline(always)]
-        move |_a| match screen::name().contains(APP) {
+        move |n| match screen::name().contains(APP) {
           T => match xyloid::is_mouse_l() {
             T => {
               send(&i1, T);
-              T
+              n + 1
             },
             _ => {
               send(&i1, F);
-              F
+              N
             },
           },
-          _ => F,
+          _ => N,
         },
         #[inline(always)]
         move |x| {
