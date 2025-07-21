@@ -174,14 +174,14 @@ pub fn main() {
 
       screen::watch(
         #[inline(always)]
-        move |a| match screen::name().contains(APP) {
+        move |_a| match screen::name().contains(APP) {
           T => match xyloid::is_mouse_l() {
             T => {
-              send(&i1, a);
+              send(&i1, T);
               T
             },
             _ => {
-              send(&i1, a);
+              send(&i1, F);
               F
             },
           },

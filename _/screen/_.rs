@@ -12,52 +12,55 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<(u32, i32, i32), b
       |x1: f64, y1: f64| data((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
 
       each(
-        move |x| {
-          let (nn, un, xn, yn) = x;
+        move |x: Buffer| match f(T) {
+          T => {
+            let (nn, un, xn, yn) = x;
 
-          let mut is: bool = F;
-          let mut ay: i32 = 0;
-          let mut ax: i32 = 0;
-          let mut an: u32 = 0;
+            let mut is: bool = F;
+            let mut ay: i32 = 0;
+            let mut ax: i32 = 0;
+            let mut an: u32 = 0;
 
-          for y in 0..yn {
-            let yn_ = unsafe { nn.add(y * un) } as *const u32;
-            let ay_ = (yn as i32 / 2) - y as i32;
+            for y in 0..yn {
+              let yn_ = unsafe { nn.add(y * un) } as *const u32;
+              let ay_ = (yn as i32 / 2) - y as i32;
 
-            'x: for x in 0..xn {
-              let xn_ = unsafe { *yn_.add(x) };
-              let ax_ = (xn as i32 / 2) - x as i32;
+              'x: for x in 0..xn {
+                let xn_ = unsafe { *yn_.add(x) };
+                let ax_ = (xn as i32 / 2) - x as i32;
 
-              match g(xn_) {
-                T => match is {
-                  T => {
-                    an = an + 1;
-                    break 'x;
+                match g(xn_) {
+                  T => match is {
+                    T => {
+                      an = an + 1;
+                      break 'x;
+                    },
+                    _ => {
+                      ay = ay_;
+                      ax = ax_;
+                      an = an + 1;
+                      is = T;
+                      break 'x;
+                    },
                   },
-                  _ => {
-                    ay = ay_;
-                    ax = ax_;
-                    an = an + 1;
-                    is = T;
-                    break 'x;
-                  },
-                },
-                _ => F,
-              };
+                  _ => F,
+                };
+              }
             }
-          }
 
-          // println!("{}", an);
+            println!("{}", an);
 
-          match is {
-            T => h((an, -ax, ay)),
-            _ => F,
-          };
+            match is {
+              T => h((an, -ax, ay)),
+              _ => F,
+            };
 
-          T
+            T
+          },
+          _ => F,
         },
         data(x / 4., y / 8.),
-      );
+      )
     },
   ));
 
@@ -66,7 +69,7 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<(u32, i32, i32), b
   }
 }
 
-pub fn turn<G: Func<(*const u8, usize, usize, usize), bool>>(g: &G, x: &ID3D11Texture2D, z: &IO) -> bool {
+pub fn turn<G: Func<Buffer, bool>>(g: &G, x: &ID3D11Texture2D, z: &IO) -> bool {
   let high = z.y as usize;
   let wide = z.x as usize;
   let desc = D3D11_TEXTURE2D_DESC {
@@ -112,43 +115,52 @@ pub fn turn<G: Func<(*const u8, usize, usize, usize), bool>>(g: &G, x: &ID3D11Te
   back
 }
 
-pub fn each<G: Func<(*const u8, usize, usize, usize), bool>>(g: G, z: IO) -> bool {
+pub fn each<G: Func<Buffer, bool>>(g: G, z: IO) -> bool {
   let mut time = Instant::now();
   let mut curr = N;
   loop {
-    match sure(
-      || {
-        let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
-        let mut data: Option<IDXGIResource> = None;
-        match unsafe { z.framer.AcquireNextFrame(HZ, &mut info, &mut data).is_ok() } {
-          T => {
-            let data = data.unwrap();
-            let cast = data.cast().unwrap();
-            turn(&g, &cast, &z);
-            unsafe { z.framer.ReleaseFrame().unwrap() };
-            T
+    match T {
+      T => {
+        let framed = sure(
+          || {
+            let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
+            let mut data: Option<IDXGIResource> = None;
+            match unsafe { z.framer.AcquireNextFrame(z.hz, &mut info, &mut data).is_ok() } {
+              T => {
+                let data = data.unwrap();
+                let cast = data.cast().unwrap();
+                turn(&g, &cast, &z);
+                unsafe { z.framer.ReleaseFrame().unwrap() };
+                T
+              },
+              _ => F,
+            }
+          },
+          MS * z.hz,
+        );
+
+        match framed {
+          T => match time.elapsed().as_millis_f64() > 1000. {
+            T => {
+              println!("FPS: {}", curr);
+              time = Instant::now();
+              curr = N;
+              T
+            },
+            _ => {
+              curr = curr + 1;
+              F
+            },
           },
           _ => F,
         }
-      },
-      MS * HZ,
-    ) {
-      T => match time.elapsed().as_millis_f64() > 1000. {
-        T => {
-          println!("FPS: {}", curr);
-          time = Instant::now();
-          curr = N;
-          T
-        },
-        _ => {
-          curr = curr + 1;
-          F
-        },
       },
       _ => F,
     };
   }
 }
+
+type Buffer = (*const u8, usize, usize, usize);
 
 pub fn data(l: f64, t: f64, x: f64, y: f64) -> IO {
   let mut context: Option<ID3D11DeviceContext> = None;
@@ -182,6 +194,7 @@ pub fn data(l: f64, t: f64, x: f64, y: f64) -> IO {
     context,
     device,
     framer,
+    hz: HZ,
     l,
     t,
     x,
@@ -193,6 +206,7 @@ pub struct IO {
   context: ID3D11DeviceContext,
   device: ID3D11Device,
   framer: IDXGIOutputDuplication,
+  hz: u32,
   l: f64,
   t: f64,
   x: f64,
@@ -275,6 +289,7 @@ use {
       Duration,
       Instant,
     },
+    u32,
     usize,
   },
   windows::{
