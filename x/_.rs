@@ -24,7 +24,7 @@ pub fn main() {
     move || match xyloid::type_1() {
       Some(io) => {
         #[inline(always)]
-        pub fn zz(io: xyloid::HANDLE, i: i32, n: i32, x: f64, y: f64) -> bool {
+        fn zz(io: xyloid::HANDLE, i: i32, n: i32, x: f64, y: f64) -> bool {
           match i <= n {
             T => {
               let rr = ease(i as f64 / n as f64);
@@ -48,7 +48,7 @@ pub fn main() {
         }
 
         #[inline(always)]
-        pub fn zn(n1: u32) -> u32 {
+        fn zn(n1: u32) -> u32 {
           match n1 {
             61..=u32::MAX => 16,
             57..=60 => 15,
@@ -71,18 +71,18 @@ pub fn main() {
         }
 
         #[inline(always)]
-        pub fn ease(t: f64) -> f64 {
+        fn ease(t: f64) -> f64 {
           let t = t.clamp(0.0, 1.0);
           (3.0 * t * t) - (2.0 * t * t * t)
         }
 
         #[inline(always)]
-        pub fn yn(n1: u32) -> f64 {
+        fn yn(n1: u32) -> f64 {
           (zn(n1) as f64) / 2.
         }
 
         #[inline(always)]
-        pub fn xn(n1: u32) -> f64 {
+        fn xn(n1: u32) -> f64 {
           (zn(n1) as f64) / 4.
         }
 
@@ -258,98 +258,73 @@ pub fn main() {
     },
   ));
 
+  #[inline(always)]
+  fn on_key<F1: Fn() -> bool, F2: Fn(xyloid::HANDLE, bool) -> bool>(f1: F1, f2: F2, io: xyloid::HANDLE, z1: BI) -> BI {
+    on(
+      f1,
+      |_| (T, Instant::now()),
+      |x| {
+        let n = (x.1.elapsed().as_millis_f64() / 10.).round() as u64;
+        match n {
+          17..=32 => {
+            f2(io, F);
+            xo(MS * ((4 * 16) + ((n - 16) * 2)) as u32);
+            f2(io, T)
+          },
+          6..=16 => {
+            f2(io, F);
+            xo(MS * (4 * n) as u32);
+            f2(io, T)
+          },
+          0..=5 => T,
+          _ => {
+            f2(io, F);
+            xo(MS * 96);
+            f2(io, T)
+          },
+        };
+        (F, Instant::now())
+      },
+      z1,
+    )
+  }
+
+  #[inline(always)]
+  fn on<F1: Fn() -> bool, F2: Fn(BI) -> BI, F3: Fn(BI) -> BI>(f1: F1, f2: F2, f3: F3, z1: BI) -> BI {
+    match z1.0 {
+      T => match f1() {
+        T => z1,
+        _ => f3(z1),
+      },
+      _ => match f1() {
+        T => f2(z1),
+        _ => z1,
+      },
+    }
+  }
+
+  #[inline(always)]
+  fn calc(radian: f64, factor: f64, size: f64) -> f64 {
+    (tan(radian, factor) / (2. * PI)) * size
+  }
+
+  #[inline(always)]
+  fn send<T>(i: &Sender<T>, o: T) -> bool {
+    i.try_send(o).is_ok()
+  }
+
+  #[inline(always)]
+  fn tan(n1: f64, n2: f64) -> f64 {
+    (n1.tan() * n2).atan()
+  }
+
+  #[inline(always)]
+  fn fov(n: f64) -> f64 {
+    (n / 2.).to_radians()
+  }
+
   for x in handle {
     x.join().unwrap();
-  }
-}
-
-#[inline(always)]
-pub fn on_key<F1: Fn() -> bool, F2: Fn(xyloid::HANDLE, bool) -> bool>(f1: F1, f2: F2, io: xyloid::HANDLE, z1: BI) -> BI {
-  on(
-    f1,
-    |_| (T, Instant::now()),
-    |x| {
-      let n = (x.1.elapsed().as_millis_f64() / 10.).round() as u64;
-      match n {
-        17..=32 => {
-          f2(io, F);
-          xo(MS * ((4 * 16) + ((n - 16) * 2)) as u32);
-          f2(io, T)
-        },
-        6..=16 => {
-          f2(io, F);
-          xo(MS * (4 * n) as u32);
-          f2(io, T)
-        },
-        0..=5 => T,
-        _ => {
-          f2(io, F);
-          xo(MS * 96);
-          f2(io, T)
-        },
-      };
-      (F, Instant::now())
-    },
-    z1,
-  )
-}
-
-#[inline(always)]
-pub fn on<F1: Fn() -> bool, F2: Fn(BI) -> BI, F3: Fn(BI) -> BI>(f1: F1, f2: F2, f3: F3, z1: BI) -> BI {
-  match z1.0 {
-    T => match f1() {
-      T => z1,
-      _ => f3(z1),
-    },
-    _ => match f1() {
-      T => f2(z1),
-      _ => z1,
-    },
-  }
-}
-
-#[inline(always)]
-pub fn xfov(hfov: f64, x: f64, y: f64) -> f64 {
-  (2. * ((hfov.to_radians() / 2.).tan() * (y / x)).atan()).to_degrees()
-}
-
-#[inline(always)]
-pub fn calc(radian: f64, factor: f64, size: f64) -> f64 {
-  (tan(radian, factor) / (2. * PI)) * size
-}
-
-#[inline(always)]
-pub fn send<T>(i: &Sender<T>, o: T) -> bool {
-  i.try_send(o).is_ok()
-}
-
-#[inline(always)]
-fn tan(n1: f64, n2: f64) -> f64 {
-  (n1.tan() * n2).atan()
-}
-
-#[inline(always)]
-pub fn fov(n: f64) -> f64 {
-  (n / 2.).to_radians()
-}
-
-#[inline(always)]
-pub fn stim(n1: i32, n2: i32) -> (i32, i32) {
-  let next = step(n1, n2);
-
-  match next.cmp(&0) {
-    Greater => (n1, next),
-    Less => (-n1, next),
-    Equal => (n2, next),
-  }
-}
-
-#[inline(always)]
-pub fn step(n1: i32, n2: i32) -> i32 {
-  match n2.cmp(&0) {
-    Greater => (n2 - n1).max(0),
-    Less => (n2 + n1).min(0),
-    Equal => 0,
   }
 }
 
