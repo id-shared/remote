@@ -64,141 +64,139 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<(u32, i32, i32), b
     },
   ));
 
-  for x in handle {
-    x.join().unwrap();
+  fn turn<G: Func<Buffer, bool>>(g: &G, x: &ID3D11Texture2D, z: &IO) -> bool {
+    let high = z.y as usize;
+    let wide = z.x as usize;
+    let desc = D3D11_TEXTURE2D_DESC {
+      Width: wide as u32,
+      Height: high as u32,
+      MipLevels: 1,
+      ArraySize: 1,
+      Format: DXGI_FORMAT_B8G8R8A8_UNORM,
+      SampleDesc: DXGI_SAMPLE_DESC {
+        Count: 1,
+        Quality: 0,
+      },
+      Usage: D3D11_USAGE_STAGING,
+      CPUAccessFlags: D3D11_CPU_ACCESS_READ.0 as u32,
+      BindFlags: 0,
+      MiscFlags: 0,
+    };
+
+    let mut texture: Option<ID3D11Texture2D> = None;
+    unsafe { z.device.CreateTexture2D(&desc, None, Some(&mut texture)).unwrap() };
+
+    let region = D3D11_BOX {
+      left: z.l as u32,
+      top: z.t as u32,
+      front: 0,
+      right: (z.l + z.x) as u32,
+      bottom: (z.t + z.y) as u32,
+      back: 1,
+    };
+
+    unsafe { z.context.CopySubresourceRegion(texture.as_ref().unwrap(), 0, 0, 0, 0, x, 0, Some(&region)) };
+
+    let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
+    unsafe { z.context.Map(texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
+
+    let pitch = mapped.RowPitch as usize;
+    let data_ptr = mapped.pData as *const u8;
+
+    let back = g((data_ptr, pitch, wide, high));
+
+    unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
+
+    back
   }
-}
 
-pub fn turn<G: Func<Buffer, bool>>(g: &G, x: &ID3D11Texture2D, z: &IO) -> bool {
-  let high = z.y as usize;
-  let wide = z.x as usize;
-  let desc = D3D11_TEXTURE2D_DESC {
-    Width: wide as u32,
-    Height: high as u32,
-    MipLevels: 1,
-    ArraySize: 1,
-    Format: DXGI_FORMAT_B8G8R8A8_UNORM,
-    SampleDesc: DXGI_SAMPLE_DESC {
-      Count: 1,
-      Quality: 0,
-    },
-    Usage: D3D11_USAGE_STAGING,
-    CPUAccessFlags: D3D11_CPU_ACCESS_READ.0 as u32,
-    BindFlags: 0,
-    MiscFlags: 0,
-  };
+  fn each<G: Func<Buffer, bool>>(g: G, z: IO) -> bool {
+    let mut time = Instant::now();
+    let mut curr = N;
+    loop {
+      match T {
+        T => {
+          let framed = sure(
+            || {
+              let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
+              let mut data: Option<IDXGIResource> = None;
+              match unsafe { z.framer.AcquireNextFrame(z.hz, &mut info, &mut data).is_ok() } {
+                T => {
+                  let data = data.unwrap();
+                  let cast = data.cast().unwrap();
+                  turn(&g, &cast, &z);
+                  unsafe { z.framer.ReleaseFrame().unwrap() };
+                  T
+                },
+                _ => F,
+              }
+            },
+            MS * z.hz,
+          );
 
-  let mut texture: Option<ID3D11Texture2D> = None;
-  unsafe { z.device.CreateTexture2D(&desc, None, Some(&mut texture)).unwrap() };
-
-  let region = D3D11_BOX {
-    left: z.l as u32,
-    top: z.t as u32,
-    front: 0,
-    right: (z.l + z.x) as u32,
-    bottom: (z.t + z.y) as u32,
-    back: 1,
-  };
-
-  unsafe { z.context.CopySubresourceRegion(texture.as_ref().unwrap(), 0, 0, 0, 0, x, 0, Some(&region)) };
-
-  let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
-  unsafe { z.context.Map(texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
-
-  let pitch = mapped.RowPitch as usize;
-  let data_ptr = mapped.pData as *const u8;
-
-  let back = g((data_ptr, pitch, wide, high));
-
-  unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
-
-  back
-}
-
-pub fn each<G: Func<Buffer, bool>>(g: G, z: IO) -> bool {
-  let mut time = Instant::now();
-  let mut curr = N;
-  loop {
-    match T {
-      T => {
-        let framed = sure(
-          || {
-            let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
-            let mut data: Option<IDXGIResource> = None;
-            match unsafe { z.framer.AcquireNextFrame(z.hz, &mut info, &mut data).is_ok() } {
+          match framed {
+            T => match time.elapsed().as_millis_f64() > 1000. {
               T => {
-                let data = data.unwrap();
-                let cast = data.cast().unwrap();
-                turn(&g, &cast, &z);
-                unsafe { z.framer.ReleaseFrame().unwrap() };
+                println!("FPS: {}", curr);
+                time = Instant::now();
+                curr = N;
                 T
               },
-              _ => F,
-            }
-          },
-          MS * z.hz,
-        );
-
-        match framed {
-          T => match time.elapsed().as_millis_f64() > 1000. {
-            T => {
-              println!("FPS: {}", curr);
-              time = Instant::now();
-              curr = N;
-              T
+              _ => {
+                curr = curr + 1;
+                F
+              },
             },
-            _ => {
-              curr = curr + 1;
-              F
-            },
-          },
-          _ => F,
-        }
-      },
-      _ => F,
-    };
+            _ => F,
+          }
+        },
+        _ => F,
+      };
+    }
   }
-}
 
-type Buffer = (*const u8, usize, usize, usize);
+  fn data(l: f64, t: f64, x: f64, y: f64) -> IO {
+    let mut context: Option<ID3D11DeviceContext> = None;
+    let mut device: Option<ID3D11Device> = None;
+    let mut level = D3D_FEATURE_LEVEL_12_2;
 
-pub fn data(l: f64, t: f64, x: f64, y: f64) -> IO {
-  let mut context: Option<ID3D11DeviceContext> = None;
-  let mut device: Option<ID3D11Device> = None;
-  let mut level = D3D_FEATURE_LEVEL_12_2;
+    unsafe {
+      D3D11CreateDevice(
+        None,                             // pAdapter
+        D3D_DRIVER_TYPE_HARDWARE,         // drivertype
+        HMODULE::default(),               // software
+        D3D11_CREATE_DEVICE_BGRA_SUPPORT, // flags
+        None,                             // pfeaturelevels
+        D3D11_SDK_VERSION,                // sdkversion
+        Some(&mut device),                // ppdevice
+        Some(&mut level),                 // pfeaturelevel
+        Some(&mut context),               // ppimmediatecontext
+      )
+      .unwrap()
+    };
 
-  unsafe {
-    D3D11CreateDevice(
-      None,                             // pAdapter
-      D3D_DRIVER_TYPE_HARDWARE,         // drivertype
-      HMODULE::default(),               // software
-      D3D11_CREATE_DEVICE_BGRA_SUPPORT, // flags
-      None,                             // pfeaturelevels
-      D3D11_SDK_VERSION,                // sdkversion
-      Some(&mut device),                // ppdevice
-      Some(&mut level),                 // pfeaturelevel
-      Some(&mut context),               // ppimmediatecontext
-    )
-    .unwrap()
-  };
+    let device = device.unwrap();
+    let context = context.unwrap();
+    let device_cast: IDXGIDevice = device.cast().unwrap();
+    let bridge: IDXGIAdapter = unsafe { device_cast.GetAdapter().unwrap() };
+    let output: IDXGIOutput = unsafe { bridge.EnumOutputs(0).unwrap() };
+    let output_cast: IDXGIOutput1 = output.cast().unwrap();
+    let framer = unsafe { output_cast.DuplicateOutput(&device).unwrap() };
 
-  let device = device.unwrap();
-  let context = context.unwrap();
-  let device_cast: IDXGIDevice = device.cast().unwrap();
-  let bridge: IDXGIAdapter = unsafe { device_cast.GetAdapter().unwrap() };
-  let output: IDXGIOutput = unsafe { bridge.EnumOutputs(0).unwrap() };
-  let output_cast: IDXGIOutput1 = output.cast().unwrap();
-  let framer = unsafe { output_cast.DuplicateOutput(&device).unwrap() };
+    IO {
+      context,
+      device,
+      framer,
+      hz: HZ,
+      l,
+      t,
+      x,
+      y,
+    }
+  }
 
-  IO {
-    context,
-    device,
-    framer,
-    hz: HZ,
-    l,
-    t,
-    x,
-    y,
+  for x in handle {
+    x.join().unwrap();
   }
 }
 
@@ -212,6 +210,8 @@ pub struct IO {
   x: f64,
   y: f64,
 }
+
+pub type Buffer = (*const u8, usize, usize, usize);
 
 fn sure<F: Fn() -> bool>(f1: F, n1: Duration) -> bool {
   let init = Instant::now();
@@ -344,7 +344,7 @@ use {
   },
 };
 
-pub fn test() {
+fn test() {
   let img = image::open("test.png").expect("Failed to open image");
 
   const TINT: u8 = 255 - 24;
