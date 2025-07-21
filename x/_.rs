@@ -62,28 +62,28 @@ pub fn main() {
           _ => xyloid::xy(io, x, y),
         };
         let yy = #[inline(always)]
-        |n: u32, n1: i32| fy(n1 as f64 - f_yn(n));
+        |n: u32, y: i32| fy(y as f64 - f_yn(n));
         let xx = #[inline(always)]
-        |n: u32, n1: i32| fx(n1 as f64 + f_xn(n));
+        |n: u32, x: i32| fx(x as f64 + f_xn(n));
         let kh = #[inline(always)]
         |a: bool| xyloid::key_h(io, a);
 
-        const BS: i32 = 64;
+        const BS: i32 = 32;
         while let Ok((c, v, x, y)) = o2.recv() {
           // TODO: difference should be atleast 2.
           println!("{}, {}, {}, {}", c, v, x, y);
 
-          match c % 2 {
+          match c % 3 {
             1 => {
-              let ay = match y.abs() >= BS {
-                T => yy(v, y.min(BS).max(-BS)),
-                _ => yy(v, y),
-              };
+              let ay = yy(v, match y.abs() >= BS {
+                T => y.min(BS).max(-BS),
+                _ => y,
+              });
 
-              let ax = match x.abs() >= BS {
-                T => xx(v, x.min(BS).max(-BS)),
-                _ => xx(v, x),
-              };
+              let ax = xx(v, match x.abs() >= BS {
+                T => x.min(BS).max(-BS),
+                _ => x,
+              });
 
               match xyloid::is_h() {
                 T => zz(ax, ay),
