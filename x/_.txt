@@ -22,3 +22,9 @@ fn step(n1: i32, n2: i32) -> i32 {
     Equal => 0,
   }
 }
+
+cmp::Ordering::{
+  Equal,
+  Greater,
+  Less,
+},

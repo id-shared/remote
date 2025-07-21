@@ -23,32 +23,38 @@ pub fn main() {
     #[inline(always)]
     move || match xyloid::type_1() {
       Some(io) => {
+        // #[inline(always)]
+        // fn zz(io: xyloid::HANDLE, i: i32, n: i32, x: f64, y: f64) -> bool {
+        //   match i <= n {
+        //     T => {
+        //       let rr = ease(i as f64 / n as f64);
+        //       let ay = rr * y;
+        //       let ax = rr * x;
+
+        //       // println!("{} {} | {:.2} {} {}", i, n, rr, ax, ay);
+
+        //       xyloid::xy(io, ax, ay);
+        //       xo(MS * HZ);
+        //       zz(io, i + 1, n, x - ax, y - ay)
+        //     },
+        //     _ => {
+        //       xyloid::xy(io, x, y);
+        //       match xyloid::is_h() {
+        //         T => T,
+        //         _ => xyloid::key_h(io, F),
+        //       }
+        //     },
+        //   }
+        // }
+
+        // #[inline(always)]
+        // fn ease(t: f64) -> f64 {
+        //   let t = t.clamp(0.0, 1.0);
+        //   (3.0 * t * t) - (2.0 * t * t * t)
+        // }
+
         #[inline(always)]
-        fn zz(io: xyloid::HANDLE, i: i32, n: i32, x: f64, y: f64) -> bool {
-          match i <= n {
-            T => {
-              let rr = ease(i as f64 / n as f64);
-              let ay = rr * y;
-              let ax = rr * x;
-
-              // println!("{} {} | {:.2} {} {}", i, n, rr, ax, ay);
-
-              xyloid::xy(io, ax, ay);
-              xo(MS * HZ);
-              zz(io, i + 1, n, x - ax, y - ay)
-            },
-            _ => {
-              xyloid::xy(io, x, y);
-              match xyloid::is_h() {
-                T => T,
-                _ => xyloid::key_h(io, F),
-              }
-            },
-          }
-        }
-
-        #[inline(always)]
-        fn zn(n1: u32) -> u32 {
+        fn f_zn(n1: u32) -> u32 {
           match n1 {
             61..=u32::MAX => 16,
             57..=60 => 15,
@@ -71,27 +77,41 @@ pub fn main() {
         }
 
         #[inline(always)]
-        fn ease(t: f64) -> f64 {
-          let t = t.clamp(0.0, 1.0);
-          (3.0 * t * t) - (2.0 * t * t * t)
+        fn f_yn(n1: u32) -> f64 {
+          (f_zn(n1) as f64) / 2.
         }
 
         #[inline(always)]
-        fn yn(n1: u32) -> f64 {
-          (zn(n1) as f64) / 2.
+        fn f_xn(n1: u32) -> f64 {
+          (f_zn(n1) as f64) / 4.
         }
 
-        #[inline(always)]
-        fn xn(n1: u32) -> f64 {
-          (zn(n1) as f64) / 4.
-        }
+        const BS: i32 = 64;
 
-        let zz = #[inline(always)]
-        |n: i32, x: f64, y: f64| zz(io, 1, n, x, y);
         let yy = #[inline(always)]
-        |n: u32, n1: i32| fy(n1 as f64 - yn(n));
+        |n: u32, n1: i32| fy(n1 as f64 - f_yn(n)) as i32;
         let xx = #[inline(always)]
-        |n: u32, n1: i32| fx(n1 as f64 + xn(n));
+        |n: u32, n1: i32| fx(n1 as f64 + f_xn(n)) as i32;
+        let zz = #[inline(always)]
+        |n: u32, x: i32, y: i32| {
+          let ay = yy(n, y).clamp(-1 * BS, BS);
+          let ax = xx(n, x).clamp(-1 * BS, BS);
+
+          println!("{}", ax.abs());
+
+          match BS >= ax.abs() {
+            T => {
+              xyloid::xy(io, ax as f64, ay as f64);
+              xo(MS * 16);
+              // match xyloid::is_h() {
+              //   T => T,
+              //   _ => xyloid::key_h(io, F),
+              // }
+              T
+            },
+            _ => xyloid::xy(io, ax as f64, ay as f64),
+          }
+        };
 
         // for i in 1..=10 {
         //   let n = i as f64 / 10.;
@@ -102,8 +122,8 @@ pub fn main() {
         let mut curr = N;
 
         while let Ok((an, ax, ay)) = o2.recv() {
-          let yy = yy(an, ay);
-          let xx = xx(an, ax);
+          // let yy = yy(an, ay);
+          // let xx = xx(an, ax);
 
           // TODO: difference should be atleast 2.
 
@@ -120,12 +140,16 @@ pub fn main() {
 
           println!("Current: {}", curr);
 
+          println!("{}, {}, {}, {}", curr, an, ax, ay);
+
+          // zz(an, ax, ay);
+
           match curr {
-            1..=u32::MAX => match curr % 5 {
-              N => zz(0, xx, 0.),
+            1..=u32::MAX => match curr % 2 {
+              N => zz(an, ax, N as i32),
               _ => F,
             },
-            _ => zz(3, xx, yy),
+            _ => zz(an, ax, ay),
           };
         }
       },
@@ -353,11 +377,6 @@ use {
   },
   screen,
   std::{
-    cmp::Ordering::{
-      Equal,
-      Greater,
-      Less,
-    },
     f64::consts::PI,
     i32,
     thread,

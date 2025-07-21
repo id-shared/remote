@@ -2,7 +2,8 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<(u32, i32, i32), bool>>(f: F, g: G, h: H, x: f64, y: f64) -> () {
+type Detail = (u32, i32, i32);
+pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: F, g: G, h: H, x: f64, y: f64) -> () {
   let mut handle = vec![];
 
   handle.push(thread::spawn(
@@ -10,9 +11,10 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<(u32, i32, i32), b
     move || {
       let data = #[inline(always)]
       |x1: f64, y1: f64| data((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
-      let on = move |x: Buffer| match f(T) {
+
+      let on = move |z: (Buffer, Detail)| match f(T) {
         T => {
-          let (nn, un, xn, yn) = x;
+          let ((nn, un, xn, yn), sent) = z;
 
           let mut is: bool = F;
           let mut ay: i32 = 0;
@@ -46,16 +48,20 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<(u32, i32, i32), b
             }
           }
 
-          println!("{}, {}, {}", an, -ax, ay);
+          let send = (an, -ax, ay);
 
           match is {
-            T => h((an, -ax, ay)),
-            _ => F,
-          };
-
-          T
+            T => match sent == send {
+              T => send,
+              _ => {
+                h(send);
+                send
+              },
+            },
+            _ => send,
+          }
         },
-        _ => F,
+        _ => (0, 0, 0),
       };
 
       each(on, data(x / 4., y / 8.));
@@ -106,8 +112,9 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<(u32, i32, i32), b
     (data_ptr, pitch, wide, high)
   }
 
-  fn each<G: Func<Buffer, bool>>(g: G, z: IO) -> bool {
+  fn each<G: FuncMut<(Buffer, Detail), Detail>>(mut g: G, z: IO) -> bool {
     let mut time = Instant::now();
+    let mut prev = (0, 0, 0);
     let mut curr = N;
     loop {
       match T {
@@ -120,7 +127,7 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<(u32, i32, i32), b
                 T => {
                   let data = data.unwrap();
                   let cast = data.cast().unwrap();
-                  g(turn(cast, &z));
+                  prev = g((turn(cast, &z), prev));
                   unsafe { z.framer.ReleaseFrame().unwrap() };
                   T
                 },
@@ -133,7 +140,7 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<(u32, i32, i32), b
           match framed {
             T => match time.elapsed().as_millis_f64() > 1000. {
               T => {
-                println!("FPS: {}", curr);
+                // println!("FPS: {}", curr);
                 time = Instant::now();
                 curr = N;
                 T
@@ -209,7 +216,7 @@ pub struct IO {
 
 pub type Buffer = (*const u8, usize, usize, usize);
 
-fn sure<F: Fn() -> bool>(f1: F, n1: Duration) -> bool {
+fn sure<F: FnMut() -> bool>(mut f1: F, n1: Duration) -> bool {
   let init = Instant::now();
   let back = f1();
   let rest = init.elapsed();
@@ -260,6 +267,7 @@ pub fn xo(n: Duration) -> bool {
   T
 }
 
+pub trait FuncMut<T1, T2> = FnMut(T1) -> T2 + Send + Sync + 'static;
 pub trait Func<T1, T2> = Fn(T1) -> T2 + Send + Sync + 'static;
 
 pub const APP: &str = "VAL";
