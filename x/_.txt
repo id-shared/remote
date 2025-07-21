@@ -1,3 +1,33 @@
+// #[inline(always)]
+// fn zz(io: xyloid::HANDLE, i: i32, n: i32, x: f64, y: f64) -> bool {
+//   match i <= n {
+//     T => {
+//       let rr = ease(i as f64 / n as f64);
+//       let ay = rr * y;
+//       let ax = rr * x;
+
+//       // println!("{} {} | {:.2} {} {}", i, n, rr, ax, ay);
+
+//       xyloid::xy(io, ax, ay);
+//       xo(MS * HZ);
+//       zz(io, i + 1, n, x - ax, y - ay)
+//     },
+//     _ => {
+//       xyloid::xy(io, x, y);
+//       match xyloid::is_h() {
+//         T => T,
+//         _ => xyloid::key_h(io, F),
+//       }
+//     },
+//   }
+// }
+
+// #[inline(always)]
+// fn ease(t: f64) -> f64 {
+//   let t = t.clamp(0.0, 1.0);
+//   (3.0 * t * t) - (2.0 * t * t * t)
+// }
+
 #[inline(always)]
 fn xfov(hfov: f64, x: f64, y: f64) -> f64 {
   (2. * ((hfov.to_radians() / 2.).tan() * (y / x)).atan()).to_degrees()

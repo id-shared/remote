@@ -2,116 +2,82 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-type Detail = (u32, i32, i32);
+type Detail = (u32, u32, i32, i32);
 pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: F, g: G, h: H, x: f64, y: f64) -> () {
   let mut handle = vec![];
 
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      let data = #[inline(always)]
-      |x1: f64, y1: f64| data((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
+      let view = #[inline(always)]
+      move |x1: f64, y1: f64| view((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
 
-      let on = move |z: Buffer| {
-        let (nn, un, xn, yn) = z;
+      each(
+        move |n: u32| match n {
+          49..=u32::MAX => view(x / 16., y / 8.),
+          33..=48 => view(x / 12., y / 8.),
+          17..=32 => view(x / 8., y / 8.),
+          1..=16 => view(x / 4., y / 8.),
+          _ => view(x / 4., y / 8.),
+        },
+        move |z: Buffer| {
+          let (cn, nn, un, xn, yn) = z;
 
-        match f(T) {
-          T => {
-            let mut is: bool = F;
-            let mut ay: i32 = 0;
-            let mut ax: i32 = 0;
-            let mut an: u32 = N;
+          match f(T) {
+            T => {
+              let mut is: bool = F;
+              let mut ay: i32 = 0;
+              let mut ax: i32 = 0;
+              let mut an: u32 = N;
 
-            for y in 0..yn {
-              let yn_ = unsafe { nn.add(y * un) } as *const u32;
-              let ay_ = (yn as i32 / 2) - y as i32;
+              for y in 0..yn {
+                let yn_ = unsafe { nn.add(y * un) } as *const u32;
+                let ay_ = (yn as i32 / 2) - y as i32;
 
-              'x: for x in 0..xn {
-                let xn_ = unsafe { *yn_.add(x) };
-                let ax_ = (xn as i32 / 2) - x as i32;
+                'x: for x in 0..xn {
+                  let xn_ = unsafe { *yn_.add(x) };
+                  let ax_ = (xn as i32 / 2) - x as i32;
 
-                match g(xn_) {
-                  T => match is {
-                    T => {
-                      an = an + 1;
-                      break 'x;
+                  match g(xn_) {
+                    T => match is {
+                      T => {
+                        an = an + 1;
+                        break 'x;
+                      },
+                      _ => {
+                        ay = ay_;
+                        ax = ax_;
+                        an = an + 1;
+                        is = T;
+                        break 'x;
+                      },
                     },
-                    _ => {
-                      ay = ay_;
-                      ax = ax_;
-                      an = an + 1;
-                      is = T;
-                      break 'x;
-                    },
-                  },
-                  _ => F,
-                };
+                    _ => F,
+                  };
+                }
               }
-            }
 
-            match is {
-              T => h((an, -ax, ay)),
-              _ => F,
-            }
-          },
-          _ => F,
-        }
-      };
-
-      each(on, data(x / 8., y / 8.));
+              match is {
+                T => h((cn, an, -ax, ay)),
+                _ => F,
+              }
+            },
+            _ => F,
+          }
+        },
+        io(),
+      );
     },
   ));
 
-  fn turn(x: ID3D11Texture2D, z: &IO) -> Buffer {
-    let high = z.y as usize;
-    let wide = z.x as usize;
-    let desc = D3D11_TEXTURE2D_DESC {
-      Width: wide as u32,
-      Height: high as u32,
-      MipLevels: 1,
-      ArraySize: 1,
-      Format: DXGI_FORMAT_B8G8R8A8_UNORM,
-      SampleDesc: DXGI_SAMPLE_DESC {
-        Count: 1,
-        Quality: 0,
-      },
-      Usage: D3D11_USAGE_STAGING,
-      CPUAccessFlags: D3D11_CPU_ACCESS_READ.0 as u32,
-      BindFlags: 0,
-      MiscFlags: 0,
-    };
-
-    let mut texture: Option<ID3D11Texture2D> = None;
-    unsafe { z.device.CreateTexture2D(&desc, None, Some(&mut texture)).unwrap() };
-
-    let region = D3D11_BOX {
-      left: z.l as u32,
-      top: z.t as u32,
-      front: 0,
-      right: (z.l + z.x) as u32,
-      bottom: (z.t + z.y) as u32,
-      back: 1,
-    };
-
-    unsafe { z.context.CopySubresourceRegion(texture.as_ref().unwrap(), 0, 0, 0, 0, &x, 0, Some(&region)) };
-
-    let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
-    unsafe { z.context.Map(texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
-
-    let pitch = mapped.RowPitch as usize;
-    let data_ptr = mapped.pData as *const u8;
-
-    unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
-
-    (data_ptr, pitch, wide, high)
-  }
-
-  fn each<G: FuncMut<Buffer, bool>>(mut g: G, z: IO) -> bool {
+  fn each<F: Func<u32, View>, G: FuncMut<Buffer, bool>>(f: F, mut g: G, z: IO) -> bool {
     let mut time = Instant::now();
     let mut curr = N;
     loop {
       match T {
         T => {
+          let view = f(curr);
+
           let framed = sure(
             || {
               let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
@@ -120,7 +86,7 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: 
                 T => {
                   let data = data.unwrap();
                   let cast = data.cast().unwrap();
-                  g(turn(cast, &z));
+                  g(turn(cast, curr, &view, &z));
                   unsafe { z.framer.ReleaseFrame().unwrap() };
                   T
                 },
@@ -151,7 +117,60 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: 
     }
   }
 
-  fn data(l: f64, t: f64, x: f64, y: f64) -> IO {
+  fn turn(d: ID3D11Texture2D, n: u32, v: &View, z: &IO) -> Buffer {
+    let high = v.y as usize;
+    let wide = v.x as usize;
+    let desc = D3D11_TEXTURE2D_DESC {
+      Width: wide as u32,
+      Height: high as u32,
+      MipLevels: 1,
+      ArraySize: 1,
+      Format: DXGI_FORMAT_B8G8R8A8_UNORM,
+      SampleDesc: DXGI_SAMPLE_DESC {
+        Count: 1,
+        Quality: 0,
+      },
+      Usage: D3D11_USAGE_STAGING,
+      CPUAccessFlags: D3D11_CPU_ACCESS_READ.0 as u32,
+      BindFlags: 0,
+      MiscFlags: 0,
+    };
+
+    let mut texture: Option<ID3D11Texture2D> = None;
+    unsafe { z.device.CreateTexture2D(&desc, None, Some(&mut texture)).unwrap() };
+
+    let region = D3D11_BOX {
+      left: v.l as u32,
+      top: v.t as u32,
+      front: 0,
+      right: (v.l + v.x) as u32,
+      bottom: (v.t + v.y) as u32,
+      back: 1,
+    };
+
+    unsafe { z.context.CopySubresourceRegion(texture.as_ref().unwrap(), 0, 0, 0, 0, &d, 0, Some(&region)) };
+
+    let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
+    unsafe { z.context.Map(texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
+
+    let pitch = mapped.RowPitch as usize;
+    let data_ptr = mapped.pData as *const u8;
+
+    unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
+
+    (n, data_ptr, pitch, wide, high)
+  }
+
+  fn view(l: f64, t: f64, x: f64, y: f64) -> View {
+    View {
+      l,
+      t,
+      x,
+      y,
+    }
+  }
+
+  fn io() -> IO {
     let mut context: Option<ID3D11DeviceContext> = None;
     let mut device: Option<ID3D11Device> = None;
     let mut level = D3D_FEATURE_LEVEL_12_2;
@@ -184,10 +203,6 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: 
       device,
       framer,
       hz: HZ,
-      l,
-      t,
-      x,
-      y,
     }
   }
 
@@ -196,18 +211,21 @@ pub fn watch<F: Func<bool, bool>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: 
   }
 }
 
-pub struct IO {
-  context: ID3D11DeviceContext,
-  device: ID3D11Device,
-  framer: IDXGIOutputDuplication,
-  hz: u32,
+pub struct View {
   l: f64,
   t: f64,
   x: f64,
   y: f64,
 }
 
-pub type Buffer = (*const u8, usize, usize, usize);
+pub struct IO {
+  context: ID3D11DeviceContext,
+  device: ID3D11Device,
+  framer: IDXGIOutputDuplication,
+  hz: u32,
+}
+
+pub type Buffer = (u32, *const u8, usize, usize, usize);
 
 fn sure<F: FnMut() -> bool>(mut f1: F, n1: Duration) -> bool {
   let init = Instant::now();

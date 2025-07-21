@@ -18,41 +18,11 @@ pub fn main() {
   let fx = #[inline(always)]
   move |n1: f64| calc(vx, n1 / ux, 6400.);
 
-  let (i2, o2): (Sender<(u32, i32, i32)>, Receiver<(u32, i32, i32)>) = bounded(64);
+  let (i2, o2): (Sender<(u32, u32, i32, i32)>, Receiver<(u32, u32, i32, i32)>) = bounded(64);
   handle.push(thread::spawn(
     #[inline(always)]
     move || match xyloid::type_1() {
       Some(io) => {
-        // #[inline(always)]
-        // fn zz(io: xyloid::HANDLE, i: i32, n: i32, x: f64, y: f64) -> bool {
-        //   match i <= n {
-        //     T => {
-        //       let rr = ease(i as f64 / n as f64);
-        //       let ay = rr * y;
-        //       let ax = rr * x;
-
-        //       // println!("{} {} | {:.2} {} {}", i, n, rr, ax, ay);
-
-        //       xyloid::xy(io, ax, ay);
-        //       xo(MS * HZ);
-        //       zz(io, i + 1, n, x - ax, y - ay)
-        //     },
-        //     _ => {
-        //       xyloid::xy(io, x, y);
-        //       match xyloid::is_h() {
-        //         T => T,
-        //         _ => xyloid::key_h(io, F),
-        //       }
-        //     },
-        //   }
-        // }
-
-        // #[inline(always)]
-        // fn ease(t: f64) -> f64 {
-        //   let t = t.clamp(0.0, 1.0);
-        //   (3.0 * t * t) - (2.0 * t * t * t)
-        // }
-
         #[inline(always)]
         fn f_zn(n1: u32) -> u32 {
           match n1 {
@@ -110,35 +80,16 @@ pub fn main() {
           },
         };
 
-        // for i in 1..=10 {
-        //   let n = i as f64 / 10.;
-        //   println!("{:.2}", ease(n));
-        // }
-
-        let mut time = Instant::now();
-        let mut curr = N;
-
-        while let Ok((an, ax, ay)) = o2.recv() {
-          let ny = yy(an, ay);
-          let nx = xx(an, ax);
+        while let Ok((an, av, ax, ay)) = o2.recv() {
+          let ny = yy(av, ay);
+          let nx = xx(av, ax);
 
           // TODO: difference should be atleast 2.
 
-          curr = match time.elapsed().as_millis_f64() < 128. {
-            T => {
-              time = Instant::now();
-              curr + 1
-            },
-            _ => {
-              time = Instant::now();
-              N
-            },
-          };
+          println!("Current: {}, {}, {}, {}", an, av, ax, ay);
 
-          println!("Current: {}, {}, {}, {}", curr, an, ax, ay);
-
-          match curr {
-            1..=u32::MAX => match curr % 2 {
+          match an {
+            1..=u32::MAX => match an % 2 {
               N => zz(nx, N as i32),
               _ => F,
             },
