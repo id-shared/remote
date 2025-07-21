@@ -75,7 +75,6 @@ pub fn watch<F: Func<u32, u32>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: F,
   fn each<F: FuncMut<Buffer, bool>, G: Func<u32, View>>(mut f: F, g: G, z: IO) -> bool {
     let mut time = Instant::now();
     let mut curr = N;
-    let mut at = N;
     loop {
       match T {
         T => {
