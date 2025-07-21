@@ -73,22 +73,28 @@ pub fn main() {
           // TODO: difference should be atleast 2.
           println!("{}, {}, {}, {}", c, v, x, y);
 
-          let ay = match y.abs() >= BS {
-            T => yy(v, y.min(BS).max(-BS)),
-            _ => yy(v, y),
-          };
-          let ax = match x.abs() >= BS {
-            T => xx(v, x.min(BS).max(-BS)),
-            _ => xx(v, x),
-          };
+          match c % 2 {
+            1 => {
+              let ay = match y.abs() >= BS {
+                T => yy(v, y.min(BS).max(-BS)),
+                _ => yy(v, y),
+              };
 
-          match xyloid::is_h() {
-            T => zz(ax, ay),
-            _ => {
-              zz(ax, ay);
-              xo(MS * 4);
-              kh(F)
+              let ax = match x.abs() >= BS {
+                T => xx(v, x.min(BS).max(-BS)),
+                _ => xx(v, x),
+              };
+
+              match xyloid::is_h() {
+                T => zz(ax, ay),
+                _ => {
+                  zz(ax, ay);
+                  xo(MS * 4);
+                  kh(F)
+                },
+              }
             },
+            _ => F,
           };
         }
       },
