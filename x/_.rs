@@ -164,6 +164,57 @@ pub fn main() {
         };
       };
 
+      let check = |x: u32| {
+        let n1 = ((x >> 16) & 0xff) as u8;
+        let n2 = ((x >> 8) & 0xff) as u8;
+        let n3 = (x & 0xff) as u8;
+
+        match n1 > CLR && n3 > CLR {
+          T => match n1 > n3 {
+            T => match n3.abs_diff(n2) > ABS {
+              T => T,
+              _ => F,
+            },
+            _ => match n1.abs_diff(n2) > ABS {
+              T => T,
+              _ => F,
+            },
+          },
+          _ => F,
+        }
+      };
+
+      let does = |c: u32, v: u32, x: i32, y: i32| {
+        // TODO: difference should be atleast 2.
+        println!("{}, {}, {}, {}", c, v, x, y);
+
+        const BS: i32 = 64;
+
+        match c % 3 {
+          1 => {
+            let (ay, is_y) = match y.abs() >= BS {
+              T => (yy(v, y.min(BS).max(-BS)), F),
+              _ => (yy(v, y), T),
+            };
+
+            let (ax, is_x) = match x.abs() >= BS {
+              T => (xx(v, x.min(BS).max(-BS)), F),
+              _ => (xx(v, x), T),
+            };
+
+            match is_x && is_y {
+              T => {
+                zz(ax, ay);
+                xo(MS * 4);
+                kh(F)
+              },
+              _ => zz(ax, ay),
+            }
+          },
+          _ => F,
+        }
+      };
+
       screen::watch(
         |n| match screen::name().contains(APP) {
           T => {
@@ -175,53 +226,42 @@ pub fn main() {
           },
           _ => N,
         },
-        |x| {
-          let n1 = ((x >> 16) & 0xff) as u8;
-          let n2 = ((x >> 8) & 0xff) as u8;
-          let n3 = (x & 0xff) as u8;
+        |(nn, un, xn, yn)| {
+          let mut is: bool = F;
+          let mut ay: i32 = 0;
+          let mut ax: i32 = 0;
+          let mut an: u32 = N;
 
-          match n1 > CLR && n3 > CLR {
-            T => match n1 > n3 {
-              T => match n3.abs_diff(n2) > ABS {
-                T => T,
-                _ => F,
-              },
-              _ => match n1.abs_diff(n2) > ABS {
-                T => T,
-                _ => F,
-              },
-            },
-            _ => F,
-          }
-        },
-        |(c, v, x, y)| {
-          // TODO: difference should be atleast 2.
-          println!("{}, {}, {}, {}", c, v, x, y);
+          for y in 0..yn {
+            let yn_ = unsafe { nn.add(y * un) } as *const u32;
+            let ay_ = (yn as i32 / 2) - y as i32;
 
-          const BS: i32 = 64;
+            'x: for x in 0..xn {
+              let xn_ = unsafe { *yn_.add(x) };
+              let ax_ = (xn as i32 / 2) - x as i32;
 
-          match c % 3 {
-            1 => {
-              let (ay, is_y) = match y.abs() >= BS {
-                T => (yy(v, y.min(BS).max(-BS)), F),
-                _ => (yy(v, y), T),
-              };
-
-              let (ax, is_x) = match x.abs() >= BS {
-                T => (xx(v, x.min(BS).max(-BS)), F),
-                _ => (xx(v, x), T),
-              };
-
-              match is_x && is_y {
-                T => {
-                  zz(ax, ay);
-                  xo(MS * 4);
-                  kh(F)
+              match check(xn_) {
+                T => match is {
+                  T => {
+                    an = an + 1;
+                    break 'x;
+                  },
+                  _ => {
+                    ay = ay_;
+                    ax = ax_;
+                    an = an + 1;
+                    is = T;
+                    break 'x;
+                  },
                 },
-                _ => zz(ax, ay),
-              }
-            },
-            _ => F,
+                _ => F,
+              };
+            }
+          }
+
+          match is {
+            T => does(1, an, -ax, ay),
+            _ => does(0, 0, 0, 0),
           }
         },
       );

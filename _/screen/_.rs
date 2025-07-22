@@ -2,61 +2,7 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F: FnMut(u32) -> u32, G: Fn(u32) -> bool, H: FnMut(Detail) -> bool>(f: F, g: G, mut h: H) -> bool {
-  fn each<F: FnMut(u32) -> u32, G: FnMut(Record) -> Detail>(mut f: F, mut g: G) -> bool {
-    let y = high();
-    let x = wide();
-    let recorder = recorder();
-    let capturer = #[inline(always)]
-    |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
-    let acquirer = #[inline(always)]
-    |n: u32| match n {
-      1..=u32::MAX => capturer(x / 4., y / 8.),
-      _ => capturer(x / 4., y / 8.),
-    };
-    let mut time = Instant::now();
-    let mut curr = N;
-    let mut at = N;
-    loop {
-      at = f(at);
-      match at {
-        1..=u32::MAX => {
-          let oneach = || {
-            let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
-            let mut data: Option<IDXGIResource> = None;
-            match unsafe { recorder.framer.AcquireNextFrame(recorder.hz, &mut info, &mut data).is_ok() } {
-              T => {
-                let data = data.unwrap();
-                let cast = data.cast().unwrap();
-                g(turn(cast, &acquirer(curr), &recorder));
-                unsafe { recorder.framer.ReleaseFrame().unwrap() };
-                T
-              },
-              _ => F,
-            }
-          };
-
-          curr = match sure(oneach, MS * recorder.hz) {
-            T => {
-              match time.elapsed().as_millis_f64() > 1000. {
-                T => {
-                  // println!("FPS: {}", curr);
-                  time = Instant::now();
-                  N
-                },
-                _ => curr + 1,
-              }
-            },
-            _ => curr,
-          };
-
-          T
-        },
-        _ => F,
-      };
-    }
-  }
-
+pub fn watch<F: FnMut(u32) -> u32, G: FnMut(Record) -> bool>(mut f: F, mut g: G) -> bool {
   fn turn(d: ID3D11Texture2D, v: &Capturer, z: &Recorder) -> Record {
     let high = v.y as usize;
     let wide = v.x as usize;
@@ -101,44 +47,57 @@ pub fn watch<F: FnMut(u32) -> u32, G: Fn(u32) -> bool, H: FnMut(Detail) -> bool>
     (data_ptr, pitch, wide, high)
   }
 
-  each(f, |(nn, un, xn, yn)| {
-    let mut is: bool = F;
-    let mut ay: i32 = 0;
-    let mut ax: i32 = 0;
-    let mut an: u32 = N;
-
-    for y in 0..yn {
-      let yn_ = unsafe { nn.add(y * un) } as *const u32;
-      let ay_ = (yn as i32 / 2) - y as i32;
-
-      'x: for x in 0..xn {
-        let xn_ = unsafe { *yn_.add(x) };
-        let ax_ = (xn as i32 / 2) - x as i32;
-
-        match g(xn_) {
-          T => match is {
+  let y = high();
+  let x = wide();
+  let recorder = recorder();
+  let capturer = #[inline(always)]
+  |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
+  let acquirer = #[inline(always)]
+  |n: u32| match n {
+    1..=u32::MAX => capturer(x / 4., y / 8.),
+    _ => capturer(x / 4., y / 8.),
+  };
+  let mut time = Instant::now();
+  let mut curr = N;
+  let mut at = N;
+  loop {
+    at = f(at);
+    match at {
+      1..=u32::MAX => {
+        let oneach = || {
+          let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
+          let mut data: Option<IDXGIResource> = None;
+          match unsafe { recorder.framer.AcquireNextFrame(recorder.hz, &mut info, &mut data).is_ok() } {
             T => {
-              an = an + 1;
-              break 'x;
+              let data = data.unwrap();
+              let cast = data.cast().unwrap();
+              g(turn(cast, &acquirer(curr), &recorder));
+              unsafe { recorder.framer.ReleaseFrame().unwrap() };
+              T
             },
-            _ => {
-              ay = ay_;
-              ax = ax_;
-              an = an + 1;
-              is = T;
-              break 'x;
-            },
-          },
-          _ => F,
+            _ => F,
+          }
         };
-      }
-    }
 
-    match is {
-      T => (1, an, -ax, ay),
-      _ => (0, 0, 0, 0),
-    }
-  })
+        curr = match sure(oneach, MS * recorder.hz) {
+          T => {
+            match time.elapsed().as_millis_f64() > 1000. {
+              T => {
+                // println!("FPS: {}", curr);
+                time = Instant::now();
+                N
+              },
+              _ => curr + 1,
+            }
+          },
+          _ => curr,
+        };
+
+        T
+      },
+      _ => F,
+    };
+  }
 }
 
 pub fn capturer(l: f64, t: f64, x: f64, y: f64) -> Capturer {
@@ -201,7 +160,6 @@ pub struct Recorder {
 }
 
 pub type Record = (*const u8, usize, usize, usize);
-pub type Detail = (u32, u32, i32, i32);
 
 fn sure<F: FnMut() -> bool>(mut f1: F, n1: Duration) -> bool {
   let init = Instant::now();
