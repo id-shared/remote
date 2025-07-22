@@ -5,112 +5,31 @@
 pub fn main() {
   println!("Angle for chord length 1 is {:.64} pixels", calc((103_f64 / 2.).to_radians(), 960. / 960., 6400.));
 
-  #[inline(always)]
-  fn on_key<F1: Fn() -> bool, F2: Fn(&Device, bool) -> bool>(f1: F1, f2: F2, io: &Device, z1: BI) -> BI {
-    on(
-      f1,
-      |_| (T, Instant::now()),
-      |x| {
-        let n = (x.1.elapsed().as_millis_f64() / 10.).round() as u64;
-        match n {
-          17..=32 => {
-            f2(io, F);
-            xo(MS * ((4 * 16) + ((n - 16) * 2)) as u32);
-            f2(io, T)
-          },
-          6..=16 => {
-            f2(io, F);
-            xo(MS * (4 * n) as u32);
-            f2(io, T)
-          },
-          0..=5 => T,
-          _ => {
-            f2(io, F);
-            xo(MS * 96);
-            f2(io, T)
-          },
-        };
-        (F, Instant::now())
-      },
-      z1,
-    )
-  }
-
-  #[inline(always)]
-  fn on<F1: Fn() -> bool, F2: Fn(BI) -> BI, F3: Fn(BI) -> BI>(f1: F1, f2: F2, f3: F3, z1: BI) -> BI {
-    match z1.0 {
-      T => match f1() {
-        T => z1,
-        _ => f3(z1),
-      },
-      _ => match f1() {
-        T => f2(z1),
-        _ => z1,
-      },
-    }
-  }
-
-  #[inline(always)]
-  fn calc(radian: f64, factor: f64, size: f64) -> f64 {
-    (tan(radian, factor) / (2. * PI)) * size
-  }
-
-  #[inline(always)]
-  fn tan(n1: f64, n2: f64) -> f64 {
-    (n1.tan() * n2).atan()
-  }
-
-  #[inline(always)]
-  fn fov(n: f64) -> f64 {
-    (n / 2.).to_radians()
-  }
-
   let mut handle = vec![];
-  let zy = screen::high();
-  let zx = screen::wide();
-  let vy = fov(70.53_f64);
-  let vx = fov(103_f64);
-  let uy = zy / 2.;
-  let ux = zx / 2.;
 
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
+      let zy = screen::high();
+      let zx = screen::wide();
+      let vy = fov(70.53_f64);
+      let vx = fov(103_f64);
+      let uy = zy / 2.;
+      let ux = zx / 2.;
+
       const CLR: u8 = 255 - 24;
       const ABS: u8 = 24;
 
       let io = xyloid::device();
-      #[inline(always)]
-      fn f_zn(n1: u32) -> u32 {
-        match n1 {
-          61..=u32::MAX => 16,
-          57..=60 => 15,
-          53..=56 => 14,
-          49..=52 => 13,
-          45..=48 => 12,
-          41..=44 => 11,
-          37..=40 => 10,
-          33..=36 => 9,
-          29..=32 => 8,
-          25..=28 => 7,
-          21..=24 => 6,
-          17..=20 => 5,
-          13..=16 => 4,
-          9..=12 => 3,
-          5..=8 => 2,
-          1..=4 => 1,
-          _ => 0,
-        }
-      }
 
       #[inline(always)]
       fn f_yn(n1: u32) -> f64 {
-        (f_zn(n1) as f64) / 2.
+        (xyz(n1) as f64) / 2.
       }
 
       #[inline(always)]
       fn f_xn(n1: u32) -> f64 {
-        (f_zn(n1) as f64) / 4.
+        (xyz(n1) as f64) / 4.
       }
 
       let fy = #[inline(always)]
@@ -302,6 +221,89 @@ pub fn main() {
   for x in handle {
     x.join().unwrap();
   }
+}
+
+#[inline(always)]
+fn on_key<F1: Fn() -> bool, F2: Fn(&Device, bool) -> bool>(f1: F1, f2: F2, io: &Device, z1: BI) -> BI {
+  on(
+    f1,
+    |_| (T, Instant::now()),
+    |x| {
+      let n = (x.1.elapsed().as_millis_f64() / 10.).round() as u64;
+      match n {
+        17..=32 => {
+          f2(io, F);
+          xo(MS * ((4 * 16) + ((n - 16) * 2)) as u32);
+          f2(io, T)
+        },
+        6..=16 => {
+          f2(io, F);
+          xo(MS * (4 * n) as u32);
+          f2(io, T)
+        },
+        0..=5 => T,
+        _ => {
+          f2(io, F);
+          xo(MS * 96);
+          f2(io, T)
+        },
+      };
+      (F, Instant::now())
+    },
+    z1,
+  )
+}
+
+#[inline(always)]
+fn on<F1: Fn() -> bool, F2: Fn(BI) -> BI, F3: Fn(BI) -> BI>(f1: F1, f2: F2, f3: F3, z1: BI) -> BI {
+  match z1.0 {
+    T => match f1() {
+      T => z1,
+      _ => f3(z1),
+    },
+    _ => match f1() {
+      T => f2(z1),
+      _ => z1,
+    },
+  }
+}
+
+#[inline(always)]
+fn calc(radian: f64, factor: f64, size: f64) -> f64 {
+  (tan(radian, factor) / (2. * PI)) * size
+}
+
+#[inline(always)]
+fn xyz(n1: u32) -> u32 {
+  match n1 {
+    61..=u32::MAX => 16,
+    57..=60 => 15,
+    53..=56 => 14,
+    49..=52 => 13,
+    45..=48 => 12,
+    41..=44 => 11,
+    37..=40 => 10,
+    33..=36 => 9,
+    29..=32 => 8,
+    25..=28 => 7,
+    21..=24 => 6,
+    17..=20 => 5,
+    13..=16 => 4,
+    9..=12 => 3,
+    5..=8 => 2,
+    1..=4 => 1,
+    _ => 0,
+  }
+}
+
+#[inline(always)]
+fn tan(n1: f64, n2: f64) -> f64 {
+  (n1.tan() * n2).atan()
+}
+
+#[inline(always)]
+fn fov(n: f64) -> f64 {
+  (n / 2.).to_radians()
 }
 
 #[inline(always)]
