@@ -2,13 +2,12 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F: FnMut(Record) -> bool, F1: FnMut(u32) -> u32>(mut f: F, mut on_f: F1, x: f64, y: f64) -> bool {
+pub fn watch<F: FnMut(Detail) -> bool, F1: FnMut(Record) -> (bool, u32, i32, i32), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, x: f64, y: f64) -> bool {
   let capturer = |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
   let recorder = recorder();
   let mut id = N;
   loop {
-    id = on_f(id);
-    match id > N {
+    match is_f() {
       T => {
         let oneach = || {
           let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
@@ -21,20 +20,22 @@ pub fn watch<F: FnMut(Record) -> bool, F1: FnMut(u32) -> u32>(mut f: F, mut on_f
               };
               let data = data.unwrap();
               let cast = data.cast().unwrap();
-              f(turn(cast, capturer, &recorder));
+              let (is, an, ax, ay) = on_f(turn(cast, capturer, &recorder));
               unsafe { recorder.framer.ReleaseFrame().unwrap() };
-              T
+              match is {
+                T => {
+                  f((id, an, ax, ay));
+                  id = id + 1;
+                  is
+                },
+                _ => is,
+              }
             },
             _ => F,
           }
         };
 
-        id = match sure(oneach, MS * recorder.hz) {
-          T => id + 1,
-          _ => id,
-        };
-
-        T
+        sure(oneach, MS * recorder.hz)
       },
       _ => {
         xo(MS);
@@ -89,7 +90,7 @@ fn turn(d: ID3D11Texture2D, v: Capturer, z: &Recorder) -> Record {
   (data_ptr, pitch, wide, high)
 }
 
-pub fn capturer(l: f64, t: f64, x: f64, y: f64) -> Capturer {
+fn capturer(l: f64, t: f64, x: f64, y: f64) -> Capturer {
   Capturer {
     l,
     t,
@@ -98,7 +99,7 @@ pub fn capturer(l: f64, t: f64, x: f64, y: f64) -> Capturer {
   }
 }
 
-pub fn recorder() -> Recorder {
+fn recorder() -> Recorder {
   let mut context: Option<ID3D11DeviceContext> = None;
   let mut device: Option<ID3D11Device> = None;
   let mut level = D3D_FEATURE_LEVEL_12_2;
@@ -134,21 +135,22 @@ pub fn recorder() -> Recorder {
   }
 }
 
-pub struct Capturer {
+struct Capturer {
   l: f64,
   t: f64,
   x: f64,
   y: f64,
 }
 
-pub struct Recorder {
+struct Recorder {
   context: ID3D11DeviceContext,
   device: ID3D11Device,
   framer: IDXGIOutputDuplication,
   hz: u32,
 }
 
-pub type Record = (*const u8, usize, usize, usize);
+type Record = (*const u8, usize, usize, usize);
+type Detail = (u32, u32, i32, i32);
 
 fn sure<F: FnMut() -> bool>(mut f1: F, n1: Duration) -> bool {
   let init = Instant::now();
