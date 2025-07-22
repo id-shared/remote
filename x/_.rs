@@ -12,8 +12,8 @@ pub fn main() {
     let screen_x = screen::wide();
     let device = xyloid::device();
 
-    let fy = |n: f64| xyz(radian(70.53_f64 / 2.), n / screen_y / 2., 6400.);
-    let fx = |n: f64| xyz(radian(103_f64 / 2.), n / screen_x / 2., 6400.);
+    let fy = |n: f64| xyz(radian(70.53_f64 / 2.), n / (screen_y / 2.), 6400.);
+    let fx = |n: f64| xyz(radian(103_f64 / 2.), n / (screen_x / 2.), 6400.);
 
     let xxyy = |x: f64, y: f64| match d2::is_h() {
       T => d1::xy(&device, x, N as f64),
@@ -25,26 +25,29 @@ pub fn main() {
 
     let mut abc_cy = N;
     let mut abc = || {
-      let yy = |n1: f64| d1::xy(&device, N as f64, fy(n1));
       abc_cy = match d2::is_ml() {
         T => match d2::is_h() {
           T => {
-            yy(match abc_cy {
-              49..=u32::MAX => 0.,
-              45..=48 => -1.,
-              41..=44 => -1.,
-              37..=40 => -3.,
-              33..=36 => -3.,
-              29..=32 => -3.,
-              25..=28 => -3.,
-              21..=24 => -3.,
-              17..=20 => -5.,
-              13..=16 => -5.,
-              9..=12 => -5.,
-              5..=8 => -3.,
-              1..=4 => -1.,
-              _ => 0.,
-            });
+            d1::xy(
+              &device,
+              N as f64,
+              fy(match abc_cy {
+                49..=u32::MAX => 0.,
+                45..=48 => -1.,
+                41..=44 => -1.,
+                37..=40 => -3.,
+                33..=36 => -3.,
+                29..=32 => -3.,
+                25..=28 => -3.,
+                21..=24 => -3.,
+                17..=20 => -5.,
+                13..=16 => -5.,
+                9..=12 => -5.,
+                5..=8 => -3.,
+                1..=4 => -1.,
+                _ => 0.,
+              }),
+            );
             abc_cy + 1
           },
           _ => N,
@@ -56,9 +59,12 @@ pub fn main() {
       };
     };
 
-    let does = |c: u32, v: u32, x: i32, y: i32| {
+    const MAX: i32 = 128;
+    let mut does = |c: u32, v: u32, x: i32, y: i32| {
       // TODO: difference should be atleast 2.
       println!("{}, {}, {}, {}", c, v, x, y);
+
+      abc();
 
       match c % 3 {
         1 => {
@@ -88,12 +94,9 @@ pub fn main() {
     let mut at: u32 = 0;
     screen::watch(
       || match screen::name().contains(APP) {
-        T => {
-          abc();
-          match d2::is_ml() {
-            T => T,
-            _ => F,
-          }
+        T => match d2::is_ml() {
+          T => T,
+          _ => F,
         },
         _ => F,
       },
@@ -288,7 +291,6 @@ fn radian(n: f64) -> f64 {
   n.to_radians()
 }
 
-const MAX: i32 = 128;
 const CLR: u8 = 231;
 const ABS: u8 = 24;
 const APP: &str = "";
