@@ -8,7 +8,7 @@ fn main() -> std::io::Result<()> {
   let abc = std::time::Instant::now();
 
   let mut filelist = File::create("images.txt")?;
-  for i in 1..=4 {
+  for i in 0..=3 {
     writeln!(filelist, "file 'vv/_/0.png'")?;
     writeln!(filelist, "duration 0.016")?;
   }

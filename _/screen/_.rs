@@ -15,7 +15,8 @@ pub fn watch<F: FnMut(Detail) -> bool, F1: FnMut(Record) -> (bool, u32, i32, i32
           match unsafe { recorder.framer.AcquireNextFrame(recorder.hz, &mut info, &mut data).is_ok() } {
             T => {
               let capturer = match id {
-                1..=u32::MAX => capturer(x / 4., y / 8.),
+                16..=u32::MAX => capturer(x / 4., y / 8.),
+                0..=15 => capturer(x / 4., y / 8.),
                 _ => capturer(x / 4., y / 8.),
               };
               let data = data.unwrap();
