@@ -13,10 +13,12 @@ pub fn main() {
   let uy = zy / 2.;
   let ux = zx / 2.;
 
-  let (i2, o2): (Sender<(u32, u32, i32, i32)>, Receiver<(u32, u32, i32, i32)>) = bounded(64);
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
+      const CLR: u8 = 255 - 24;
+      const ABS: u8 = 24;
+
       let io = xyloid::device();
       #[inline(always)]
       fn f_zn(n1: u32) -> u32 {
@@ -68,49 +70,6 @@ pub fn main() {
       let kh = #[inline(always)]
       |a: bool| d2::key_h(&io, a);
 
-      const BS: i32 = 64;
-      while let Ok((c, v, x, y)) = o2.recv() {
-        // TODO: difference should be atleast 2.
-        println!("{}, {}, {}, {}", c, v, x, y);
-
-        match c % 2 {
-          1 => {
-            let (ay, is_y) = match y.abs() >= BS {
-              T => (yy(v, y.min(BS).max(-BS)), F),
-              _ => (yy(v, y), T),
-            };
-
-            let (ax, is_x) = match x.abs() >= BS {
-              T => (xx(v, x.min(BS).max(-BS)), F),
-              _ => (xx(v, x), T),
-            };
-
-            match is_x && is_y {
-              T => match d2::is_h() {
-                T => zz(ax, ay),
-                _ => {
-                  zz(ax, ay);
-                  xo(MS * 4);
-                  kh(F)
-                },
-              },
-              _ => zz(ax, ay),
-            }
-          },
-          _ => F,
-        };
-      }
-    },
-  ));
-
-  handle.push(thread::spawn(
-    #[inline(always)]
-    move || {
-      const CLR: u8 = 255 - 24;
-      const ABS: u8 = 24;
-
-      let io = xyloid::device();
-
       // let mut cy = N;
       // let abc = |a| {
       //   let yy = #[inline(always)]
@@ -148,6 +107,8 @@ pub fn main() {
       //   }
       // };
 
+      const BS: i32 = 64;
+
       screen::watch(
         |_n| match screen::name().contains(APP) {
           T => match d2::is_mouse_l() {
@@ -181,7 +142,37 @@ pub fn main() {
             _ => F,
           }
         },
-        |x| send(&i2, x),
+        |(c, v, x, y)| {
+          // TODO: difference should be atleast 2.
+          println!("{}, {}, {}, {}", c, v, x, y);
+
+          match c % 2 {
+            1 => {
+              let (ay, is_y) = match y.abs() >= BS {
+                T => (yy(v, y.min(BS).max(-BS)), F),
+                _ => (yy(v, y), T),
+              };
+
+              let (ax, is_x) = match x.abs() >= BS {
+                T => (xx(v, x.min(BS).max(-BS)), F),
+                _ => (xx(v, x), T),
+              };
+
+              match is_x && is_y {
+                T => match d2::is_h() {
+                  T => zz(ax, ay),
+                  _ => {
+                    zz(ax, ay);
+                    xo(MS * 4);
+                    kh(F)
+                  },
+                },
+                _ => zz(ax, ay),
+              }
+            },
+            _ => F,
+          }
+        },
       );
     },
   ));
@@ -261,11 +252,6 @@ pub fn main() {
   }
 
   #[inline(always)]
-  fn send<T>(i: &Sender<T>, o: T) -> bool {
-    i.try_send(o).is_ok()
-  }
-
-  #[inline(always)]
   fn tan(n1: f64, n2: f64) -> f64 {
     (n1.tan() * n2).atan()
   }
@@ -278,6 +264,11 @@ pub fn main() {
   for x in handle {
     x.join().unwrap();
   }
+}
+
+#[inline(always)]
+pub fn send<T>(i: &Sender<T>, o: T) -> bool {
+  i.try_send(o).is_ok()
 }
 
 #[inline(always)]
@@ -298,11 +289,7 @@ pub const F: bool = false;
 pub const T: bool = true;
 
 use {
-  crossbeam::channel::{
-    Receiver,
-    Sender,
-    bounded,
-  },
+  crossbeam::channel::Sender,
   screen,
   std::{
     f64::consts::PI,
