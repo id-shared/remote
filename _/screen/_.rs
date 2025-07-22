@@ -272,10 +272,6 @@ pub const F: bool = false;
 pub const T: bool = true;
 
 use {
-  image::{
-    GenericImageView,
-    Pixel,
-  },
   std::{
     thread::{
       self,
@@ -339,64 +335,3 @@ use {
     core::*,
   },
 };
-
-pub fn test() {
-  let img = image::open("test.png").expect("Failed to open image");
-
-  const TINT: u8 = 255 - 24;
-  const DIFF: u8 = 24;
-
-  for pixel in img.pixels() {
-    let rgba = pixel.2.to_rgba();
-    let n1 = rgba[0];
-    let n2 = rgba[1];
-    let n3 = rgba[2];
-
-    let result = match n1 > TINT && TINT > n2 && n3 > TINT {
-      T => match n1 > n3 {
-        T => match n3.abs_diff(n2) > DIFF {
-          T => T,
-          _ => F,
-        },
-        _ => match n1.abs_diff(n2) > DIFF {
-          T => T,
-          _ => F,
-        },
-      },
-      _ => F,
-    };
-
-    match result {
-      T => (),
-      _ => println!("FA: {}, {}, {}", n1, n2, n3),
-    }
-  }
-}
-
-// let row_pitch = mapped.RowPitch as usize;
-// let ptr = mapped.pData as *const u8;
-
-// let mut img = ImageBuffer::<Rgba<u8>, Vec<u8>>::new(desc.Width, desc.Height);
-// let buffer = img.as_mut();
-
-// let width = desc.Width as usize;
-// let height = desc.Height as usize;
-
-// unsafe {
-//   for y in 0..height {
-//     let src_row = ptr.add(y * row_pitch);
-//     let dst_row = buffer.as_mut_ptr().add(y * width * 4);
-
-//     for x in 0..width {
-//       let src_px = src_row.add(x * 4);
-//       let dst_px = dst_row.add(x * 4);
-
-//       *dst_px = *src_px.add(2); // R
-//       *dst_px.add(1) = *src_px.add(1); // G
-//       *dst_px.add(2) = *src_px; // B
-//       *dst_px.add(3) = *src_px.add(3); // A
-//     }
-//   }
-// }
-
-// img.save("subregion.png").unwrap();

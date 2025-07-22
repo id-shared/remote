@@ -10,7 +10,6 @@ windows = { version = "0.61.3", features = [
   "Win32_Graphics_Direct3D",
   "Win32_Foundation",
 ] }
-image = { version = "0.25.6" }
 
 [package]
 authors = ["Zyrosk <hq.zyrosk@gmail.com>"]
