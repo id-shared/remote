@@ -52,19 +52,19 @@ pub fn main() {
         },
         _ => F,
       },
-      |(nn, un, xn, yn)| {
+      |(n, v, x, y)| {
         let mut is: bool = F;
         let mut ay: i32 = 0;
         let mut ax: i32 = 0;
         let mut an: u32 = N;
 
-        for y in 0..yn {
-          let yn_ = unsafe { nn.add(y * un) } as *const u32;
-          let ay_ = (yn as i32 / 2) - y as i32;
+        for yn in 0..y {
+          let yn_ = unsafe { n.add(yn * v) } as *const u32;
+          let ay_ = (y as i32 / 2) - yn as i32;
 
-          'x: for x in 0..xn {
-            let xn_ = unsafe { *yn_.add(x) };
-            let ax_ = (xn as i32 / 2) - x as i32;
+          'x: for xn in 0..x {
+            let xn_ = unsafe { *yn_.add(xn) };
+            let ax_ = (x as i32 / 2) - xn as i32;
 
             match is_pixel(xn_) {
               T => match is {
