@@ -15,20 +15,7 @@ pub fn main() {
     let uy = zy / 2.;
     let ux = zx / 2.;
 
-    const CLR: u8 = 255 - 24;
-    const ABS: u8 = 24;
-
     let io = xyloid::device();
-
-    #[inline(always)]
-    fn f_yn(n1: u32) -> f64 {
-      (xyz(n1) as f64) / 2.
-    }
-
-    #[inline(always)]
-    fn f_xn(n1: u32) -> f64 {
-      (xyz(n1) as f64) / 4.
-    }
 
     let fy = #[inline(always)]
     |n1: f64| calc(vy, n1 / uy, 6400.);
@@ -41,9 +28,9 @@ pub fn main() {
       _ => d1::xy(&io, x, y),
     };
     let yy = #[inline(always)]
-    |n: u32, y: i32| fy(y as f64 - f_yn(n));
+    |n: u32, y: i32| fy(y as f64 - add_y(n));
     let xx = #[inline(always)]
-    |n: u32, x: i32| fx(x as f64 + f_xn(n));
+    |n: u32, x: i32| fx(x as f64 + add_x(n));
     let kh = #[inline(always)]
     |a: bool| d2::h(&io, a);
 
@@ -105,17 +92,15 @@ pub fn main() {
       // TODO: difference should be atleast 2.
       println!("{}, {}, {}, {}", c, v, x, y);
 
-      const BS: i32 = 128;
-
       match c & 3 {
         1 => {
-          let (ay, is_y) = match y.abs() >= BS {
-            T => (yy(v, y.min(BS).max(-BS)), F),
+          let (ay, is_y) = match y.abs() >= MAX {
+            T => (yy(v, y.min(MAX).max(-MAX)), F),
             _ => (yy(v, y), T),
           };
 
-          let (ax, is_x) = match x.abs() >= BS {
-            T => (xx(v, x.min(BS).max(-BS)), F),
+          let (ax, is_x) = match x.abs() >= MAX {
+            T => (xx(v, x.min(MAX).max(-MAX)), F),
             _ => (xx(v, x), T),
           };
 
@@ -268,7 +253,27 @@ fn calc(radian: f64, factor: f64, size: f64) -> f64 {
 }
 
 #[inline(always)]
-fn xyz(n1: u32) -> u32 {
+fn tan(n1: f64, n2: f64) -> f64 {
+  (n1.tan() * n2).atan()
+}
+
+#[inline(always)]
+fn fov(n: f64) -> f64 {
+  (n / 2.).to_radians()
+}
+
+#[inline(always)]
+fn add_y(n1: u32) -> f64 {
+  (add(n1) as f64) / 2.
+}
+
+#[inline(always)]
+fn add_x(n1: u32) -> f64 {
+  (add(n1) as f64) / 4.
+}
+
+#[inline(always)]
+fn add(n1: u32) -> u32 {
   match n1 {
     61..=u32::MAX => 16,
     57..=60 => 15,
@@ -290,25 +295,18 @@ fn xyz(n1: u32) -> u32 {
   }
 }
 
-#[inline(always)]
-fn tan(n1: f64, n2: f64) -> f64 {
-  (n1.tan() * n2).atan()
-}
+type BI = (bool, Instant);
 
-#[inline(always)]
-fn fov(n: f64) -> f64 {
-  (n / 2.).to_radians()
-}
+const MAX: i32 = 128;
+const CLR: u8 = 231;
+const ABS: u8 = 24;
+const APP: &str = "";
 
 #[inline(always)]
 pub fn xo(n: Duration) -> bool {
   thread::sleep(n);
   T
 }
-
-pub type BI = (bool, Instant);
-
-pub const APP: &str = "";
 
 pub const MS: Duration = Duration::from_millis(1);
 pub const HZ: u32 = 16;
