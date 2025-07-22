@@ -2,14 +2,13 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-trait FuncMut<T1, T2> = FnMut(T1) -> T2 + Send + Sync + 'static;
-trait Func<T1, T2> = Fn(T1) -> T2 + Send + Sync + 'static;
-
-pub fn watch<F: Fn(u32) -> u32, G: Fn(u32) -> bool, H: Fn((u32, u32, i32, i32)) -> bool>(f: F, g: G, h: H) -> bool {
-  fn each<F: FnMut(Buffer) -> bool>(mut f: F, x: f64, y: f64) -> bool {
+pub fn watch<F: Fn(u32) -> bool, G: Fn(u32) -> bool, H: Fn((u32, u32, i32, i32)) -> bool>(f: F, g: G, h: H) -> bool {
+  fn each<F: FnMut(Buffer) -> u32>(mut f: F, x: f64, y: f64) -> bool {
     let recorder = recorder();
-    let capturer = |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
-    let acquirer = |n: u32| match n {
+    let capturer = #[inline(always)]
+    |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
+    let acquirer = #[inline(always)]
+    |n: u32| match n {
       1..=u32::MAX => capturer(x / 4., y / 8.),
       _ => capturer(x / 4., y / 8.),
     };
@@ -104,12 +103,12 @@ pub fn watch<F: Fn(u32) -> u32, G: Fn(u32) -> bool, H: Fn((u32, u32, i32, i32)) 
 
   let mut ac = N;
   each(
+    #[inline(always)]
     |z: Buffer| {
       let (nn, un, xn, yn) = z;
 
-      ac = f(ac);
-      match ac {
-        1..=u32::MAX => {
+      ac = match f(ac) {
+        T => {
           let mut is: bool = F;
           let mut ay: i32 = 0;
           let mut ax: i32 = 0;
@@ -145,10 +144,14 @@ pub fn watch<F: Fn(u32) -> u32, G: Fn(u32) -> bool, H: Fn((u32, u32, i32, i32)) 
           match is {
             T => h((ac, an, -ax, ay)),
             _ => F,
-          }
+          };
+
+          ac + 1
         },
-        _ => F,
-      }
+        _ => N,
+      };
+
+      ac
     },
     wide(),
     high(),
