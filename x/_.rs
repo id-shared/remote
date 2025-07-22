@@ -92,7 +92,7 @@ pub fn main() {
       // TODO: difference should be atleast 2.
       println!("{}, {}, {}, {}", c, v, x, y);
 
-      match c & 3 {
+      match c % 3 {
         1 => {
           let (ay, is_y) = match y.abs() >= MAX {
             T => (yy(v, y.min(MAX).max(-MAX)), F),
