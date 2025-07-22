@@ -130,14 +130,14 @@ pub fn main() {
       let kh = #[inline(always)]
       |a: bool| d2::h(&io, a);
 
-      let mut cy = N;
-      let abc = |n| {
+      let mut abc_cy = N;
+      let mut abc = || {
         let yy = #[inline(always)]
         |n1: f64| d1::xy(&io, N as f64, fy(n1));
-        match d2::is_ml() {
+        abc_cy = match d2::is_ml() {
           T => match d2::is_h() {
             T => {
-              yy(match n {
+              yy(match abc_cy {
                 49..=u32::MAX => 0.,
                 45..=48 => -1.,
                 41..=44 => -1.,
@@ -153,7 +153,7 @@ pub fn main() {
                 1..=4 => -1.,
                 _ => 0.,
               });
-              n + 1
+              abc_cy + 1
             },
             _ => N,
           },
@@ -164,18 +164,18 @@ pub fn main() {
             };
             N
           },
-        }
+        };
       };
 
       screen::watch(
         |_n| match screen::name().contains(APP) {
           T => match d2::is_ml() {
             T => {
-              cy = abc(cy);
+              abc();
               T
             },
             _ => {
-              cy = abc(cy);
+              abc();
               F
             },
           },
