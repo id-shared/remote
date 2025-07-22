@@ -21,135 +21,131 @@ pub fn main() {
   let (i2, o2): (Sender<(u32, u32, i32, i32)>, Receiver<(u32, u32, i32, i32)>) = bounded(64);
   handle.push(thread::spawn(
     #[inline(always)]
-    move || match xyloid::type_1() {
-      Some(io) => {
-        #[inline(always)]
-        fn f_zn(n1: u32) -> u32 {
-          match n1 {
-            61..=u32::MAX => 16,
-            57..=60 => 15,
-            53..=56 => 14,
-            49..=52 => 13,
-            45..=48 => 12,
-            41..=44 => 11,
-            37..=40 => 10,
-            33..=36 => 9,
-            29..=32 => 8,
-            25..=28 => 7,
-            21..=24 => 6,
-            17..=20 => 5,
-            13..=16 => 4,
-            9..=12 => 3,
-            5..=8 => 2,
-            1..=4 => 1,
-            _ => 0,
-          }
+    move || {
+      let io = xyloid::handle();
+      #[inline(always)]
+      fn f_zn(n1: u32) -> u32 {
+        match n1 {
+          61..=u32::MAX => 16,
+          57..=60 => 15,
+          53..=56 => 14,
+          49..=52 => 13,
+          45..=48 => 12,
+          41..=44 => 11,
+          37..=40 => 10,
+          33..=36 => 9,
+          29..=32 => 8,
+          25..=28 => 7,
+          21..=24 => 6,
+          17..=20 => 5,
+          13..=16 => 4,
+          9..=12 => 3,
+          5..=8 => 2,
+          1..=4 => 1,
+          _ => 0,
         }
+      }
 
-        #[inline(always)]
-        fn f_yn(n1: u32) -> f64 {
-          (f_zn(n1) as f64) / 2.
-        }
+      #[inline(always)]
+      fn f_yn(n1: u32) -> f64 {
+        (f_zn(n1) as f64) / 2.
+      }
 
-        #[inline(always)]
-        fn f_xn(n1: u32) -> f64 {
-          (f_zn(n1) as f64) / 4.
-        }
+      #[inline(always)]
+      fn f_xn(n1: u32) -> f64 {
+        (f_zn(n1) as f64) / 4.
+      }
 
-        let zz = #[inline(always)]
-        |x: f64, y: f64| match xyloid::is_h() {
-          T => xyloid::xy(io, x, N as f64),
-          _ => xyloid::xy(io, x, y),
-        };
-        let yy = #[inline(always)]
-        |n: u32, y: i32| fy(y as f64 - f_yn(n));
-        let xx = #[inline(always)]
-        |n: u32, x: i32| fx(x as f64 + f_xn(n));
-        let kh = #[inline(always)]
-        |a: bool| xyloid::key_h(io, a);
+      let zz = #[inline(always)]
+      |x: f64, y: f64| match d2::is_h() {
+        T => d1::xy(io, x, N as f64),
+        _ => d1::xy(io, x, y),
+      };
+      let yy = #[inline(always)]
+      |n: u32, y: i32| fy(y as f64 - f_yn(n));
+      let xx = #[inline(always)]
+      |n: u32, x: i32| fx(x as f64 + f_xn(n));
+      let kh = #[inline(always)]
+      |a: bool| d2::key_h(io, a);
 
-        const BS: i32 = 64;
-        while let Ok((c, v, x, y)) = o2.recv() {
-          // TODO: difference should be atleast 2.
-          println!("{}, {}, {}, {}", c, v, x, y);
+      const BS: i32 = 64;
+      while let Ok((c, v, x, y)) = o2.recv() {
+        // TODO: difference should be atleast 2.
+        println!("{}, {}, {}, {}", c, v, x, y);
 
-          match c % 2 {
-            1 => {
-              let (ay, is_y) = match y.abs() >= BS {
-                T => (yy(v, y.min(BS).max(-BS)), F),
-                _ => (yy(v, y), T),
-              };
+        match c % 2 {
+          1 => {
+            let (ay, is_y) = match y.abs() >= BS {
+              T => (yy(v, y.min(BS).max(-BS)), F),
+              _ => (yy(v, y), T),
+            };
 
-              let (ax, is_x) = match x.abs() >= BS {
-                T => (xx(v, x.min(BS).max(-BS)), F),
-                _ => (xx(v, x), T),
-              };
+            let (ax, is_x) = match x.abs() >= BS {
+              T => (xx(v, x.min(BS).max(-BS)), F),
+              _ => (xx(v, x), T),
+            };
 
-              match is_x && is_y {
-                T => match xyloid::is_h() {
-                  T => zz(ax, ay),
-                  _ => {
-                    zz(ax, ay);
-                    xo(MS * 4);
-                    kh(F)
-                  },
+            match is_x && is_y {
+              T => match d2::is_h() {
+                T => zz(ax, ay),
+                _ => {
+                  zz(ax, ay);
+                  xo(MS * 4);
+                  kh(F)
                 },
-                _ => zz(ax, ay),
-              }
-            },
-            _ => F,
-          };
-        }
-      },
-      _ => {},
+              },
+              _ => zz(ax, ay),
+            }
+          },
+          _ => F,
+        };
+      }
     },
   ));
 
   let (i1, o1): (Sender<bool>, Receiver<bool>) = bounded(64);
   handle.push(thread::spawn(
     #[inline(always)]
-    move || match xyloid::type_1() {
-      Some(io) => {
-        let yy = #[inline(always)]
-        |n1: f64| xyloid::xy(io, N as f64, fy(n1));
+    move || {
+      let io = xyloid::handle();
+      let yy = #[inline(always)]
+      |n1: f64| d1::xy(io, N as f64, fy(n1));
 
-        let mut cy = N;
+      let mut cy = N;
 
-        while let Ok(a) = o1.recv() {
-          cy = match a {
-            T => match xyloid::is_h() {
-              T => {
-                yy(match cy {
-                  49..=u32::MAX => 0.,
-                  45..=48 => -1.,
-                  41..=44 => -1.,
-                  37..=40 => -3.,
-                  33..=36 => -3.,
-                  29..=32 => -3.,
-                  25..=28 => -3.,
-                  21..=24 => -3.,
-                  17..=20 => -5.,
-                  13..=16 => -5.,
-                  9..=12 => -5.,
-                  5..=8 => -3.,
-                  1..=4 => -1.,
-                  _ => 0.,
-                });
-                cy + 1
-              },
-              _ => N,
+      while let Ok(a) = o1.recv() {
+        cy = match a {
+          T => match d2::is_h() {
+            T => {
+              yy(match cy {
+                49..=u32::MAX => 0.,
+                45..=48 => -1.,
+                41..=44 => -1.,
+                37..=40 => -3.,
+                33..=36 => -3.,
+                29..=32 => -3.,
+                25..=28 => -3.,
+                21..=24 => -3.,
+                17..=20 => -5.,
+                13..=16 => -5.,
+                9..=12 => -5.,
+                5..=8 => -3.,
+                1..=4 => -1.,
+                _ => 0.,
+              });
+              cy + 1
             },
-            _ => {
-              match xyloid::is_h() {
-                T => xyloid::key_h(io, T),
-                _ => F,
-              };
-              N
-            },
-          };
-        }
-      },
-      _ => {},
+            _ => N,
+          },
+          _ => {
+            match d2::is_h() {
+              T => d2::key_h(io, T),
+              _ => F,
+            };
+            N
+          },
+        };
+      }
     },
   ));
 
@@ -162,7 +158,7 @@ pub fn main() {
       screen::watch(
         #[inline(always)]
         move |n| match screen::name().contains(APP) {
-          T => match xyloid::is_mouse_l() {
+          T => match d2::is_mouse_l() {
             T => {
               send(&i1, T);
               n + 1
@@ -198,35 +194,31 @@ pub fn main() {
         move |x| send(&i2, x),
         zx,
         zy,
-      )
+      );
     },
   ));
 
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      match xyloid::type_1() {
-        Some(io) => {
-          let mut d = (F, Instant::now());
-          let mut a = (F, Instant::now());
-          let mut w = (F, Instant::now());
-          let mut s = (F, Instant::now());
+      let io = xyloid::handle();
+      let mut d = (F, Instant::now());
+      let mut a = (F, Instant::now());
+      let mut w = (F, Instant::now());
+      let mut s = (F, Instant::now());
 
-          loop {
-            match screen::name().contains(APP) {
-              T => {
-                d = on_key(xyloid::is_d, xyloid::key_arrow_l, io, d);
-                a = on_key(xyloid::is_a, xyloid::key_arrow_r, io, a);
-                w = on_key(xyloid::is_w, xyloid::key_arrow_d, io, w);
-                s = on_key(xyloid::is_s, xyloid::key_arrow_u, io, s);
-                xo(MS)
-              },
-              _ => xo(MS),
-            };
-          }
-        },
-        _ => F,
-      };
+      loop {
+        match screen::name().contains(APP) {
+          T => {
+            d = on_key(d2::is_d, d2::key_arrow_l, io, d);
+            a = on_key(d2::is_a, d2::key_arrow_r, io, a);
+            w = on_key(d2::is_w, d2::key_arrow_d, io, w);
+            s = on_key(d2::is_s, d2::key_arrow_u, io, s);
+            xo(MS)
+          },
+          _ => xo(MS),
+        };
+      }
     },
   ));
 
@@ -332,5 +324,9 @@ use {
       Duration,
       Instant,
     },
+  },
+  xyloid::{
+    d1,
+    d2,
   },
 };
