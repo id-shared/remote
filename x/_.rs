@@ -17,27 +17,20 @@ pub fn main() {
 
     let io = xyloid::device();
 
-    let fy = #[inline(always)]
-    |n1: f64| calc(vy, n1 / uy, 6400.);
-    let fx = #[inline(always)]
-    |n1: f64| calc(vx, n1 / ux, 6400.);
+    let fy = |n1: f64| calc(vy, n1 / uy, 6400.);
+    let fx = |n1: f64| calc(vx, n1 / ux, 6400.);
 
-    let zz = #[inline(always)]
-    |x: f64, y: f64| match d2::is_h() {
+    let zz = |x: f64, y: f64| match d2::is_h() {
       T => d1::xy(&io, x, N as f64),
       _ => d1::xy(&io, x, y),
     };
-    let yy = #[inline(always)]
-    |n: u32, y: i32| fy(y as f64 - add_y(n));
-    let xx = #[inline(always)]
-    |n: u32, x: i32| fx(x as f64 + add_x(n));
-    let kh = #[inline(always)]
-    |a: bool| d2::h(&io, a);
+    let yy = |n: u32, y: i32| fy(y as f64 - add_y(n));
+    let xx = |n: u32, x: i32| fx(x as f64 + add_x(n));
+    let kh = |a: bool| d2::h(&io, a);
 
     let mut abc_cy = N;
     let mut abc = || {
-      let yy = #[inline(always)]
-      |n1: f64| d1::xy(&io, N as f64, fy(n1));
+      let yy = |n1: f64| d1::xy(&io, N as f64, fy(n1));
       abc_cy = match d2::is_ml() {
         T => match d2::is_h() {
           T => {

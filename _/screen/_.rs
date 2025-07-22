@@ -6,10 +6,8 @@ pub fn watch<F: FnMut() -> bool, G: FnMut(Record) -> bool>(mut f: F, mut g: G) -
   let y = high();
   let x = wide();
   let recorder = recorder();
-  let capturer = #[inline(always)]
-  |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
-  let acquirer = #[inline(always)]
-  |n: u32| match n {
+  let capturer = |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
+  let acquirer = |n: u32| match n {
     1..=u32::MAX => capturer(x / 4., y / 8.),
     _ => capturer(x / 4., y / 8.),
   };
