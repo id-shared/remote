@@ -2,51 +2,7 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F: FnMut(u32) -> u32, G: FnMut(Record) -> bool>(mut f: F, mut g: G) -> bool {
-  fn turn(d: ID3D11Texture2D, v: &Capturer, z: &Recorder) -> Record {
-    let high = v.y as usize;
-    let wide = v.x as usize;
-    let desc = D3D11_TEXTURE2D_DESC {
-      Width: wide as u32,
-      Height: high as u32,
-      MipLevels: 1,
-      ArraySize: 1,
-      Format: DXGI_FORMAT_B8G8R8A8_UNORM,
-      SampleDesc: DXGI_SAMPLE_DESC {
-        Count: 1,
-        Quality: 0,
-      },
-      Usage: D3D11_USAGE_STAGING,
-      CPUAccessFlags: D3D11_CPU_ACCESS_READ.0 as u32,
-      BindFlags: 0,
-      MiscFlags: 0,
-    };
-
-    let mut texture: Option<ID3D11Texture2D> = None;
-    unsafe { z.device.CreateTexture2D(&desc, None, Some(&mut texture)).unwrap() };
-
-    let region = D3D11_BOX {
-      left: v.l as u32,
-      top: v.t as u32,
-      front: 0,
-      right: (v.l + v.x) as u32,
-      bottom: (v.t + v.y) as u32,
-      back: 1,
-    };
-
-    unsafe { z.context.CopySubresourceRegion(texture.as_ref().unwrap(), 0, 0, 0, 0, &d, 0, Some(&region)) };
-
-    let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
-    unsafe { z.context.Map(texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
-
-    let pitch = mapped.RowPitch as usize;
-    let data_ptr = mapped.pData as *const u8;
-
-    unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
-
-    (data_ptr, pitch, wide, high)
-  }
-
+pub fn watch<F: FnMut() -> bool, G: FnMut(Record) -> bool>(mut f: F, mut g: G) -> bool {
   let y = high();
   let x = wide();
   let recorder = recorder();
@@ -59,11 +15,9 @@ pub fn watch<F: FnMut(u32) -> u32, G: FnMut(Record) -> bool>(mut f: F, mut g: G)
   };
   let mut time = Instant::now();
   let mut curr = N;
-  let mut at = N;
   loop {
-    at = f(at);
-    match at {
-      1..=u32::MAX => {
+    match f() {
+      T => {
         let oneach = || {
           let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
           let mut data: Option<IDXGIResource> = None;
@@ -98,6 +52,50 @@ pub fn watch<F: FnMut(u32) -> u32, G: FnMut(Record) -> bool>(mut f: F, mut g: G)
       _ => F,
     };
   }
+}
+
+fn turn(d: ID3D11Texture2D, v: &Capturer, z: &Recorder) -> Record {
+  let high = v.y as usize;
+  let wide = v.x as usize;
+  let desc = D3D11_TEXTURE2D_DESC {
+    Width: wide as u32,
+    Height: high as u32,
+    MipLevels: 1,
+    ArraySize: 1,
+    Format: DXGI_FORMAT_B8G8R8A8_UNORM,
+    SampleDesc: DXGI_SAMPLE_DESC {
+      Count: 1,
+      Quality: 0,
+    },
+    Usage: D3D11_USAGE_STAGING,
+    CPUAccessFlags: D3D11_CPU_ACCESS_READ.0 as u32,
+    BindFlags: 0,
+    MiscFlags: 0,
+  };
+
+  let mut texture: Option<ID3D11Texture2D> = None;
+  unsafe { z.device.CreateTexture2D(&desc, None, Some(&mut texture)).unwrap() };
+
+  let region = D3D11_BOX {
+    left: v.l as u32,
+    top: v.t as u32,
+    front: 0,
+    right: (v.l + v.x) as u32,
+    bottom: (v.t + v.y) as u32,
+    back: 1,
+  };
+
+  unsafe { z.context.CopySubresourceRegion(texture.as_ref().unwrap(), 0, 0, 0, 0, &d, 0, Some(&region)) };
+
+  let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
+  unsafe { z.context.Map(texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
+
+  let pitch = mapped.RowPitch as usize;
+  let data_ptr = mapped.pData as *const u8;
+
+  unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
+
+  (data_ptr, pitch, wide, high)
 }
 
 pub fn capturer(l: f64, t: f64, x: f64, y: f64) -> Capturer {
