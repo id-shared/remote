@@ -27,7 +27,7 @@ pub fn main() {
     const MAX: i32 = 64;
     screen::watch(
       |(n, v, x, y)| match n {
-        0..=8 => match n % 2 {
+        0..=15 => match n % 2 {
           N => {
             let (ay, is_y) = match y.abs() >= MAX {
               T => (yy(v, y.min(MAX).max(-MAX)), F),
