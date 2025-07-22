@@ -45,7 +45,11 @@ pub fn watch<F: FnMut() -> bool, G: FnMut(Record) -> bool>(mut f: F, mut g: G, x
 
         T
       },
-      _ => F,
+      _ => {
+        xo(MS);
+
+        F
+      },
     };
   }
 }
