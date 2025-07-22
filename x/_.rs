@@ -7,41 +7,6 @@ pub fn main() {
 
   let mut handle = vec![];
 
-  fn abc<F: Fn(f64) -> f64>(f: F, n: u32, z: &Device) {
-    match d2::is_ml() {
-      T => match d2::is_h() {
-        T => {
-          d1::xy(
-            z,
-            N as f64,
-            f(match n {
-              49..=u32::MAX => 0.,
-              45..=48 => -1.,
-              41..=44 => -1.,
-              37..=40 => -3.,
-              33..=36 => -3.,
-              29..=32 => -3.,
-              25..=28 => -3.,
-              21..=24 => -3.,
-              17..=20 => -5.,
-              13..=16 => -5.,
-              9..=12 => -5.,
-              5..=8 => -3.,
-              1..=4 => -1.,
-              _ => 0.,
-            }),
-          );
-          n + 1
-        },
-        _ => N,
-      },
-      _ => {
-        d2::h(&z, T);
-        N
-      },
-    };
-  }
-
   handle.push(thread::spawn(|| {
     const PIXELS_360: f64 = 6400.;
     let screen_y = screen::high();
@@ -60,32 +25,28 @@ pub fn main() {
     let kh = |a: bool| d2::h(&device, a);
 
     const MAX: i32 = 128;
-    let does = |c: u32, v: u32, x: i32, y: i32| {
-      abc(fy, c, &device);
+    let does = |c: u32, v: u32, x: i32, y: i32| match c % 3 {
+      1 => {
+        let (ay, is_y) = match y.abs() >= MAX {
+          T => (yy(v, y.min(MAX).max(-MAX)), F),
+          _ => (yy(v, y), T),
+        };
 
-      match c % 3 {
-        1 => {
-          let (ay, is_y) = match y.abs() >= MAX {
-            T => (yy(v, y.min(MAX).max(-MAX)), F),
-            _ => (yy(v, y), T),
-          };
+        let (ax, is_x) = match x.abs() >= MAX {
+          T => (xx(v, x.min(MAX).max(-MAX)), F),
+          _ => (xx(v, x), T),
+        };
 
-          let (ax, is_x) = match x.abs() >= MAX {
-            T => (xx(v, x.min(MAX).max(-MAX)), F),
-            _ => (xx(v, x), T),
-          };
-
-          match is_x && is_y {
-            T => {
-              xxyy(ax, ay);
-              xo(MS * 4);
-              kh(F)
-            },
-            _ => xxyy(ax, ay),
-          }
-        },
-        _ => F,
-      }
+        match is_x && is_y {
+          T => {
+            xxyy(ax, ay);
+            xo(MS * 4);
+            kh(F)
+          },
+          _ => xxyy(ax, ay),
+        }
+      },
+      _ => F,
     };
 
     let mut at: u32 = 0;
@@ -218,6 +179,42 @@ fn on<F1: Fn() -> bool, F2: Fn(BI) -> BI, F3: Fn(BI) -> BI>(f1: F1, f2: F2, f3: 
 }
 
 type BI = (bool, Instant);
+
+// fn abc<F: Fn(f64) -> f64>(f: F, n: u32, z: &Device) {
+//   match d2::is_ml() {
+//     T => match d2::is_h() {
+//       T => {
+//         d1::xy(
+//           z,
+//           N as f64,
+//           f(match n {
+//             49..=u32::MAX => 0.,
+//             45..=48 => -1.,
+//             41..=44 => -1.,
+//             37..=40 => -3.,
+//             33..=36 => -3.,
+//             29..=32 => -3.,
+//             25..=28 => -3.,
+//             21..=24 => -3.,
+//             17..=20 => -5.,
+//             13..=16 => -5.,
+//             9..=12 => -5.,
+//             5..=8 => -3.,
+//             1..=4 => -1.,
+//             _ => 0.,
+//           }),
+//         );
+//         n + 1
+//       },
+//       _ => N,
+//     },
+//     _ => {
+//       d2::h(&z, T);
+//       N
+//     },
+//   };
+// }
+// abc(fy, c, &device);
 
 #[inline(always)]
 fn is_pixel(x: u32) -> bool {
