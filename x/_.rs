@@ -12,13 +12,8 @@ pub fn main() {
     let screen_x = screen::wide();
     let device = xyloid::device();
 
-    let vy = fov(70.53_f64);
-    let vx = fov(103_f64);
-    let uy = screen_y / 2.;
-    let ux = screen_x / 2.;
-
-    let fy = |n1: f64| xyz(vy, n1 / uy, 6400.);
-    let fx = |n1: f64| xyz(vx, n1 / ux, 6400.);
+    let fy = |n1: f64| xyz(radian(70.53_f64 / 2.), n1 / screen_y / 2., 6400.);
+    let fx = |n1: f64| xyz(radian(103_f64 / 2.), n1 / screen_x / 2., 6400.);
 
     let xxyy = |x: f64, y: f64| match d2::is_h() {
       T => d1::xy(&device, x, N as f64),
@@ -289,8 +284,8 @@ fn tan(n1: f64, n2: f64) -> f64 {
 }
 
 #[inline(always)]
-fn fov(n: f64) -> f64 {
-  (n / 2.).to_radians()
+fn radian(n: f64) -> f64 {
+  n.to_radians()
 }
 
 const MAX: i32 = 128;
