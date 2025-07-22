@@ -3,7 +3,7 @@
 #![feature(trait_alias)]
 
 pub fn main() {
-  println!("Angle for chord length 1 is {:.64} pixels", calc((103_f64 / 2.).to_radians(), 960. / 960., 6400.));
+  println!("Angle for chord length 1 is {:.64} pixels", xyz((103_f64 / 2.).to_radians(), 960. / 960., 6400.));
 
   let mut handle = vec![];
 
@@ -17,8 +17,8 @@ pub fn main() {
 
     let io = xyloid::device();
 
-    let fy = |n1: f64| calc(vy, n1 / uy, 6400.);
-    let fx = |n1: f64| calc(vx, n1 / ux, 6400.);
+    let fy = |n1: f64| xyz(vy, n1 / uy, 6400.);
+    let fx = |n1: f64| xyz(vx, n1 / ux, 6400.);
 
     let zz = |x: f64, y: f64| match d2::is_h() {
       T => d1::xy(&io, x, N as f64),
@@ -59,26 +59,6 @@ pub fn main() {
           N
         },
       };
-    };
-
-    let check = |x: u32| {
-      let n1 = ((x >> 16) & 0xff) as u8;
-      let n2 = ((x >> 8) & 0xff) as u8;
-      let n3 = (x & 0xff) as u8;
-
-      match n1 > CLR && n3 > CLR {
-        T => match n1 > n3 {
-          T => match n3.abs_diff(n2) > ABS {
-            T => T,
-            _ => F,
-          },
-          _ => match n1.abs_diff(n2) > ABS {
-            T => T,
-            _ => F,
-          },
-        },
-        _ => F,
-      }
     };
 
     let does = |c: u32, v: u32, x: i32, y: i32| {
@@ -136,7 +116,7 @@ pub fn main() {
             let xn_ = unsafe { *yn_.add(x) };
             let ax_ = (xn as i32 / 2) - x as i32;
 
-            match check(xn_) {
+            match is_pixel(xn_) {
               T => match is {
                 T => {
                   an = an + 1;
@@ -240,19 +220,27 @@ fn on<F1: Fn() -> bool, F2: Fn(BI) -> BI, F3: Fn(BI) -> BI>(f1: F1, f2: F2, f3: 
   }
 }
 
-#[inline(always)]
-fn calc(radian: f64, factor: f64, size: f64) -> f64 {
-  (tan(radian, factor) / (2. * PI)) * size
-}
+type BI = (bool, Instant);
 
 #[inline(always)]
-fn tan(n1: f64, n2: f64) -> f64 {
-  (n1.tan() * n2).atan()
-}
+fn is_pixel(x: u32) -> bool {
+  let n1 = ((x >> 16) & 0xff) as u8;
+  let n2 = ((x >> 8) & 0xff) as u8;
+  let n3 = (x & 0xff) as u8;
 
-#[inline(always)]
-fn fov(n: f64) -> f64 {
-  (n / 2.).to_radians()
+  match n1 > CLR && n3 > CLR {
+    T => match n1 > n3 {
+      T => match n3.abs_diff(n2) > ABS {
+        T => T,
+        _ => F,
+      },
+      _ => match n1.abs_diff(n2) > ABS {
+        T => T,
+        _ => F,
+      },
+    },
+    _ => F,
+  }
 }
 
 #[inline(always)]
@@ -288,7 +276,20 @@ fn add(n1: u32) -> f64 {
   }
 }
 
-type BI = (bool, Instant);
+#[inline(always)]
+fn xyz(radian: f64, factor: f64, size: f64) -> f64 {
+  (tan(radian, factor) / (2. * PI)) * size
+}
+
+#[inline(always)]
+fn tan(n1: f64, n2: f64) -> f64 {
+  (n1.tan() * n2).atan()
+}
+
+#[inline(always)]
+fn fov(n: f64) -> f64 {
+  (n / 2.).to_radians()
+}
 
 const MAX: i32 = 128;
 const CLR: u8 = 231;
