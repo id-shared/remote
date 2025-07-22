@@ -20,13 +20,14 @@ pub fn main() {
       T => d1::xy(&device, x, N as f64),
       _ => d1::xy(&device, x, y),
     };
-    let yy = |n: u32, y: i32| fy(y as f64 - add_y(n));
-    let xx = |n: u32, x: i32| fx(x as f64 + add_x(n));
+    let yy = |n: u32, y: f64| fy(y - add_y(n));
+    let xx = |n: u32, x: f64| fx(x + add_x(n));
     let kh = |a: bool| d2::h(&device, a);
 
-    const MAX: i32 = 64;
+    const MAX: f64 = 64.;
     screen::watch(
       |(n, v, x, y)| match n {
+        16..=u32::MAX => d1::xy(&device, N as f64, fy(recoil(n))),
         0..=15 => match n % 2 {
           N => {
             let (ay, is_y) = match y.abs() >= MAX {
@@ -50,11 +51,10 @@ pub fn main() {
           },
           _ => F,
         },
-        _ => F,
       },
       |(n, v, x, y)| {
-        let mut y_ = 0;
-        let mut x_ = 0;
+        let mut y_ = 0.;
+        let mut x_ = 0.;
         let mut v_ = N;
         let mut is = F;
 
@@ -73,8 +73,8 @@ pub fn main() {
                   break 'x;
                 },
                 _ => {
-                  y_ = ay;
-                  x_ = ax;
+                  y_ = ay as f64;
+                  x_ = ax as f64;
                   v_ = v_ + 1;
                   is = T;
                   break 'x;
@@ -175,42 +175,6 @@ fn on<F1: Fn() -> bool, F2: Fn(BI) -> BI, F3: Fn(BI) -> BI>(f1: F1, f2: F2, f3: 
 
 type BI = (bool, Instant);
 
-// fn abc<F: Fn(f64) -> f64>(f: F, n: u32, z: &Device) {
-//   match d2::is_ml() {
-//     T => match d2::is_h() {
-//       T => {
-//         d1::xy(
-//           z,
-//           N as f64,
-//           f(match n {
-//             48..=u32::MAX => 0.,
-//             44..=47 => -1.,
-//             40..=43 => -1.,
-//             36..=39 => -3.,
-//             33..=35 => -3.,
-//             28..=31 => -3.,
-//             24..=27 => -3.,
-//             20..=23 => -3.,
-//             16..=19 => -5.,
-//             12..=15 => -5.,
-//             8..=11 => -5.,
-//             4..=7 => -3.,
-//             0..=3 => -1.,
-//             _ => 0.,
-//           }),
-//         );
-//         n + 1
-//       },
-//       _ => N,
-//     },
-//     _ => {
-//       d2::h(&z, T);
-//       N
-//     },
-//   };
-// }
-// abc(fy, c, &device);
-
 #[inline(always)]
 fn is_pixel(x: u32) -> bool {
   let n1 = ((x >> 16) & 0xff) as u8;
@@ -229,6 +193,26 @@ fn is_pixel(x: u32) -> bool {
       },
     },
     _ => F,
+  }
+}
+
+#[inline(always)]
+fn recoil(n: u32) -> f64 {
+  match n {
+    48..=u32::MAX => 0.,
+    44..=47 => -1.,
+    40..=43 => -1.,
+    36..=39 => -3.,
+    33..=35 => -3.,
+    28..=31 => -3.,
+    24..=27 => -3.,
+    20..=23 => -3.,
+    16..=19 => -5.,
+    12..=15 => -5.,
+    8..=11 => -5.,
+    4..=7 => -3.,
+    0..=3 => -1.,
+    _ => 0.,
   }
 }
 
@@ -307,6 +291,7 @@ use {
       Duration,
       Instant,
     },
+    u32,
   },
   xyloid::{
     Device,

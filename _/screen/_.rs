@@ -2,7 +2,7 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F: FnMut(Detail) -> bool, F1: FnMut(Record) -> (bool, u32, i32, i32), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, x: f64, y: f64) -> bool {
+pub fn watch<F: FnMut((u32, u32, f64, f64)) -> bool, F1: FnMut(Record) -> (bool, u32, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, x: f64, y: f64) -> bool {
   let capturer = |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
   let recorder = recorder();
   let mut id = N;
@@ -149,9 +149,6 @@ struct Recorder {
   hz: u32,
 }
 
-type Record = (*const u8, usize, usize, usize);
-type Detail = (u32, u32, i32, i32);
-
 fn sure<F: FnMut() -> bool>(mut f1: F, n1: Duration) -> bool {
   let init = Instant::now();
   let back = f1();
@@ -209,6 +206,8 @@ pub const HZ: u32 = 16;
 pub const N: u32 = 0;
 pub const F: bool = false;
 pub const T: bool = true;
+
+type Record = (*const u8, usize, usize, usize);
 
 use {
   std::{
