@@ -169,9 +169,7 @@ pub fn main() {
           T => {
             abc();
             match d2::is_ml() {
-              T => {
-                n + 1;
-              },
+              T => n + 1,
               _ => N,
             }
           },

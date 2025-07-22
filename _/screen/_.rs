@@ -2,8 +2,8 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F: FnMut(u32) -> u32, G: Fn(u32) -> bool, H: FnMut((u32, u32, i32, i32)) -> bool>(f: F, g: G, mut h: H) -> bool {
-  fn each<F: FnMut(u32) -> u32, G: FnMut(Buffer) -> bool>(mut f: F, mut g: G) -> bool {
+pub fn watch<F: FnMut(u32) -> u32, G: Fn(u32) -> bool, H: FnMut(Detail) -> bool>(f: F, g: G, mut h: H) -> bool {
+  fn each<F: FnMut(u32) -> u32, G: FnMut(Record) -> Detail>(mut f: F, mut g: G) -> bool {
     let y = high();
     let x = wide();
     let recorder = recorder();
@@ -57,7 +57,7 @@ pub fn watch<F: FnMut(u32) -> u32, G: Fn(u32) -> bool, H: FnMut((u32, u32, i32, 
     }
   }
 
-  fn turn(d: ID3D11Texture2D, v: &Capturer, z: &Recorder) -> Buffer {
+  fn turn(d: ID3D11Texture2D, v: &Capturer, z: &Recorder) -> Record {
     let high = v.y as usize;
     let wide = v.x as usize;
     let desc = D3D11_TEXTURE2D_DESC {
@@ -101,7 +101,7 @@ pub fn watch<F: FnMut(u32) -> u32, G: Fn(u32) -> bool, H: FnMut((u32, u32, i32, 
     (data_ptr, pitch, wide, high)
   }
 
-  each(f, |(ac, nn, un, xn, yn)| {
+  each(f, |(nn, un, xn, yn)| {
     let mut is: bool = F;
     let mut ay: i32 = 0;
     let mut ax: i32 = 0;
@@ -135,8 +135,8 @@ pub fn watch<F: FnMut(u32) -> u32, G: Fn(u32) -> bool, H: FnMut((u32, u32, i32, 
     }
 
     match is {
-      T => h((ac, an, -ax, ay)),
-      _ => F,
+      T => (1, an, -ax, ay),
+      _ => (0, 0, 0, 0),
     }
   })
 }
@@ -200,7 +200,8 @@ pub struct Recorder {
   hz: u32,
 }
 
-pub type Buffer = (*const u8, usize, usize, usize);
+pub type Record = (*const u8, usize, usize, usize);
+pub type Detail = (u32, u32, i32, i32);
 
 fn sure<F: FnMut() -> bool>(mut f1: F, n1: Duration) -> bool {
   let init = Instant::now();
