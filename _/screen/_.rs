@@ -6,36 +6,35 @@ trait FuncMut<T1, T2> = FnMut(T1) -> T2 + Send + Sync + 'static;
 trait Func<T1, T2> = Fn(T1) -> T2 + Send + Sync + 'static;
 
 pub fn watch<F: Fn(u32) -> u32, G: Fn(u32) -> bool, H: Fn((u32, u32, i32, i32)) -> bool>(f: F, g: G, h: H) -> bool {
-  let high = high();
-  let wide = wide();
-  let view = #[inline(always)]
-  move |x1: f64, y1: f64| view((wide / 2.) - (x1 / 2.), (high / 2.) - (y1 / 2.), x1, y1);
-  let mut ac = N;
-
-  fn each<F: FnMut(Buffer) -> bool, G: Fn(u32) -> View>(mut f: F, g: G, z: IO) -> bool {
+  fn each<F: FnMut(Buffer) -> bool>(mut f: F, x: f64, y: f64) -> bool {
+    let recorder = recorder();
+    let capturer = |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
+    let acquirer = |n: u32| match n {
+      1..=u32::MAX => capturer(x / 4., y / 8.),
+      _ => capturer(x / 4., y / 8.),
+    };
     let mut time = Instant::now();
     let mut curr = N;
     loop {
       match T {
         T => {
-          let view = g(curr);
-
+          let viewer = acquirer(curr);
           let framed = sure(
             || {
               let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
               let mut data: Option<IDXGIResource> = None;
-              match unsafe { z.framer.AcquireNextFrame(z.hz, &mut info, &mut data).is_ok() } {
+              match unsafe { recorder.framer.AcquireNextFrame(recorder.hz, &mut info, &mut data).is_ok() } {
                 T => {
                   let data = data.unwrap();
                   let cast = data.cast().unwrap();
-                  f(turn(cast, &view, &z));
-                  unsafe { z.framer.ReleaseFrame().unwrap() };
+                  f(turn(cast, &viewer, &recorder));
+                  unsafe { recorder.framer.ReleaseFrame().unwrap() };
                   T
                 },
                 _ => F,
               }
             },
-            MS * z.hz,
+            MS * recorder.hz,
           );
 
           match framed {
@@ -59,7 +58,7 @@ pub fn watch<F: Fn(u32) -> u32, G: Fn(u32) -> bool, H: Fn((u32, u32, i32, i32)) 
     }
   }
 
-  fn turn(d: ID3D11Texture2D, v: &View, z: &IO) -> Buffer {
+  fn turn(d: ID3D11Texture2D, v: &Capturer, z: &Recorder) -> Buffer {
     let high = v.y as usize;
     let wide = v.x as usize;
     let desc = D3D11_TEXTURE2D_DESC {
@@ -103,6 +102,7 @@ pub fn watch<F: Fn(u32) -> u32, G: Fn(u32) -> bool, H: Fn((u32, u32, i32, i32)) 
     (data_ptr, pitch, wide, high)
   }
 
+  let mut ac = N;
   each(
     |z: Buffer| {
       let (nn, un, xn, yn) = z;
@@ -150,16 +150,13 @@ pub fn watch<F: Fn(u32) -> u32, G: Fn(u32) -> bool, H: Fn((u32, u32, i32, i32)) 
         _ => F,
       }
     },
-    |n: u32| match n {
-      1..=u32::MAX => view(wide / 4., high / 8.),
-      _ => view(wide / 4., high / 8.),
-    },
-    io(),
+    wide(),
+    high(),
   )
 }
 
-pub fn view(l: f64, t: f64, x: f64, y: f64) -> View {
-  View {
+pub fn capturer(l: f64, t: f64, x: f64, y: f64) -> Capturer {
+  Capturer {
     l,
     t,
     x,
@@ -167,7 +164,7 @@ pub fn view(l: f64, t: f64, x: f64, y: f64) -> View {
   }
 }
 
-pub fn io() -> IO {
+pub fn recorder() -> Recorder {
   let mut context: Option<ID3D11DeviceContext> = None;
   let mut device: Option<ID3D11Device> = None;
   let mut level = D3D_FEATURE_LEVEL_12_2;
@@ -195,7 +192,7 @@ pub fn io() -> IO {
   let output_cast: IDXGIOutput1 = output.cast().unwrap();
   let framer = unsafe { output_cast.DuplicateOutput(&device).unwrap() };
 
-  IO {
+  Recorder {
     context,
     device,
     framer,
@@ -203,14 +200,14 @@ pub fn io() -> IO {
   }
 }
 
-pub struct View {
+pub struct Capturer {
   l: f64,
   t: f64,
   x: f64,
   y: f64,
 }
 
-pub struct IO {
+pub struct Recorder {
   context: ID3D11DeviceContext,
   device: ID3D11Device,
   framer: IDXGIOutputDuplication,
@@ -269,8 +266,6 @@ pub fn xo(n: Duration) -> bool {
   thread::sleep(n);
   T
 }
-
-pub const APP: &str = "VAL";
 
 pub const MS: Duration = Duration::from_millis(1);
 pub const HZ: u32 = 16;

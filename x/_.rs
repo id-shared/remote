@@ -301,7 +301,7 @@ pub fn xo(n: Duration) -> bool {
 
 pub type BI = (bool, Instant);
 
-pub const APP: &str = "VAL";
+pub const APP: &str = "";
 
 pub const MS: Duration = Duration::from_millis(1);
 pub const HZ: u32 = 16;
