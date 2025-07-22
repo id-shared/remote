@@ -6,12 +6,14 @@ pub trait FuncMut<T1, T2> = FnMut(T1) -> T2 + Send + Sync + 'static;
 pub trait Func<T1, T2> = Fn(T1) -> T2 + Send + Sync + 'static;
 
 type Detail = (u32, u32, i32, i32);
-pub fn watch<F: Func<u32, u32>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: F, g: G, h: H, x: f64, y: f64) -> bool {
+pub fn watch<F: Fn(u32) -> u32, G: Fn(u32) -> bool, H: Func<Detail, bool>>(f: F, g: G, h: H) -> bool {
+  let high = high();
+  let wide = wide();
   let view = #[inline(always)]
-  move |x1: f64, y1: f64| view((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
+  move |x1: f64, y1: f64| view((wide / 2.) - (x1 / 2.), (high / 2.) - (y1 / 2.), x1, y1);
   let mut ac = N;
 
-  fn each<F: FuncMut<Buffer, bool>, G: Func<u32, View>>(mut f: F, g: G, z: IO) -> bool {
+  fn each<F: FnMut(Buffer) -> bool, G: Fn(u32) -> View>(mut f: F, g: G, z: IO) -> bool {
     let mut time = Instant::now();
     let mut curr = N;
     loop {
@@ -103,7 +105,7 @@ pub fn watch<F: Func<u32, u32>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: F,
   }
 
   each(
-    move |z: Buffer| {
+    |z: Buffer| {
       let (nn, un, xn, yn) = z;
 
       ac = f(ac);
@@ -149,9 +151,9 @@ pub fn watch<F: Func<u32, u32>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: F,
         _ => F,
       }
     },
-    move |n: u32| match n {
-      1..=u32::MAX => view(x / 4., y / 8.),
-      _ => view(x / 4., y / 8.),
+    |n: u32| match n {
+      1..=u32::MAX => view(wide / 4., high / 8.),
+      _ => view(wide / 4., high / 8.),
     },
     io(),
   )

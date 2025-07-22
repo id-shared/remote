@@ -158,22 +158,20 @@ pub fn main() {
       let device = xyloid::device();
 
       screen::watch(
-        #[inline(always)]
-        move |n| match screen::name().contains(APP) {
+        |n| match screen::name().contains(APP) {
           T => match d2::is_mouse_l() {
             T => {
-              send(&i1, T);
+              // send(&i1, T);
               n + 1
             },
             _ => {
-              send(&i1, F);
+              // send(&i1, F);
               N
             },
           },
           _ => N,
         },
-        #[inline(always)]
-        move |x| {
+        |x| {
           let n1 = ((x >> 16) & 0xff) as u8;
           let n2 = ((x >> 8) & 0xff) as u8;
           let n3 = (x & 0xff) as u8;
@@ -192,10 +190,7 @@ pub fn main() {
             _ => F,
           }
         },
-        #[inline(always)]
         move |x| send(&i2, x),
-        zx,
-        zy,
       );
     },
   ));
