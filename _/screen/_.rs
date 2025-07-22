@@ -38,8 +38,8 @@ pub fn watch<F: FnMut(Detail) -> bool, F1: FnMut(Record) -> (bool, u32, i32, i32
         sure(oneach, MS * recorder.hz)
       },
       _ => {
+        id = N;
         xo(MS);
-
         F
       },
     };

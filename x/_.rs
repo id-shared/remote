@@ -88,7 +88,13 @@ pub fn main() {
         (is, an, -ax, ay)
       },
       || match screen::name().contains(APP) {
-        T => d2::is_ml(),
+        T => match d2::is_ml() {
+          T => T,
+          _ => {
+            kh(T);
+            F
+          },
+        },
         _ => F,
       },
       screen_x,
