@@ -2,7 +2,7 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F: Fn(u32) -> bool, G: Fn(u32) -> bool, H: Fn((u32, u32, i32, i32)) -> bool>(f: F, g: G, h: H) -> bool {
+pub fn watch<F: FnMut(u32) -> bool, G: Fn(u32) -> bool, H: Fn((u32, u32, i32, i32)) -> bool>(mut f: F, g: G, h: H) -> bool {
   fn each<F: FnMut(Buffer) -> u32>(mut f: F, x: f64, y: f64) -> bool {
     let recorder = recorder();
     let capturer = #[inline(always)]

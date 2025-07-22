@@ -70,56 +70,60 @@ pub fn main() {
       let kh = #[inline(always)]
       |a: bool| d2::key_h(&io, a);
 
-      // let mut cy = N;
-      // let abc = |a| {
-      //   let yy = #[inline(always)]
-      //   |n1: f64| d1::xy(&io, N as f64, n1); // fy(n1)
-      //   cy = match a {
-      //     T => match d2::is_h() {
-      //       T => {
-      //         yy(match cy {
-      //           49..=u32::MAX => 0.,
-      //           45..=48 => -1.,
-      //           41..=44 => -1.,
-      //           37..=40 => -3.,
-      //           33..=36 => -3.,
-      //           29..=32 => -3.,
-      //           25..=28 => -3.,
-      //           21..=24 => -3.,
-      //           17..=20 => -5.,
-      //           13..=16 => -5.,
-      //           9..=12 => -5.,
-      //           5..=8 => -3.,
-      //           1..=4 => -1.,
-      //           _ => 0.,
-      //         });
-      //         cy + 1
-      //       },
-      //       _ => N,
-      //     },
-      //     _ => {
-      //       match d2::is_h() {
-      //         T => d2::key_h(&io, T),
-      //         _ => F,
-      //       };
-      //       N
-      //     },
-      //   }
-      // };
-
       const BS: i32 = 64;
+
+      let mut is_mouse_l = F;
+      let mut cy = N;
+      let abc = |(a, n)| {
+        let yy = #[inline(always)]
+        |n1: f64| d1::xy(&io, N as f64, fy(n1));
+        match a {
+          T => match d2::is_h() {
+            T => {
+              yy(match n {
+                49..=u32::MAX => 0.,
+                45..=48 => -1.,
+                41..=44 => -1.,
+                37..=40 => -3.,
+                33..=36 => -3.,
+                29..=32 => -3.,
+                25..=28 => -3.,
+                21..=24 => -3.,
+                17..=20 => -5.,
+                13..=16 => -5.,
+                9..=12 => -5.,
+                5..=8 => -3.,
+                1..=4 => -1.,
+                _ => 0.,
+              });
+              n + 1
+            },
+            _ => N,
+          },
+          _ => {
+            match d2::is_h() {
+              T => d2::key_h(&io, T),
+              _ => F,
+            };
+            N
+          },
+        }
+      };
 
       screen::watch(
         |_n| match screen::name().contains(APP) {
-          T => match d2::is_mouse_l() {
-            T => {
-              // abc(T);
-              T
-            },
-            _ => {
-              // abc(F);
-              F
-            },
+          T => {
+            is_mouse_l = d2::is_mouse_l();
+            match is_mouse_l {
+              T => {
+                cy = abc((is_mouse_l, cy));
+                T
+              },
+              _ => {
+                cy = abc((is_mouse_l, cy));
+                F
+              },
+            }
           },
           _ => F,
         },
