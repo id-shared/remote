@@ -1,5 +1,5 @@
-pub fn handle() -> HANDLE {
-  fn device(guid: u128) -> Option<String> {
+pub fn device() -> Device {
+  fn path(guid: u128) -> Option<String> {
     let device_guid = windows::core::GUID::from_u128(guid);
 
     match unsafe { SetupDiGetClassDevsW(Some(&device_guid), PCWSTR::null(), None, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE) } {
@@ -67,17 +67,20 @@ pub fn handle() -> HANDLE {
     }
   }
 
-  let device = device(0xe3be005d_d130_4910_88ff_09ae02f680e9).unwrap();
-  io(device).unwrap()
+  let device = path(0xe3be005d_d130_4910_88ff_09ae02f680e9).unwrap();
+  let handle = io(device).unwrap();
+  Device {
+    handle,
+  }
 }
 
 #[inline(always)]
-pub fn io(handle: HANDLE, mut xyloid: Xyloid) -> bool {
+pub fn io(device: &Device, mut xyloid: Xyloid) -> bool {
   let mut bytes_returned: u32 = 0;
 
   unsafe {
     DeviceIoControl(
-      handle,
+      device.handle,
       0x88883020,
       Some(&mut xyloid as *mut _ as *mut _), // lpInBuffer
       std::mem::size_of::<Xyloid>() as u32,  // nInBufferSize
@@ -90,7 +93,7 @@ pub fn io(handle: HANDLE, mut xyloid: Xyloid) -> bool {
   .is_ok()
 }
 
-pub struct D1 {
+pub struct Device {
   handle: HANDLE,
 }
 

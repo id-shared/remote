@@ -22,7 +22,7 @@ pub fn main() {
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      let io = xyloid::handle();
+      let io = xyloid::device();
       #[inline(always)]
       fn f_zn(n1: u32) -> u32 {
         match n1 {
@@ -58,15 +58,15 @@ pub fn main() {
 
       let zz = #[inline(always)]
       |x: f64, y: f64| match d2::is_h() {
-        T => d1::xy(io, x, N as f64),
-        _ => d1::xy(io, x, y),
+        T => d1::xy(&io, x, N as f64),
+        _ => d1::xy(&io, x, y),
       };
       let yy = #[inline(always)]
       |n: u32, y: i32| fy(y as f64 - f_yn(n));
       let xx = #[inline(always)]
       |n: u32, x: i32| fx(x as f64 + f_xn(n));
       let kh = #[inline(always)]
-      |a: bool| d2::key_h(io, a);
+      |a: bool| d2::key_h(&io, a);
 
       const BS: i32 = 64;
       while let Ok((c, v, x, y)) = o2.recv() {
@@ -107,9 +107,9 @@ pub fn main() {
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      let io = xyloid::handle();
+      let io = xyloid::device();
       let yy = #[inline(always)]
-      |n1: f64| d1::xy(io, N as f64, fy(n1));
+      |n1: f64| d1::xy(&io, N as f64, fy(n1));
 
       let mut cy = N;
 
@@ -139,7 +139,7 @@ pub fn main() {
           },
           _ => {
             match d2::is_h() {
-              T => d2::key_h(io, T),
+              T => d2::key_h(&io, T),
               _ => F,
             };
             N
@@ -154,6 +154,8 @@ pub fn main() {
     move || {
       const CLR: u8 = 255 - 24;
       const ABS: u8 = 24;
+
+      let io = xyloid::device();
 
       screen::watch(
         #[inline(always)]
@@ -201,7 +203,7 @@ pub fn main() {
   handle.push(thread::spawn(
     #[inline(always)]
     move || {
-      let io = xyloid::handle();
+      let io = xyloid::device();
       let mut d = (F, Instant::now());
       let mut a = (F, Instant::now());
       let mut w = (F, Instant::now());
@@ -210,10 +212,10 @@ pub fn main() {
       loop {
         match screen::name().contains(APP) {
           T => {
-            d = on_key(d2::is_d, d2::key_arrow_l, io, d);
-            a = on_key(d2::is_a, d2::key_arrow_r, io, a);
-            w = on_key(d2::is_w, d2::key_arrow_d, io, w);
-            s = on_key(d2::is_s, d2::key_arrow_u, io, s);
+            d = on_key(d2::is_d, d2::key_arrow_l, &io, d);
+            a = on_key(d2::is_a, d2::key_arrow_r, &io, a);
+            w = on_key(d2::is_w, d2::key_arrow_d, &io, w);
+            s = on_key(d2::is_s, d2::key_arrow_u, &io, s);
             xo(MS)
           },
           _ => xo(MS),
@@ -223,7 +225,7 @@ pub fn main() {
   ));
 
   #[inline(always)]
-  fn on_key<F1: Fn() -> bool, F2: Fn(xyloid::HANDLE, bool) -> bool>(f1: F1, f2: F2, io: xyloid::HANDLE, z1: BI) -> BI {
+  fn on_key<F1: Fn() -> bool, F2: Fn(&Device, bool) -> bool>(f1: F1, f2: F2, io: &Device, z1: BI) -> BI {
     on(
       f1,
       |_| (T, Instant::now()),
@@ -326,6 +328,7 @@ use {
     },
   },
   xyloid::{
+    Device,
     d1,
     d2,
   },

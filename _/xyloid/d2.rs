@@ -1,37 +1,37 @@
 #[inline(always)]
-pub fn key_arrow_r(handle: HANDLE, up: bool) -> bool {
-  key_(handle, VK_RIGHT, up)
+pub fn key_arrow_r(device: &Device, up: bool) -> bool {
+  key_(device, VK_RIGHT, up)
 }
 
 #[inline(always)]
-pub fn key_arrow_l(handle: HANDLE, up: bool) -> bool {
-  key_(handle, VK_LEFT, up)
+pub fn key_arrow_l(device: &Device, up: bool) -> bool {
+  key_(device, VK_LEFT, up)
 }
 
 #[inline(always)]
-pub fn key_arrow_d(handle: HANDLE, up: bool) -> bool {
-  key_(handle, VK_DOWN, up)
+pub fn key_arrow_d(device: &Device, up: bool) -> bool {
+  key_(device, VK_DOWN, up)
 }
 
 #[inline(always)]
-pub fn key_arrow_u(handle: HANDLE, up: bool) -> bool {
-  key_(handle, VK_UP, up)
+pub fn key_arrow_u(device: &Device, up: bool) -> bool {
+  key_(device, VK_UP, up)
 }
 
 #[inline(always)]
-pub fn key_ctrl(handle: HANDLE, up: bool) -> bool {
-  key_(handle, VK_CONTROL, up)
+pub fn key_ctrl(device: &Device, up: bool) -> bool {
+  key_(device, VK_CONTROL, up)
 }
 
 #[inline(always)]
-pub fn key_h(handle: HANDLE, up: bool) -> bool {
-  key_(handle, VK_H, up)
+pub fn key_h(device: &Device, up: bool) -> bool {
+  key_(device, VK_H, up)
 }
 
 #[inline(always)]
-pub fn key_(handle: HANDLE, key: VIRTUAL_KEY, up: bool) -> bool {
+pub fn key_(device: &Device, key: VIRTUAL_KEY, up: bool) -> bool {
   k_(
-    handle,
+    device,
     key,
     if up {
       1
@@ -43,8 +43,8 @@ pub fn key_(handle: HANDLE, key: VIRTUAL_KEY, up: bool) -> bool {
 }
 
 #[inline(always)]
-pub fn k_(handle: HANDLE, key: VIRTUAL_KEY, flag: u16) -> bool {
-  io2(handle, KEYBOARD_INPUT_DATA {
+pub fn k_(device: &Device, key: VIRTUAL_KEY, flag: u16) -> bool {
+  io2(device, KEYBOARD_INPUT_DATA {
     UnitId: 0,
     MakeCode: mkcode(key),
     Flags: flag,
@@ -59,8 +59,8 @@ pub fn mkcode(key: VIRTUAL_KEY) -> u16 {
 }
 
 #[inline(always)]
-pub fn io2(handle: HANDLE, ki: KEYBOARD_INPUT_DATA) -> bool {
-  io(handle, Xyloid {
+pub fn io2(device: &Device, ki: KEYBOARD_INPUT_DATA) -> bool {
+  io(device, Xyloid {
     unk1: 0,
     type_: XyloidType::Keyboard,
     input: XyloidInput {
@@ -116,6 +116,7 @@ pub fn is_held(key: VIRTUAL_KEY) -> bool {
 
 use {
   crate::{
+    Device,
     Xyloid,
     XyloidInput,
     XyloidType,
@@ -123,7 +124,6 @@ use {
   },
   windows::Win32::{
     Devices::HumanInterfaceDevice::KEYBOARD_INPUT_DATA,
-    Foundation::HANDLE,
     UI::Input::KeyboardAndMouse::{
       GetAsyncKeyState,
       MapVirtualKeyW,

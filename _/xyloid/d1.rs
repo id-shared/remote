@@ -1,7 +1,7 @@
 #[inline(always)]
-pub fn z02(handle: HANDLE, up: bool) -> bool {
+pub fn z02(device: &Device, up: bool) -> bool {
   zz(
-    handle,
+    device,
     if !up {
       MOUSE_BUTTON_2_DOWN
     }
@@ -12,9 +12,9 @@ pub fn z02(handle: HANDLE, up: bool) -> bool {
 }
 
 #[inline(always)]
-pub fn z01(handle: HANDLE, up: bool) -> bool {
+pub fn z01(device: &Device, up: bool) -> bool {
   zz(
-    handle,
+    device,
     if !up {
       MOUSE_BUTTON_1_DOWN
     }
@@ -25,7 +25,7 @@ pub fn z01(handle: HANDLE, up: bool) -> bool {
 }
 
 #[inline(always)]
-pub fn zz(handle: HANDLE, n: u32) -> bool {
+pub fn zz(device: &Device, n: u32) -> bool {
   let mut mi = MOUSE_INPUT_DATA {
     UnitId: 0,
     Flags: 0,
@@ -38,12 +38,12 @@ pub fn zz(handle: HANDLE, n: u32) -> bool {
 
   mi.Anonymous.Buttons = n;
 
-  io1(handle, mi)
+  io1(device, mi)
 }
 
 #[inline(always)]
-pub fn xy(handle: HANDLE, x: f64, y: f64) -> bool {
-  io1(handle, MOUSE_INPUT_DATA {
+pub fn xy(device: &Device, x: f64, y: f64) -> bool {
+  io1(device, MOUSE_INPUT_DATA {
     UnitId: 0,
     Flags: 0,
     Anonymous: Default::default(),
@@ -55,8 +55,8 @@ pub fn xy(handle: HANDLE, x: f64, y: f64) -> bool {
 }
 
 #[inline(always)]
-pub fn io1(handle: HANDLE, mi: MOUSE_INPUT_DATA) -> bool {
-  io(handle, Xyloid {
+pub fn io1(device: &Device, mi: MOUSE_INPUT_DATA) -> bool {
+  io(device, Xyloid {
     unk1: 0,
     type_: XyloidType::Mouse,
     input: XyloidInput {
@@ -67,19 +67,17 @@ pub fn io1(handle: HANDLE, mi: MOUSE_INPUT_DATA) -> bool {
 
 use {
   crate::{
+    Device,
     Xyloid,
     XyloidInput,
     XyloidType,
     io,
   },
-  windows::Win32::{
-    Devices::HumanInterfaceDevice::{
-      MOUSE_BUTTON_1_DOWN,
-      MOUSE_BUTTON_1_UP,
-      MOUSE_BUTTON_2_DOWN,
-      MOUSE_BUTTON_2_UP,
-      MOUSE_INPUT_DATA,
-    },
-    Foundation::HANDLE,
+  windows::Win32::Devices::HumanInterfaceDevice::{
+    MOUSE_BUTTON_1_DOWN,
+    MOUSE_BUTTON_1_UP,
+    MOUSE_BUTTON_2_DOWN,
+    MOUSE_BUTTON_2_UP,
+    MOUSE_INPUT_DATA,
   },
 };
