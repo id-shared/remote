@@ -70,16 +70,16 @@ pub fn is_w() -> bool {
 
 #[inline(always)]
 pub fn key_(device: &Device, key: VIRTUAL_KEY, up: bool) -> bool {
-  k_(
-    device,
-    key,
-    if up {
-      1
-    }
-    else {
-      0
+  match up {
+    T => match is(key) {
+      T => k_(device, key, 1),
+      _ => F,
     },
-  )
+    _ => match is(key) {
+      T => T,
+      _ => k_(device, key, 0),
+    },
+  }
 }
 
 #[inline(always)]
@@ -113,6 +113,9 @@ pub fn io2(device: &Device, ki: KEYBOARD_INPUT_DATA) -> bool {
 pub fn is(key: VIRTUAL_KEY) -> bool {
   unsafe { (GetAsyncKeyState(key.0 as i32) as u32 & 0x8000u32) != 0 }
 }
+
+pub const F: bool = false;
+pub const T: bool = true;
 
 use {
   crate::{

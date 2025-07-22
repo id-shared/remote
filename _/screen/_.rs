@@ -2,8 +2,10 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F: FnMut(u32) -> bool, G: Fn(u32) -> bool, H: FnMut((u32, u32, i32, i32)) -> bool>(mut f: F, g: G, mut h: H) -> bool {
-  fn each<F: FnMut(Buffer) -> u32>(mut f: F, x: f64, y: f64) -> bool {
+pub fn watch<F: FnMut(u32) -> u32, G: Fn(u32) -> bool, H: FnMut((u32, u32, i32, i32)) -> bool>(f: F, g: G, mut h: H) -> bool {
+  fn each<F: FnMut(u32) -> u32, G: FnMut(Buffer) -> bool>(mut f: F, mut g: G) -> bool {
+    let y = high();
+    let x = wide();
     let recorder = recorder();
     let capturer = #[inline(always)]
     |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
@@ -14,9 +16,11 @@ pub fn watch<F: FnMut(u32) -> bool, G: Fn(u32) -> bool, H: FnMut((u32, u32, i32,
     };
     let mut time = Instant::now();
     let mut curr = N;
+    let mut at = N;
     loop {
-      curr = match T {
-        T => {
+      at = f(at);
+      match at {
+        1..=u32::MAX => {
           let oneach = || {
             let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
             let mut data: Option<IDXGIResource> = None;
@@ -24,7 +28,7 @@ pub fn watch<F: FnMut(u32) -> bool, G: Fn(u32) -> bool, H: FnMut((u32, u32, i32,
               T => {
                 let data = data.unwrap();
                 let cast = data.cast().unwrap();
-                f(turn(cast, &acquirer(curr), &recorder));
+                g(turn(cast, &acquirer(curr), &recorder));
                 unsafe { recorder.framer.ReleaseFrame().unwrap() };
                 T
               },
@@ -32,7 +36,7 @@ pub fn watch<F: FnMut(u32) -> bool, G: Fn(u32) -> bool, H: FnMut((u32, u32, i32,
             }
           };
 
-          match sure(oneach, MS * recorder.hz) {
+          curr = match sure(oneach, MS * recorder.hz) {
             T => {
               match time.elapsed().as_millis_f64() > 1000. {
                 T => {
@@ -44,9 +48,11 @@ pub fn watch<F: FnMut(u32) -> bool, G: Fn(u32) -> bool, H: FnMut((u32, u32, i32,
               }
             },
             _ => curr,
-          }
+          };
+
+          T
         },
-        _ => curr,
+        _ => F,
       };
     }
   }
@@ -95,61 +101,44 @@ pub fn watch<F: FnMut(u32) -> bool, G: Fn(u32) -> bool, H: FnMut((u32, u32, i32,
     (data_ptr, pitch, wide, high)
   }
 
-  let mut ac = N;
-  each(
-    #[inline(always)]
-    |z: Buffer| {
-      let (nn, un, xn, yn) = z;
+  each(f, |(ac, nn, un, xn, yn)| {
+    let mut is: bool = F;
+    let mut ay: i32 = 0;
+    let mut ax: i32 = 0;
+    let mut an: u32 = N;
 
-      ac = match f(ac) {
-        T => {
-          let mut is: bool = F;
-          let mut ay: i32 = 0;
-          let mut ax: i32 = 0;
-          let mut an: u32 = N;
+    for y in 0..yn {
+      let yn_ = unsafe { nn.add(y * un) } as *const u32;
+      let ay_ = (yn as i32 / 2) - y as i32;
 
-          for y in 0..yn {
-            let yn_ = unsafe { nn.add(y * un) } as *const u32;
-            let ay_ = (yn as i32 / 2) - y as i32;
+      'x: for x in 0..xn {
+        let xn_ = unsafe { *yn_.add(x) };
+        let ax_ = (xn as i32 / 2) - x as i32;
 
-            'x: for x in 0..xn {
-              let xn_ = unsafe { *yn_.add(x) };
-              let ax_ = (xn as i32 / 2) - x as i32;
+        match g(xn_) {
+          T => match is {
+            T => {
+              an = an + 1;
+              break 'x;
+            },
+            _ => {
+              ay = ay_;
+              ax = ax_;
+              an = an + 1;
+              is = T;
+              break 'x;
+            },
+          },
+          _ => F,
+        };
+      }
+    }
 
-              match g(xn_) {
-                T => match is {
-                  T => {
-                    an = an + 1;
-                    break 'x;
-                  },
-                  _ => {
-                    ay = ay_;
-                    ax = ax_;
-                    an = an + 1;
-                    is = T;
-                    break 'x;
-                  },
-                },
-                _ => F,
-              };
-            }
-          }
-
-          match is {
-            T => h((ac, an, -ax, ay)),
-            _ => F,
-          };
-
-          ac + 1
-        },
-        _ => N,
-      };
-
-      ac
-    },
-    wide(),
-    high(),
-  )
+    match is {
+      T => h((ac, an, -ax, ay)),
+      _ => F,
+    }
+  })
 }
 
 pub fn capturer(l: f64, t: f64, x: f64, y: f64) -> Capturer {

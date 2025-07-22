@@ -158,28 +158,24 @@ pub fn main() {
             _ => N,
           },
           _ => {
-            match d2::is_h() {
-              T => d2::h(&io, T),
-              _ => F,
-            };
+            d2::h(&io, T);
             N
           },
         };
       };
 
       screen::watch(
-        |_n| match screen::name().contains(APP) {
-          T => match d2::is_ml() {
-            T => {
-              abc();
-              T
-            },
-            _ => {
-              abc();
-              F
-            },
+        |n| match screen::name().contains(APP) {
+          T => {
+            abc();
+            match d2::is_ml() {
+              T => {
+                n + 1;
+              },
+              _ => n,
+            }
           },
-          _ => F,
+          _ => n,
         },
         |x| {
           let n1 = ((x >> 16) & 0xff) as u8;
@@ -219,13 +215,10 @@ pub fn main() {
               };
 
               match is_x && is_y {
-                T => match d2::is_h() {
-                  T => zz(ax, ay),
-                  _ => {
-                    zz(ax, ay);
-                    xo(MS * 4);
-                    kh(F)
-                  },
+                T => {
+                  zz(ax, ay);
+                  xo(MS * 4);
+                  kh(F)
                 },
                 _ => zz(ax, ay),
               }
