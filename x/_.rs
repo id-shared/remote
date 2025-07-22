@@ -25,39 +25,35 @@ pub fn main() {
     let kh = |a: bool| d2::h(&device, a);
 
     const MAX: i32 = 128;
-    let does = |c: u32, v: u32, x: i32, y: i32| match c % 3 {
-      1 => {
-        let (ay, is_y) = match y.abs() >= MAX {
-          T => (yy(v, y.min(MAX).max(-MAX)), F),
-          _ => (yy(v, y), T),
-        };
+    let does = |c: u32, v: u32, x: i32, y: i32| match c {
+      1..=9 => match c % 2 {
+        1 => {
+          let (ay, is_y) = match y.abs() >= MAX {
+            T => (yy(v, y.min(MAX).max(-MAX)), F),
+            _ => (yy(v, y), T),
+          };
 
-        let (ax, is_x) = match x.abs() >= MAX {
-          T => (xx(v, x.min(MAX).max(-MAX)), F),
-          _ => (xx(v, x), T),
-        };
+          let (ax, is_x) = match x.abs() >= MAX {
+            T => (xx(v, x.min(MAX).max(-MAX)), F),
+            _ => (xx(v, x), T),
+          };
 
-        match is_x && is_y {
-          T => {
-            xxyy(ax, ay);
-            xo(MS * 4);
-            kh(F)
-          },
-          _ => xxyy(ax, ay),
-        }
+          match is_x && is_y {
+            T => {
+              xxyy(ax, ay);
+              xo(MS * 4);
+              kh(F)
+            },
+            _ => xxyy(ax, ay),
+          }
+        },
+        _ => F,
       },
       _ => F,
     };
 
     let mut at: u32 = 0;
     screen::watch(
-      || match screen::name().contains(APP) {
-        T => match d2::is_ml() {
-          T => T,
-          _ => F,
-        },
-        _ => F,
-      },
       |(nn, un, xn, yn)| {
         let mut is: bool = F;
         let mut ay: i32 = 0;
@@ -101,6 +97,16 @@ pub fn main() {
             does(at, 0, 0, 0)
           },
         }
+      },
+      |n| match screen::name().contains(APP) {
+        T => {
+          1;
+          match d2::is_ml() {
+            T => n + 1,
+            _ => N,
+          }
+        },
+        _ => N,
       },
       screen_x,
       screen_y,

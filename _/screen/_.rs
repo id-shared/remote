@@ -2,26 +2,26 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F: FnMut() -> bool, G: FnMut(Record) -> bool>(mut f: F, mut g: G, x: f64, y: f64) -> bool {
-  let recorder = recorder();
+pub fn watch<F: FnMut(Record) -> bool, F1: FnMut(u32) -> u32>(mut f: F, mut on_f: F1, x: f64, y: f64) -> bool {
   let capturer = |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
-  let acquirer = |n: u32| match n {
-    1..=u32::MAX => capturer(x / 4., y / 8.),
-    _ => capturer(x / 4., y / 8.),
-  };
-  let mut time = Instant::now();
-  let mut curr = N;
+  let recorder = recorder();
+  let mut id = N;
   loop {
-    match f() {
+    id = on_f(id);
+    match id > N {
       T => {
         let oneach = || {
           let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
           let mut data: Option<IDXGIResource> = None;
           match unsafe { recorder.framer.AcquireNextFrame(recorder.hz, &mut info, &mut data).is_ok() } {
             T => {
+              let capturer = match id {
+                1..=u32::MAX => capturer(x / 4., y / 8.),
+                _ => capturer(x / 4., y / 8.),
+              };
               let data = data.unwrap();
               let cast = data.cast().unwrap();
-              g(turn(cast, &acquirer(curr), &recorder));
+              f(turn(cast, capturer, &recorder));
               unsafe { recorder.framer.ReleaseFrame().unwrap() };
               T
             },
@@ -29,16 +29,9 @@ pub fn watch<F: FnMut() -> bool, G: FnMut(Record) -> bool>(mut f: F, mut g: G, x
           }
         };
 
-        curr = match sure(oneach, MS * recorder.hz) {
-          T => match time.elapsed().as_millis_f64() > 1000. {
-            T => {
-              // println!("FPS: {}", curr);
-              time = Instant::now();
-              N
-            },
-            _ => curr + 1,
-          },
-          _ => curr,
+        id = match sure(oneach, MS * recorder.hz) {
+          T => id + 1,
+          _ => id,
         };
 
         T
@@ -52,7 +45,7 @@ pub fn watch<F: FnMut() -> bool, G: FnMut(Record) -> bool>(mut f: F, mut g: G, x
   }
 }
 
-fn turn(d: ID3D11Texture2D, v: &Capturer, z: &Recorder) -> Record {
+fn turn(d: ID3D11Texture2D, v: Capturer, z: &Recorder) -> Record {
   let high = v.y as usize;
   let wide = v.x as usize;
   let desc = D3D11_TEXTURE2D_DESC {
