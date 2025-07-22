@@ -8,29 +8,29 @@ pub fn main() {
   let mut handle = vec![];
 
   handle.push(thread::spawn(|| {
-    let zy = screen::high();
-    let zx = screen::wide();
+    let screen_y = screen::high();
+    let screen_x = screen::wide();
+    let device = xyloid::device();
+
     let vy = fov(70.53_f64);
     let vx = fov(103_f64);
-    let uy = zy / 2.;
-    let ux = zx / 2.;
-
-    let io = xyloid::device();
+    let uy = screen_y / 2.;
+    let ux = screen_x / 2.;
 
     let fy = |n1: f64| xyz(vy, n1 / uy, 6400.);
     let fx = |n1: f64| xyz(vx, n1 / ux, 6400.);
 
-    let zz = |x: f64, y: f64| match d2::is_h() {
-      T => d1::xy(&io, x, N as f64),
-      _ => d1::xy(&io, x, y),
+    let xxyy = |x: f64, y: f64| match d2::is_h() {
+      T => d1::xy(&device, x, N as f64),
+      _ => d1::xy(&device, x, y),
     };
     let yy = |n: u32, y: i32| fy(y as f64 - add_y(n));
     let xx = |n: u32, x: i32| fx(x as f64 + add_x(n));
-    let kh = |a: bool| d2::h(&io, a);
+    let kh = |a: bool| d2::h(&device, a);
 
     let mut abc_cy = N;
     let mut abc = || {
-      let yy = |n1: f64| d1::xy(&io, N as f64, fy(n1));
+      let yy = |n1: f64| d1::xy(&device, N as f64, fy(n1));
       abc_cy = match d2::is_ml() {
         T => match d2::is_h() {
           T => {
@@ -55,7 +55,7 @@ pub fn main() {
           _ => N,
         },
         _ => {
-          d2::h(&io, T);
+          d2::h(&device, T);
           N
         },
       };
@@ -79,11 +79,11 @@ pub fn main() {
 
           match is_x && is_y {
             T => {
-              zz(ax, ay);
+              xxyy(ax, ay);
               xo(MS * 4);
               kh(F)
             },
-            _ => zz(ax, ay),
+            _ => xxyy(ax, ay),
           }
         },
         _ => F,
@@ -146,8 +146,8 @@ pub fn main() {
           },
         }
       },
-      zx,
-      zy,
+      screen_x,
+      screen_y,
     );
   }));
 
