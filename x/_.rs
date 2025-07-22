@@ -188,9 +188,9 @@ pub fn main() {
         // TODO: difference should be atleast 2.
         println!("{}, {}, {}, {}", c, v, x, y);
 
-        const BS: i32 = 64;
+        const BS: i32 = 128;
 
-        match c % 3 {
+        match c & 3 {
           1 => {
             let (ay, is_y) = match y.abs() >= BS {
               T => (yy(v, y.min(BS).max(-BS)), F),
@@ -215,6 +215,7 @@ pub fn main() {
         }
       };
 
+      let mut at: u32 = 0;
       screen::watch(
         |n| match screen::name().contains(APP) {
           T => {
@@ -260,8 +261,14 @@ pub fn main() {
           }
 
           match is {
-            T => does(1, an, -ax, ay),
-            _ => does(0, 0, 0, 0),
+            T => {
+              at = at + 1;
+              does(at, an, -ax, ay)
+            },
+            _ => {
+              at = N;
+              does(at, 0, 0, 0)
+            },
           }
         },
       );
