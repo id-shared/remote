@@ -155,7 +155,7 @@ pub fn main() {
       const CLR: u8 = 255 - 24;
       const ABS: u8 = 24;
 
-      let io = xyloid::device();
+      let device = xyloid::device();
 
       screen::watch(
         #[inline(always)]

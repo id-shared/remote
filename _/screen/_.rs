@@ -2,72 +2,14 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
+pub trait FuncMut<T1, T2> = FnMut(T1) -> T2 + Send + Sync + 'static;
+pub trait Func<T1, T2> = Fn(T1) -> T2 + Send + Sync + 'static;
+
 type Detail = (u32, u32, i32, i32);
-pub fn watch<F: Func<u32, u32>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: F, g: G, h: H, x: f64, y: f64) -> () {
-  let mut handle = vec![];
-
-  handle.push(thread::spawn(
-    #[inline(always)]
-    move || {
-      let view = #[inline(always)]
-      move |x1: f64, y1: f64| view((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
-      let mut ac = N;
-
-      each(
-        move |z: Buffer| {
-          let (nn, un, xn, yn) = z;
-
-          ac = f(ac);
-          match ac {
-            1..=u32::MAX => {
-              let mut is: bool = F;
-              let mut ay: i32 = 0;
-              let mut ax: i32 = 0;
-              let mut an: u32 = N;
-
-              for y in 0..yn {
-                let yn_ = unsafe { nn.add(y * un) } as *const u32;
-                let ay_ = (yn as i32 / 2) - y as i32;
-
-                'x: for x in 0..xn {
-                  let xn_ = unsafe { *yn_.add(x) };
-                  let ax_ = (xn as i32 / 2) - x as i32;
-
-                  match g(xn_) {
-                    T => match is {
-                      T => {
-                        an = an + 1;
-                        break 'x;
-                      },
-                      _ => {
-                        ay = ay_;
-                        ax = ax_;
-                        an = an + 1;
-                        is = T;
-                        break 'x;
-                      },
-                    },
-                    _ => F,
-                  };
-                }
-              }
-
-              match is {
-                T => h((ac, an, -ax, ay)),
-                _ => F,
-              }
-            },
-            _ => F,
-          }
-        },
-        move |n: u32| match n {
-          1..=u32::MAX => view(x / 4., y / 8.),
-          _ => view(x / 4., y / 8.),
-        },
-        io(),
-      );
-    },
-  ));
+pub fn watch<F: Func<u32, u32>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: F, g: G, h: H, x: f64, y: f64) -> bool {
+  let view = #[inline(always)]
+  move |x1: f64, y1: f64| view((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
+  let mut ac = N;
 
   fn each<F: FuncMut<Buffer, bool>, G: Func<u32, View>>(mut f: F, g: G, z: IO) -> bool {
     let mut time = Instant::now();
@@ -160,53 +102,103 @@ pub fn watch<F: Func<u32, u32>, G: Func<u32, bool>, H: Func<Detail, bool>>(f: F,
     (data_ptr, pitch, wide, high)
   }
 
-  fn view(l: f64, t: f64, x: f64, y: f64) -> View {
-    View {
-      l,
-      t,
-      x,
-      y,
-    }
+  each(
+    move |z: Buffer| {
+      let (nn, un, xn, yn) = z;
+
+      ac = f(ac);
+      match ac {
+        1..=u32::MAX => {
+          let mut is: bool = F;
+          let mut ay: i32 = 0;
+          let mut ax: i32 = 0;
+          let mut an: u32 = N;
+
+          for y in 0..yn {
+            let yn_ = unsafe { nn.add(y * un) } as *const u32;
+            let ay_ = (yn as i32 / 2) - y as i32;
+
+            'x: for x in 0..xn {
+              let xn_ = unsafe { *yn_.add(x) };
+              let ax_ = (xn as i32 / 2) - x as i32;
+
+              match g(xn_) {
+                T => match is {
+                  T => {
+                    an = an + 1;
+                    break 'x;
+                  },
+                  _ => {
+                    ay = ay_;
+                    ax = ax_;
+                    an = an + 1;
+                    is = T;
+                    break 'x;
+                  },
+                },
+                _ => F,
+              };
+            }
+          }
+
+          match is {
+            T => h((ac, an, -ax, ay)),
+            _ => F,
+          }
+        },
+        _ => F,
+      }
+    },
+    move |n: u32| match n {
+      1..=u32::MAX => view(x / 4., y / 8.),
+      _ => view(x / 4., y / 8.),
+    },
+    io(),
+  )
+}
+
+pub fn view(l: f64, t: f64, x: f64, y: f64) -> View {
+  View {
+    l,
+    t,
+    x,
+    y,
   }
+}
 
-  fn io() -> IO {
-    let mut context: Option<ID3D11DeviceContext> = None;
-    let mut device: Option<ID3D11Device> = None;
-    let mut level = D3D_FEATURE_LEVEL_12_2;
+pub fn io() -> IO {
+  let mut context: Option<ID3D11DeviceContext> = None;
+  let mut device: Option<ID3D11Device> = None;
+  let mut level = D3D_FEATURE_LEVEL_12_2;
 
-    unsafe {
-      D3D11CreateDevice(
-        None,                             // pAdapter
-        D3D_DRIVER_TYPE_HARDWARE,         // drivertype
-        HMODULE::default(),               // software
-        D3D11_CREATE_DEVICE_BGRA_SUPPORT, // flags
-        None,                             // pfeaturelevels
-        D3D11_SDK_VERSION,                // sdkversion
-        Some(&mut device),                // ppdevice
-        Some(&mut level),                 // pfeaturelevel
-        Some(&mut context),               // ppimmediatecontext
-      )
-      .unwrap()
-    };
+  unsafe {
+    D3D11CreateDevice(
+      None,                             // pAdapter
+      D3D_DRIVER_TYPE_HARDWARE,         // drivertype
+      HMODULE::default(),               // software
+      D3D11_CREATE_DEVICE_BGRA_SUPPORT, // flags
+      None,                             // pfeaturelevels
+      D3D11_SDK_VERSION,                // sdkversion
+      Some(&mut device),                // ppdevice
+      Some(&mut level),                 // pfeaturelevel
+      Some(&mut context),               // ppimmediatecontext
+    )
+    .unwrap()
+  };
 
-    let device = device.unwrap();
-    let context = context.unwrap();
-    let device_cast: IDXGIDevice = device.cast().unwrap();
-    let bridge: IDXGIAdapter = unsafe { device_cast.GetAdapter().unwrap() };
-    let output: IDXGIOutput = unsafe { bridge.EnumOutputs(0).unwrap() };
-    let output_cast: IDXGIOutput1 = output.cast().unwrap();
-    let framer = unsafe { output_cast.DuplicateOutput(&device).unwrap() };
+  let device = device.unwrap();
+  let context = context.unwrap();
+  let device_cast: IDXGIDevice = device.cast().unwrap();
+  let bridge: IDXGIAdapter = unsafe { device_cast.GetAdapter().unwrap() };
+  let output: IDXGIOutput = unsafe { bridge.EnumOutputs(0).unwrap() };
+  let output_cast: IDXGIOutput1 = output.cast().unwrap();
+  let framer = unsafe { output_cast.DuplicateOutput(&device).unwrap() };
 
-    IO {
-      context,
-      device,
-      framer,
-      hz: HZ,
-    }
-  }
-
-  for x in handle {
-    x.join().unwrap();
+  IO {
+    context,
+    device,
+    framer,
+    hz: HZ,
   }
 }
 
@@ -276,9 +268,6 @@ pub fn xo(n: Duration) -> bool {
   thread::sleep(n);
   T
 }
-
-pub trait FuncMut<T1, T2> = FnMut(T1) -> T2 + Send + Sync + 'static;
-pub trait Func<T1, T2> = Fn(T1) -> T2 + Send + Sync + 'static;
 
 pub const APP: &str = "VAL";
 
