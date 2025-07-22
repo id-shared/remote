@@ -7,6 +7,41 @@ pub fn main() {
 
   let mut handle = vec![];
 
+  fn abc<F: Fn(f64) -> f64>(f: F, n: u32, z: &Device) {
+    match d2::is_ml() {
+      T => match d2::is_h() {
+        T => {
+          d1::xy(
+            z,
+            N as f64,
+            f(match n {
+              49..=u32::MAX => 0.,
+              45..=48 => -1.,
+              41..=44 => -1.,
+              37..=40 => -3.,
+              33..=36 => -3.,
+              29..=32 => -3.,
+              25..=28 => -3.,
+              21..=24 => -3.,
+              17..=20 => -5.,
+              13..=16 => -5.,
+              9..=12 => -5.,
+              5..=8 => -3.,
+              1..=4 => -1.,
+              _ => 0.,
+            }),
+          );
+          n + 1
+        },
+        _ => N,
+      },
+      _ => {
+        d2::h(&z, T);
+        N
+      },
+    };
+  }
+
   handle.push(thread::spawn(|| {
     let screen_y = screen::high();
     let screen_x = screen::wide();
@@ -23,48 +58,9 @@ pub fn main() {
     let xx = |n: u32, x: i32| fx(x as f64 + add_x(n));
     let kh = |a: bool| d2::h(&device, a);
 
-    let mut abc_cy = N;
-    let mut abc = || {
-      abc_cy = match d2::is_ml() {
-        T => match d2::is_h() {
-          T => {
-            d1::xy(
-              &device,
-              N as f64,
-              fy(match abc_cy {
-                49..=u32::MAX => 0.,
-                45..=48 => -1.,
-                41..=44 => -1.,
-                37..=40 => -3.,
-                33..=36 => -3.,
-                29..=32 => -3.,
-                25..=28 => -3.,
-                21..=24 => -3.,
-                17..=20 => -5.,
-                13..=16 => -5.,
-                9..=12 => -5.,
-                5..=8 => -3.,
-                1..=4 => -1.,
-                _ => 0.,
-              }),
-            );
-            abc_cy + 1
-          },
-          _ => N,
-        },
-        _ => {
-          d2::h(&device, T);
-          N
-        },
-      };
-    };
-
     const MAX: i32 = 128;
-    let mut does = |c: u32, v: u32, x: i32, y: i32| {
-      // TODO: difference should be atleast 2.
-      println!("{}, {}, {}, {}", c, v, x, y);
-
-      abc();
+    let does = |c: u32, v: u32, x: i32, y: i32| {
+      abc(fy, c, &device);
 
       match c % 3 {
         1 => {
