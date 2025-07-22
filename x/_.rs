@@ -267,11 +267,6 @@ pub fn main() {
 }
 
 #[inline(always)]
-pub fn send<T>(i: &Sender<T>, o: T) -> bool {
-  i.try_send(o).is_ok()
-}
-
-#[inline(always)]
 pub fn xo(n: Duration) -> bool {
   thread::sleep(n);
   T
@@ -289,7 +284,6 @@ pub const F: bool = false;
 pub const T: bool = true;
 
 use {
-  crossbeam::channel::Sender,
   screen,
   std::{
     f64::consts::PI,

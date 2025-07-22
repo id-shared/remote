@@ -34,6 +34,11 @@ fn xfov(hfov: f64, x: f64, y: f64) -> f64 {
 }
 
 #[inline(always)]
+pub fn send<T>(i: &Sender<T>, o: T) -> bool {
+  i.try_send(o).is_ok()
+}
+
+#[inline(always)]
 fn stim(n1: i32, n2: i32) -> (i32, i32) {
   let next = step(n1, n2);
 

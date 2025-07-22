@@ -1,5 +1,4 @@
 [dependencies]
-crossbeam = { version = "0.8.4" }
 xyloid = { path = "./../_/xyloid" }
 screen = { path = "./../_/screen" }
 
