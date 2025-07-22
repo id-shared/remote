@@ -1,31 +1,71 @@
 #[inline(always)]
-pub fn key_arrow_r(device: &Device, up: bool) -> bool {
+pub fn ar(device: &Device, up: bool) -> bool {
   key_(device, VK_RIGHT, up)
 }
 
 #[inline(always)]
-pub fn key_arrow_l(device: &Device, up: bool) -> bool {
+pub fn al(device: &Device, up: bool) -> bool {
   key_(device, VK_LEFT, up)
 }
 
 #[inline(always)]
-pub fn key_arrow_d(device: &Device, up: bool) -> bool {
+pub fn d(device: &Device, up: bool) -> bool {
   key_(device, VK_DOWN, up)
 }
 
 #[inline(always)]
-pub fn key_arrow_u(device: &Device, up: bool) -> bool {
+pub fn u(device: &Device, up: bool) -> bool {
   key_(device, VK_UP, up)
 }
 
 #[inline(always)]
-pub fn key_ctrl(device: &Device, up: bool) -> bool {
+pub fn ctrl(device: &Device, up: bool) -> bool {
   key_(device, VK_CONTROL, up)
 }
 
 #[inline(always)]
-pub fn key_h(device: &Device, up: bool) -> bool {
+pub fn h(device: &Device, up: bool) -> bool {
   key_(device, VK_H, up)
+}
+
+#[inline(always)]
+pub fn ctrl_is() -> bool {
+  is(VK_CONTROL)
+}
+
+#[inline(always)]
+pub fn is_mr() -> bool {
+  is(VK_RBUTTON)
+}
+
+#[inline(always)]
+pub fn is_ml() -> bool {
+  is(VK_LBUTTON)
+}
+
+#[inline(always)]
+pub fn is_h() -> bool {
+  is(VK_H)
+}
+
+#[inline(always)]
+pub fn is_d() -> bool {
+  is(VK_D)
+}
+
+#[inline(always)]
+pub fn is_s() -> bool {
+  is(VK_S)
+}
+
+#[inline(always)]
+pub fn is_a() -> bool {
+  is(VK_A)
+}
+
+#[inline(always)]
+pub fn is_w() -> bool {
+  is(VK_W)
 }
 
 #[inline(always)]
@@ -70,47 +110,7 @@ pub fn io2(device: &Device, ki: KEYBOARD_INPUT_DATA) -> bool {
 }
 
 #[inline(always)]
-pub fn is_mouse_r() -> bool {
-  is_held(VK_RBUTTON)
-}
-
-#[inline(always)]
-pub fn is_mouse_l() -> bool {
-  is_held(VK_LBUTTON)
-}
-
-#[inline(always)]
-pub fn is_ctrl() -> bool {
-  is_held(VK_CONTROL)
-}
-
-#[inline(always)]
-pub fn is_h() -> bool {
-  is_held(VK_H)
-}
-
-#[inline(always)]
-pub fn is_d() -> bool {
-  is_held(VK_D)
-}
-
-#[inline(always)]
-pub fn is_s() -> bool {
-  is_held(VK_S)
-}
-
-#[inline(always)]
-pub fn is_a() -> bool {
-  is_held(VK_A)
-}
-
-#[inline(always)]
-pub fn is_w() -> bool {
-  is_held(VK_W)
-}
-
-#[inline(always)]
-pub fn is_held(key: VIRTUAL_KEY) -> bool {
+pub fn is(key: VIRTUAL_KEY) -> bool {
   unsafe { (GetAsyncKeyState(key.0 as i32) as u32 & 0x8000u32) != 0 }
 }
 

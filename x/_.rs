@@ -5,6 +5,66 @@
 pub fn main() {
   println!("Angle for chord length 1 is {:.64} pixels", calc((103_f64 / 2.).to_radians(), 960. / 960., 6400.));
 
+  #[inline(always)]
+  fn on_key<F1: Fn() -> bool, F2: Fn(&Device, bool) -> bool>(f1: F1, f2: F2, io: &Device, z1: BI) -> BI {
+    on(
+      f1,
+      |_| (T, Instant::now()),
+      |x| {
+        let n = (x.1.elapsed().as_millis_f64() / 10.).round() as u64;
+        match n {
+          17..=32 => {
+            f2(io, F);
+            xo(MS * ((4 * 16) + ((n - 16) * 2)) as u32);
+            f2(io, T)
+          },
+          6..=16 => {
+            f2(io, F);
+            xo(MS * (4 * n) as u32);
+            f2(io, T)
+          },
+          0..=5 => T,
+          _ => {
+            f2(io, F);
+            xo(MS * 96);
+            f2(io, T)
+          },
+        };
+        (F, Instant::now())
+      },
+      z1,
+    )
+  }
+
+  #[inline(always)]
+  fn on<F1: Fn() -> bool, F2: Fn(BI) -> BI, F3: Fn(BI) -> BI>(f1: F1, f2: F2, f3: F3, z1: BI) -> BI {
+    match z1.0 {
+      T => match f1() {
+        T => z1,
+        _ => f3(z1),
+      },
+      _ => match f1() {
+        T => f2(z1),
+        _ => z1,
+      },
+    }
+  }
+
+  #[inline(always)]
+  fn calc(radian: f64, factor: f64, size: f64) -> f64 {
+    (tan(radian, factor) / (2. * PI)) * size
+  }
+
+  #[inline(always)]
+  fn tan(n1: f64, n2: f64) -> f64 {
+    (n1.tan() * n2).atan()
+  }
+
+  #[inline(always)]
+  fn fov(n: f64) -> f64 {
+    (n / 2.).to_radians()
+  }
+
   let mut handle = vec![];
   let zy = screen::high();
   let zx = screen::wide();
@@ -68,16 +128,13 @@ pub fn main() {
       let xx = #[inline(always)]
       |n: u32, x: i32| fx(x as f64 + f_xn(n));
       let kh = #[inline(always)]
-      |a: bool| d2::key_h(&io, a);
+      |a: bool| d2::h(&io, a);
 
-      const BS: i32 = 64;
-
-      let mut is_mouse_l = F;
       let mut cy = N;
-      let abc = |(a, n)| {
+      let abc = |n| {
         let yy = #[inline(always)]
         |n1: f64| d1::xy(&io, N as f64, fy(n1));
-        match a {
+        match d2::is_ml() {
           T => match d2::is_h() {
             T => {
               yy(match n {
@@ -102,7 +159,7 @@ pub fn main() {
           },
           _ => {
             match d2::is_h() {
-              T => d2::key_h(&io, T),
+              T => d2::h(&io, T),
               _ => F,
             };
             N
@@ -112,18 +169,15 @@ pub fn main() {
 
       screen::watch(
         |_n| match screen::name().contains(APP) {
-          T => {
-            is_mouse_l = d2::is_mouse_l();
-            match is_mouse_l {
-              T => {
-                cy = abc((is_mouse_l, cy));
-                T
-              },
-              _ => {
-                cy = abc((is_mouse_l, cy));
-                F
-              },
-            }
+          T => match d2::is_ml() {
+            T => {
+              cy = abc(cy);
+              T
+            },
+            _ => {
+              cy = abc(cy);
+              F
+            },
           },
           _ => F,
         },
@@ -150,7 +204,9 @@ pub fn main() {
           // TODO: difference should be atleast 2.
           println!("{}, {}, {}, {}", c, v, x, y);
 
-          match c % 2 {
+          const BS: i32 = 64;
+
+          match c % 3 {
             1 => {
               let (ay, is_y) = match y.abs() >= BS {
                 T => (yy(v, y.min(BS).max(-BS)), F),
@@ -193,10 +249,10 @@ pub fn main() {
       loop {
         match screen::name().contains(APP) {
           T => {
-            d = on_key(d2::is_d, d2::key_arrow_l, &io, d);
-            a = on_key(d2::is_a, d2::key_arrow_r, &io, a);
-            w = on_key(d2::is_w, d2::key_arrow_d, &io, w);
-            s = on_key(d2::is_s, d2::key_arrow_u, &io, s);
+            d = on_key(d2::is_d, d2::al, &io, d);
+            a = on_key(d2::is_a, d2::ar, &io, a);
+            w = on_key(d2::is_w, d2::d, &io, w);
+            s = on_key(d2::is_s, d2::u, &io, s);
             xo(MS)
           },
           _ => xo(MS),
@@ -204,66 +260,6 @@ pub fn main() {
       }
     },
   ));
-
-  #[inline(always)]
-  fn on_key<F1: Fn() -> bool, F2: Fn(&Device, bool) -> bool>(f1: F1, f2: F2, io: &Device, z1: BI) -> BI {
-    on(
-      f1,
-      |_| (T, Instant::now()),
-      |x| {
-        let n = (x.1.elapsed().as_millis_f64() / 10.).round() as u64;
-        match n {
-          17..=32 => {
-            f2(io, F);
-            xo(MS * ((4 * 16) + ((n - 16) * 2)) as u32);
-            f2(io, T)
-          },
-          6..=16 => {
-            f2(io, F);
-            xo(MS * (4 * n) as u32);
-            f2(io, T)
-          },
-          0..=5 => T,
-          _ => {
-            f2(io, F);
-            xo(MS * 96);
-            f2(io, T)
-          },
-        };
-        (F, Instant::now())
-      },
-      z1,
-    )
-  }
-
-  #[inline(always)]
-  fn on<F1: Fn() -> bool, F2: Fn(BI) -> BI, F3: Fn(BI) -> BI>(f1: F1, f2: F2, f3: F3, z1: BI) -> BI {
-    match z1.0 {
-      T => match f1() {
-        T => z1,
-        _ => f3(z1),
-      },
-      _ => match f1() {
-        T => f2(z1),
-        _ => z1,
-      },
-    }
-  }
-
-  #[inline(always)]
-  fn calc(radian: f64, factor: f64, size: f64) -> f64 {
-    (tan(radian, factor) / (2. * PI)) * size
-  }
-
-  #[inline(always)]
-  fn tan(n1: f64, n2: f64) -> f64 {
-    (n1.tan() * n2).atan()
-  }
-
-  #[inline(always)]
-  fn fov(n: f64) -> f64 {
-    (n / 2.).to_radians()
-  }
 
   for x in handle {
     x.join().unwrap();
