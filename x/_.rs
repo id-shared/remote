@@ -7,216 +7,210 @@ pub fn main() {
 
   let mut handle = vec![];
 
-  handle.push(thread::spawn(
+  handle.push(thread::spawn(|| {
+    let zy = screen::high();
+    let zx = screen::wide();
+    let vy = fov(70.53_f64);
+    let vx = fov(103_f64);
+    let uy = zy / 2.;
+    let ux = zx / 2.;
+
+    const CLR: u8 = 255 - 24;
+    const ABS: u8 = 24;
+
+    let io = xyloid::device();
+
     #[inline(always)]
-    move || {
-      let zy = screen::high();
-      let zx = screen::wide();
-      let vy = fov(70.53_f64);
-      let vx = fov(103_f64);
-      let uy = zy / 2.;
-      let ux = zx / 2.;
+    fn f_yn(n1: u32) -> f64 {
+      (xyz(n1) as f64) / 2.
+    }
 
-      const CLR: u8 = 255 - 24;
-      const ABS: u8 = 24;
+    #[inline(always)]
+    fn f_xn(n1: u32) -> f64 {
+      (xyz(n1) as f64) / 4.
+    }
 
-      let io = xyloid::device();
+    let fy = #[inline(always)]
+    |n1: f64| calc(vy, n1 / uy, 6400.);
+    let fx = #[inline(always)]
+    |n1: f64| calc(vx, n1 / ux, 6400.);
 
-      #[inline(always)]
-      fn f_yn(n1: u32) -> f64 {
-        (xyz(n1) as f64) / 2.
-      }
+    let zz = #[inline(always)]
+    |x: f64, y: f64| match d2::is_h() {
+      T => d1::xy(&io, x, N as f64),
+      _ => d1::xy(&io, x, y),
+    };
+    let yy = #[inline(always)]
+    |n: u32, y: i32| fy(y as f64 - f_yn(n));
+    let xx = #[inline(always)]
+    |n: u32, x: i32| fx(x as f64 + f_xn(n));
+    let kh = #[inline(always)]
+    |a: bool| d2::h(&io, a);
 
-      #[inline(always)]
-      fn f_xn(n1: u32) -> f64 {
-        (xyz(n1) as f64) / 4.
-      }
-
-      let fy = #[inline(always)]
-      |n1: f64| calc(vy, n1 / uy, 6400.);
-      let fx = #[inline(always)]
-      |n1: f64| calc(vx, n1 / ux, 6400.);
-
-      let zz = #[inline(always)]
-      |x: f64, y: f64| match d2::is_h() {
-        T => d1::xy(&io, x, N as f64),
-        _ => d1::xy(&io, x, y),
-      };
+    let mut abc_cy = N;
+    let mut abc = || {
       let yy = #[inline(always)]
-      |n: u32, y: i32| fy(y as f64 - f_yn(n));
-      let xx = #[inline(always)]
-      |n: u32, x: i32| fx(x as f64 + f_xn(n));
-      let kh = #[inline(always)]
-      |a: bool| d2::h(&io, a);
-
-      let mut abc_cy = N;
-      let mut abc = || {
-        let yy = #[inline(always)]
-        |n1: f64| d1::xy(&io, N as f64, fy(n1));
-        abc_cy = match d2::is_ml() {
-          T => match d2::is_h() {
-            T => {
-              yy(match abc_cy {
-                49..=u32::MAX => 0.,
-                45..=48 => -1.,
-                41..=44 => -1.,
-                37..=40 => -3.,
-                33..=36 => -3.,
-                29..=32 => -3.,
-                25..=28 => -3.,
-                21..=24 => -3.,
-                17..=20 => -5.,
-                13..=16 => -5.,
-                9..=12 => -5.,
-                5..=8 => -3.,
-                1..=4 => -1.,
-                _ => 0.,
-              });
-              abc_cy + 1
-            },
-            _ => N,
-          },
-          _ => {
-            d2::h(&io, T);
-            N
-          },
-        };
-      };
-
-      let check = |x: u32| {
-        let n1 = ((x >> 16) & 0xff) as u8;
-        let n2 = ((x >> 8) & 0xff) as u8;
-        let n3 = (x & 0xff) as u8;
-
-        match n1 > CLR && n3 > CLR {
-          T => match n1 > n3 {
-            T => match n3.abs_diff(n2) > ABS {
-              T => T,
-              _ => F,
-            },
-            _ => match n1.abs_diff(n2) > ABS {
-              T => T,
-              _ => F,
-            },
-          },
-          _ => F,
-        }
-      };
-
-      let does = |c: u32, v: u32, x: i32, y: i32| {
-        // TODO: difference should be atleast 2.
-        println!("{}, {}, {}, {}", c, v, x, y);
-
-        const BS: i32 = 128;
-
-        match c & 3 {
-          1 => {
-            let (ay, is_y) = match y.abs() >= BS {
-              T => (yy(v, y.min(BS).max(-BS)), F),
-              _ => (yy(v, y), T),
-            };
-
-            let (ax, is_x) = match x.abs() >= BS {
-              T => (xx(v, x.min(BS).max(-BS)), F),
-              _ => (xx(v, x), T),
-            };
-
-            match is_x && is_y {
-              T => {
-                zz(ax, ay);
-                xo(MS * 4);
-                kh(F)
-              },
-              _ => zz(ax, ay),
-            }
-          },
-          _ => F,
-        }
-      };
-
-      let mut at: u32 = 0;
-      screen::watch(
-        |n| match screen::name().contains(APP) {
+      |n1: f64| d1::xy(&io, N as f64, fy(n1));
+      abc_cy = match d2::is_ml() {
+        T => match d2::is_h() {
           T => {
-            abc();
-            match d2::is_ml() {
-              T => n + 1,
-              _ => N,
-            }
+            yy(match abc_cy {
+              49..=u32::MAX => 0.,
+              45..=48 => -1.,
+              41..=44 => -1.,
+              37..=40 => -3.,
+              33..=36 => -3.,
+              29..=32 => -3.,
+              25..=28 => -3.,
+              21..=24 => -3.,
+              17..=20 => -5.,
+              13..=16 => -5.,
+              9..=12 => -5.,
+              5..=8 => -3.,
+              1..=4 => -1.,
+              _ => 0.,
+            });
+            abc_cy + 1
           },
           _ => N,
         },
-        |(nn, un, xn, yn)| {
-          let mut is: bool = F;
-          let mut ay: i32 = 0;
-          let mut ax: i32 = 0;
-          let mut an: u32 = N;
+        _ => {
+          d2::h(&io, T);
+          N
+        },
+      };
+    };
 
-          for y in 0..yn {
-            let yn_ = unsafe { nn.add(y * un) } as *const u32;
-            let ay_ = (yn as i32 / 2) - y as i32;
+    let check = |x: u32| {
+      let n1 = ((x >> 16) & 0xff) as u8;
+      let n2 = ((x >> 8) & 0xff) as u8;
+      let n3 = (x & 0xff) as u8;
 
-            'x: for x in 0..xn {
-              let xn_ = unsafe { *yn_.add(x) };
-              let ax_ = (xn as i32 / 2) - x as i32;
+      match n1 > CLR && n3 > CLR {
+        T => match n1 > n3 {
+          T => match n3.abs_diff(n2) > ABS {
+            T => T,
+            _ => F,
+          },
+          _ => match n1.abs_diff(n2) > ABS {
+            T => T,
+            _ => F,
+          },
+        },
+        _ => F,
+      }
+    };
 
-              match check(xn_) {
-                T => match is {
-                  T => {
-                    an = an + 1;
-                    break 'x;
-                  },
-                  _ => {
-                    ay = ay_;
-                    ax = ax_;
-                    an = an + 1;
-                    is = T;
-                    break 'x;
-                  },
-                },
-                _ => F,
-              };
-            }
-          }
+    let does = |c: u32, v: u32, x: i32, y: i32| {
+      // TODO: difference should be atleast 2.
+      println!("{}, {}, {}, {}", c, v, x, y);
 
-          match is {
+      const BS: i32 = 128;
+
+      match c & 3 {
+        1 => {
+          let (ay, is_y) = match y.abs() >= BS {
+            T => (yy(v, y.min(BS).max(-BS)), F),
+            _ => (yy(v, y), T),
+          };
+
+          let (ax, is_x) = match x.abs() >= BS {
+            T => (xx(v, x.min(BS).max(-BS)), F),
+            _ => (xx(v, x), T),
+          };
+
+          match is_x && is_y {
             T => {
-              at = at + 1;
-              does(at, an, -ax, ay)
+              zz(ax, ay);
+              xo(MS * 4);
+              kh(F)
             },
-            _ => {
-              at = N;
-              does(at, 0, 0, 0)
-            },
+            _ => zz(ax, ay),
           }
         },
-      );
-    },
-  ));
-
-  handle.push(thread::spawn(
-    #[inline(always)]
-    move || {
-      let io = xyloid::device();
-      let mut d = (F, Instant::now());
-      let mut a = (F, Instant::now());
-      let mut w = (F, Instant::now());
-      let mut s = (F, Instant::now());
-
-      loop {
-        match screen::name().contains(APP) {
-          T => {
-            d = on_key(d2::is_d, d2::al, &io, d);
-            a = on_key(d2::is_a, d2::ar, &io, a);
-            w = on_key(d2::is_w, d2::d, &io, w);
-            s = on_key(d2::is_s, d2::u, &io, s);
-            xo(MS)
-          },
-          _ => xo(MS),
-        };
+        _ => F,
       }
-    },
-  ));
+    };
+
+    let mut at: u32 = 0;
+    screen::watch(
+      |n| match screen::name().contains(APP) {
+        T => {
+          abc();
+          match d2::is_ml() {
+            T => n + 1,
+            _ => N,
+          }
+        },
+        _ => N,
+      },
+      |(nn, un, xn, yn)| {
+        let mut is: bool = F;
+        let mut ay: i32 = 0;
+        let mut ax: i32 = 0;
+        let mut an: u32 = N;
+
+        for y in 0..yn {
+          let yn_ = unsafe { nn.add(y * un) } as *const u32;
+          let ay_ = (yn as i32 / 2) - y as i32;
+
+          'x: for x in 0..xn {
+            let xn_ = unsafe { *yn_.add(x) };
+            let ax_ = (xn as i32 / 2) - x as i32;
+
+            match check(xn_) {
+              T => match is {
+                T => {
+                  an = an + 1;
+                  break 'x;
+                },
+                _ => {
+                  ay = ay_;
+                  ax = ax_;
+                  an = an + 1;
+                  is = T;
+                  break 'x;
+                },
+              },
+              _ => F,
+            };
+          }
+        }
+
+        match is {
+          T => {
+            at = at + 1;
+            does(at, an, -ax, ay)
+          },
+          _ => {
+            at = N;
+            does(at, 0, 0, 0)
+          },
+        }
+      },
+    );
+  }));
+
+  handle.push(thread::spawn(|| {
+    let io = xyloid::device();
+    let mut d = (F, Instant::now());
+    let mut a = (F, Instant::now());
+    let mut w = (F, Instant::now());
+    let mut s = (F, Instant::now());
+
+    loop {
+      match screen::name().contains(APP) {
+        T => {
+          d = on_key(d2::is_d, d2::al, &io, d);
+          a = on_key(d2::is_a, d2::ar, &io, a);
+          w = on_key(d2::is_w, d2::d, &io, w);
+          s = on_key(d2::is_s, d2::u, &io, s);
+          xo(MS)
+        },
+        _ => xo(MS),
+      };
+    }
+  }));
 
   for x in handle {
     x.join().unwrap();
