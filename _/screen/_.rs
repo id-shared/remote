@@ -15,44 +15,38 @@ pub fn watch<F: FnMut(u32) -> bool, G: Fn(u32) -> bool, H: FnMut((u32, u32, i32,
     let mut time = Instant::now();
     let mut curr = N;
     loop {
-      match T {
+      curr = match T {
         T => {
-          let viewer = acquirer(curr);
-          let framed = sure(
-            || {
-              let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
-              let mut data: Option<IDXGIResource> = None;
-              match unsafe { recorder.framer.AcquireNextFrame(recorder.hz, &mut info, &mut data).is_ok() } {
-                T => {
-                  let data = data.unwrap();
-                  let cast = data.cast().unwrap();
-                  f(turn(cast, &viewer, &recorder));
-                  unsafe { recorder.framer.ReleaseFrame().unwrap() };
-                  T
-                },
-                _ => F,
-              }
-            },
-            MS * recorder.hz,
-          );
-
-          match framed {
-            T => match time.elapsed().as_millis_f64() > 1000. {
+          let oneach = || {
+            let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
+            let mut data: Option<IDXGIResource> = None;
+            match unsafe { recorder.framer.AcquireNextFrame(recorder.hz, &mut info, &mut data).is_ok() } {
               T => {
-                // println!("FPS: {}", curr);
-                time = Instant::now();
-                curr = N;
+                let data = data.unwrap();
+                let cast = data.cast().unwrap();
+                f(turn(cast, &acquirer(curr), &recorder));
+                unsafe { recorder.framer.ReleaseFrame().unwrap() };
                 T
               },
-              _ => {
-                curr = curr + 1;
-                F
-              },
+              _ => F,
+            }
+          };
+
+          match sure(oneach, MS * recorder.hz) {
+            T => {
+              match time.elapsed().as_millis_f64() > 1000. {
+                T => {
+                  // println!("FPS: {}", curr);
+                  time = Instant::now();
+                  N
+                },
+                _ => curr + 1,
+              }
             },
-            _ => F,
+            _ => curr,
           }
         },
-        _ => F,
+        _ => curr,
       };
     }
   }
