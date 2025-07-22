@@ -53,29 +53,29 @@ pub fn main() {
         _ => F,
       },
       |(n, v, x, y)| {
-        let mut is: bool = F;
-        let mut ay: i32 = 0;
-        let mut ax: i32 = 0;
-        let mut an: u32 = N;
+        let mut y_ = 0;
+        let mut x_ = 0;
+        let mut v_ = N;
+        let mut is = F;
 
         for yn in 0..y {
-          let yn_ = unsafe { n.add(yn * v) } as *const u32;
-          let ay_ = (y as i32 / 2) - yn as i32;
+          let ny = unsafe { n.add(yn * v) } as *const u32;
+          let ay = (y as i32 / 2) - yn as i32;
 
           'x: for xn in 0..x {
-            let xn_ = unsafe { *yn_.add(xn) };
-            let ax_ = (x as i32 / 2) - xn as i32;
+            let nx = unsafe { *ny.add(xn) };
+            let ax = (x as i32 / 2) - xn as i32;
 
-            match is_pixel(xn_) {
+            match is_pixel(nx) {
               T => match is {
                 T => {
-                  an = an + 1;
+                  v_ = v_ + 1;
                   break 'x;
                 },
                 _ => {
-                  ay = ay_;
-                  ax = ax_;
-                  an = an + 1;
+                  y_ = ay;
+                  x_ = ax;
+                  v_ = v_ + 1;
                   is = T;
                   break 'x;
                 },
@@ -85,7 +85,7 @@ pub fn main() {
           }
         }
 
-        (is, an, -ax, ay)
+        (is, v_, -x_, y_)
       },
       || match screen::name().contains(APP) {
         T => match d2::is_ml() {
