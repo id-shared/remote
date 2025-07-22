@@ -43,12 +43,13 @@ pub fn main() {
   }
 
   handle.push(thread::spawn(|| {
+    const PIXELS_360: f64 = 6400.;
     let screen_y = screen::high();
     let screen_x = screen::wide();
     let device = xyloid::device();
 
-    let fy = |n: f64| xyz(radian(70.53_f64 / 2.), n / (screen_y / 2.), 6400.);
-    let fx = |n: f64| xyz(radian(103_f64 / 2.), n / (screen_x / 2.), 6400.);
+    let fy = |n: f64| xyz(radian(70.53_f64 / 2.), n / (screen_y / 2.), PIXELS_360);
+    let fx = |n: f64| xyz(radian(103_f64 / 2.), n / (screen_x / 2.), PIXELS_360);
 
     let xxyy = |x: f64, y: f64| match d2::is_h() {
       T => d1::xy(&device, x, N as f64),
