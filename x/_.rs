@@ -161,11 +161,11 @@ pub fn main() {
         |n| match screen::name().contains(APP) {
           T => match d2::is_mouse_l() {
             T => {
-              // send(&i1, T);
+              send(&i1, T);
               n + 1
             },
             _ => {
-              // send(&i1, F);
+              send(&i1, F);
               N
             },
           },
@@ -190,7 +190,11 @@ pub fn main() {
             _ => F,
           }
         },
-        move |x| send(&i2, x),
+        |x| {
+          let data = d2::key_h(&device, T);
+          println!("Abc: {}", data);
+          send(&i2, x)
+        },
       );
     },
   ));

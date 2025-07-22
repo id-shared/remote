@@ -2,11 +2,10 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub trait FuncMut<T1, T2> = FnMut(T1) -> T2 + Send + Sync + 'static;
-pub trait Func<T1, T2> = Fn(T1) -> T2 + Send + Sync + 'static;
+trait FuncMut<T1, T2> = FnMut(T1) -> T2 + Send + Sync + 'static;
+trait Func<T1, T2> = Fn(T1) -> T2 + Send + Sync + 'static;
 
-type Detail = (u32, u32, i32, i32);
-pub fn watch<F: Fn(u32) -> u32, G: Fn(u32) -> bool, H: Func<Detail, bool>>(f: F, g: G, h: H) -> bool {
+pub fn watch<F: Fn(u32) -> u32, G: Fn(u32) -> bool, H: Fn((u32, u32, i32, i32)) -> bool>(f: F, g: G, h: H) -> bool {
   let high = high();
   let wide = wide();
   let view = #[inline(always)]
