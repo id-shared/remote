@@ -30,15 +30,13 @@ pub fn watch<F: FnMut() -> bool, G: FnMut(Record) -> bool>(mut f: F, mut g: G, x
         };
 
         curr = match sure(oneach, MS * recorder.hz) {
-          T => {
-            match time.elapsed().as_millis_f64() > 1000. {
-              T => {
-                // println!("FPS: {}", curr);
-                time = Instant::now();
-                N
-              },
-              _ => curr + 1,
-            }
+          T => match time.elapsed().as_millis_f64() > 1000. {
+            T => {
+              // println!("FPS: {}", curr);
+              time = Instant::now();
+              N
+            },
+            _ => curr + 1,
           },
           _ => curr,
         };
