@@ -19,34 +19,39 @@ pub fn main() {
     let kh = |is: bool| d2::h(&device, is);
 
     const MAX: f64 = 64.;
+    const ACT: u32 = 16;
+    const ABC: u32 = 3;
     let mut at = N;
     screen::watch(
       |(n, v, x, y)| match d2::is_h() {
         T => {
-          at = at + 1;
-
-          print!("at: {}", at);
-
-          match 16 > n {
-            T => match n % 2 {
+          at = match ACT > n {
+            T => match n % ABC {
               N => {
                 let x_ = match x.abs() >= MAX {
                   T => x.min(MAX).max(-MAX) + add_x(v),
                   _ => x + add_x(v),
                 };
 
-                xy(x_, recoil(at))
+                xy(x_, recoil(at));
+                at + 1
               },
-              _ => xy(N as f64, recoil(at)),
+              _ => {
+                xy(N as f64, recoil(at));
+                at + 1
+              },
             },
-            _ => xy(N as f64, recoil(at)),
-          }
+            _ => {
+              xy(N as f64, recoil(at));
+              at + 1
+            },
+          };
+
+          T
         },
         _ => {
-          at = N;
-
-          match 16 > n {
-            T => match n % 2 {
+          at = match ACT > n {
+            T => match n % ABC {
               N => {
                 let (is_y, y_) = match y.abs() >= MAX {
                   T => (F, y.min(MAX).max(-MAX) - add_y(v)),
@@ -61,15 +66,21 @@ pub fn main() {
                   T => {
                     xy(x_, y_);
                     xo(MS * 4);
-                    kh(F)
+                    kh(F);
+                    N
                   },
-                  _ => xy(x_, y_),
+                  _ => {
+                    xy(x_, y_);
+                    N
+                  },
                 }
               },
-              _ => F,
+              _ => N,
             },
-            _ => F,
-          }
+            _ => N,
+          };
+
+          T
         },
       },
       |(n, v, x, y)| {
