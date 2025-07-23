@@ -7,46 +7,44 @@ pub fn watch<F: FnMut((u32, u32, f64, f64)) -> bool, F1: FnMut(Record) -> (bool,
   let recorder = recorder();
   let mut id = N;
   loop {
-    match is_f() {
-      T => {
-        let oneach = || {
-          let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
-          let mut data: Option<IDXGIResource> = None;
-          match unsafe { recorder.framer.AcquireNextFrame(recorder.hz, &mut info, &mut data).is_ok() } {
-            T => {
-              let capturer = match id {
-                32..=u32::MAX => capturer(x / 16., y / 8.),
-                28..=31 => capturer(x / 14., y / 8.),
-                24..=27 => capturer(x / 12., y / 8.),
-                16..=23 => capturer(x / 8., y / 8.),
-                8..=15 => capturer(x / 6., y / 8.),
-                0..=7 => capturer(x / 4., y / 8.),
-              };
-              let data = data.unwrap();
-              let cast = data.cast().unwrap();
-              let (is, an, ax, ay) = on_f(turn(cast, capturer, &recorder));
-              unsafe { recorder.framer.ReleaseFrame().unwrap() };
-              match is {
-                T => {
-                  f((id, an, ax, ay));
-                  id = id + 1;
-                  is
-                },
-                _ => is,
-              }
-            },
-            _ => F,
-          }
-        };
+    let oneach = || {
+      let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
+      let mut data: Option<IDXGIResource> = None;
+      match unsafe { recorder.framer.AcquireNextFrame(recorder.hz, &mut info, &mut data).is_ok() } {
+        T => {
+          let capturer = match id {
+            32..=u32::MAX => capturer(x / 16., y / 8.),
+            28..=31 => capturer(x / 14., y / 8.),
+            24..=27 => capturer(x / 12., y / 8.),
+            16..=23 => capturer(x / 8., y / 8.),
+            8..=15 => capturer(x / 6., y / 8.),
+            0..=7 => capturer(x / 4., y / 8.),
+          };
+          let data = data.unwrap();
+          let cast = data.cast().unwrap();
+          let (is, an, ax, ay) = on_f(turn(cast, capturer, &recorder));
+          unsafe { recorder.framer.ReleaseFrame().unwrap() };
 
-        sure(oneach, MS * recorder.hz)
-      },
-      _ => {
-        id = N;
-        xo(MS);
-        F
-      },
+          match is_f() {
+            T => match is {
+              T => {
+                f((id, an, ax, ay));
+                id = id + 1;
+                is
+              },
+              _ => is,
+            },
+            _ => {
+              id = N;
+              F
+            },
+          }
+        },
+        _ => F,
+      }
     };
+
+    sure(oneach, MS * recorder.hz);
   }
 }
 

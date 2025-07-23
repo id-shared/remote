@@ -18,7 +18,7 @@ pub fn main() {
     let xy = |ax: f64, ay: f64| d1::xy(&device, get_x(ax), get_y(ay));
     let kh = |is: bool| d2::h(&device, is);
 
-    const ACT: u32 = 32;
+    const ACT: u32 = 48;
     const ABC: u32 = 2;
     let max = ((screen_x / 2.) / (ACT as f64)) * (ABC as f64);
     let mut at = N;
