@@ -19,8 +19,8 @@ pub fn main() {
     let kh = |is: bool| d2::h(&device, is);
 
     const ACT: u32 = 32;
-    const ABC: u32 = 3;
-    let max = ((screen_x / 2.) / 64.) * (ABC as f64);
+    const ABC: u32 = 2;
+    let max = ((screen_x / 2.) / (ACT as f64)) * (ABC as f64);
     let mut at = N;
     screen::watch(
       |(n, v, x, y)| match d2::is_h() {
@@ -297,7 +297,7 @@ fn to_rad(n: f64) -> f64 {
 
 const CLR: u8 = 231;
 const ABS: u8 = 24;
-const APP: &str = "";
+const APP: &str = "VAL";
 
 #[inline(always)]
 pub fn xo(n: Duration) -> bool {
