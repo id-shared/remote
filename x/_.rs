@@ -13,47 +13,50 @@ pub fn main() {
     let screen_x = screen::wide();
     let device = xyloid::device();
 
-    let fy = |n: f64| wealth(to_rad(70.53_f64 / 2.), n / (screen_y / 2.), PIXELS_360);
-    let fx = |n: f64| wealth(to_rad(103_f64 / 2.), n / (screen_x / 2.), PIXELS_360);
-    let xy = |x: f64, y: f64| d1::xy(&device, fx(x), fy(y));
-    let kh = |a: bool| d2::h(&device, a);
+    let get_y = |ay: f64| wealth(to_rad(70.53_f64 / 2.), ay / (screen_y / 2.), PIXELS_360);
+    let get_x = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / (screen_x / 2.), PIXELS_360);
+    let xy = |ax: f64, ay: f64| d1::xy(&device, get_x(ax), get_y(ay));
 
+    let mv = |is: bool, ax: f64, ay: f64| match is {
+      T => xy(ax, ay),
+      _ => xy(ax, N as f64),
+    };
+    let kh = |is: bool| d2::h(&device, is);
+
+    let mut at = N;
     const MAX: f64 = 64.;
     screen::watch(
-      |(n, v, x, y)| match n {
-        16..=u32::MAX => xy(N as f64, recoil(n)),
-        0..=15 => match n % 2 {
-          N => {
-            let (is_y, y_) = match y.abs() >= MAX {
-              T => (F, y.min(MAX).max(-MAX) - add_y(v)),
-              _ => (T, y - add_y(v)),
-            };
-            let (is_x, x_) = match x.abs() >= MAX {
-              T => (F, x.min(MAX).max(-MAX) + add_x(v)),
-              _ => (T, x + add_x(v)),
-            };
+      |(n, v, x, y)| {
+        at = match n > N {
+          T => at,
+          _ => N,
+        };
 
-            match is_x && is_y {
-              T => match d2::is_h() {
+        match n {
+          16..=u32::MAX => xy(N as f64, recoil(n)),
+          0..=15 => match n % 2 {
+            N => {
+              let (is_y, y_) = match y.abs() >= MAX {
+                T => (F, y.min(MAX).max(-MAX) - add_y(v)),
+                _ => (T, y - add_y(v)),
+              };
+              let (is_x, x_) = match x.abs() >= MAX {
+                T => (F, x.min(MAX).max(-MAX) + add_x(v)),
+                _ => (T, x + add_x(v)),
+              };
+
+              match is_x && is_y {
                 T => {
-                  xy(x_, y_ + recoil(n));
+                  mv(d2::is_h(), x_, y_);
                   xo(MS * 4);
                   kh(F)
                 },
-                _ => {
-                  xy(x_, y_);
-                  xo(MS * 4);
-                  kh(F)
-                },
-              },
-              _ => match d2::is_h() {
-                T => xy(x_, y_ + recoil(n)),
-                _ => xy(x_, y_),
-              },
-            }
+                _ => mv(d2::is_h(), x_, y_),
+              }
+            },
+            _ => F,
           },
-          _ => F,
-        },
+        }
       },
       |(n, v, x, y)| {
         let mut y_ = 0.;
