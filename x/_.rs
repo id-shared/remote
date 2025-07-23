@@ -28,20 +28,16 @@ pub fn main() {
           match 16 > n {
             T => match n % 2 {
               N => {
-                let y_ = match y.abs() >= MAX {
-                  T => y.min(MAX).max(-MAX) - add_y(v),
-                  _ => y - add_y(v),
-                };
                 let x_ = match x.abs() >= MAX {
                   T => x.min(MAX).max(-MAX) + add_x(v),
                   _ => x + add_x(v),
                 };
 
-                xy(x_, y_)
+                xy(x_, recoil(at))
               },
-              _ => F,
+              _ => xy(N as f64, recoil(at)),
             },
-            _ => xy(N as f64, recoil(n)),
+            _ => xy(N as f64, recoil(at)),
           }
         },
         _ => {
