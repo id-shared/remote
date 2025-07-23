@@ -18,20 +18,21 @@ pub fn main() {
     let xy = |ax: f64, ay: f64| d1::xy(&device, get_x(ax), get_y(ay));
     let kh = |is: bool| d2::h(&device, is);
 
-    const ACT: u32 = 48;
-    const ABC: u32 = 2;
-    let max = ((screen_x / 2.) / (ACT as f64)) * (ABC as f64);
+    const MAX: u32 = 48;
+    const PER: u32 = 2;
+    let max = screen_x / 64.;
+    let abc = 2.;
     let mut at = N;
     screen::watch(
       |(n, v, x, y)| match d2::is_h() {
         T => {
-          at = match ACT > n {
-            T => match n % ABC {
+          at = match MAX > n {
+            T => match n % PER {
               N => {
                 let x_ = match x.abs() >= max {
-                  T => x.min(max).max(-max) + add_x(v),
-                  _ => x + add_x(v),
-                };
+                  T => x / abc,
+                  _ => x,
+                } + add_x(v);
 
                 xy(x_, recoil(at));
                 at + 1
@@ -50,27 +51,27 @@ pub fn main() {
           T
         },
         _ => {
-          at = match ACT > n {
-            T => match n % ABC {
+          at = match MAX > n {
+            T => match n % PER {
               N => {
                 let (is_y, y_) = match y.abs() >= max {
-                  T => (F, y.min(max).max(-max) - add_y(v)),
-                  _ => (T, y - add_y(v)),
+                  T => (F, y / abc),
+                  _ => (T, y),
                 };
                 let (is_x, x_) = match x.abs() >= max {
-                  T => (F, x.min(max).max(-max) + add_x(v)),
-                  _ => (T, x + add_x(v)),
+                  T => (F, x / abc),
+                  _ => (T, x),
                 };
 
                 match is_x && is_y {
                   T => {
-                    xy(x_, y_);
+                    xy(x_ + add_x(v), y_ - add_y(v));
                     xo(MS * 4);
                     kh(F);
                     N
                   },
                   _ => {
-                    xy(x_, y_);
+                    xy(x_ + add_x(v), y_ - add_y(v));
                     N
                   },
                 }
