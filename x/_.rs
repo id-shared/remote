@@ -30,15 +30,17 @@ pub fn main() {
         16..=u32::MAX => d1::xy(&device, N as f64, fy(recoil(n))),
         0..=15 => match n % 2 {
           N => {
-            let (ay, is_y) = match y.abs() >= MAX {
-              T => (yy(v, y.min(MAX).max(-MAX)), F),
-              _ => (yy(v, y), T),
+            let (is_y, ny) = match y.abs() >= MAX {
+              T => (F, y.min(MAX).max(-MAX)),
+              _ => (T, y),
+            };
+            let (is_x, nx) = match x.abs() >= MAX {
+              T => (F, x.min(MAX).max(-MAX)),
+              _ => (T, x),
             };
 
-            let (ax, is_x) = match x.abs() >= MAX {
-              T => (xx(v, x.min(MAX).max(-MAX)), F),
-              _ => (xx(v, x), T),
-            };
+            let ay = yy(v, ny);
+            let ax = xx(v, nx);
 
             match is_x && is_y {
               T => {
