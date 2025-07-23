@@ -18,9 +18,9 @@ pub fn main() {
     let xy = |ax: f64, ay: f64| d1::xy(&device, get_x(ax), get_y(ay));
     let kh = |is: bool| d2::h(&device, is);
 
-    const MAX: f64 = 64.;
-    const ACT: u32 = 16;
+    const ACT: u32 = 32;
     const ABC: u32 = 3;
+    let max = ((screen_x / 2.) / 64.) * (ABC as f64);
     let mut at = N;
     screen::watch(
       |(n, v, x, y)| match d2::is_h() {
@@ -28,8 +28,8 @@ pub fn main() {
           at = match ACT > n {
             T => match n % ABC {
               N => {
-                let x_ = match x.abs() >= MAX {
-                  T => x.min(MAX).max(-MAX) + add_x(v),
+                let x_ = match x.abs() >= max {
+                  T => x.min(max).max(-max) + add_x(v),
                   _ => x + add_x(v),
                 };
 
@@ -53,12 +53,12 @@ pub fn main() {
           at = match ACT > n {
             T => match n % ABC {
               N => {
-                let (is_y, y_) = match y.abs() >= MAX {
-                  T => (F, y.min(MAX).max(-MAX) - add_y(v)),
+                let (is_y, y_) = match y.abs() >= max {
+                  T => (F, y.min(max).max(-max) - add_y(v)),
                   _ => (T, y - add_y(v)),
                 };
-                let (is_x, x_) = match x.abs() >= MAX {
-                  T => (F, x.min(MAX).max(-MAX) + add_x(v)),
+                let (is_x, x_) = match x.abs() >= max {
+                  T => (F, x.min(max).max(-max) + add_x(v)),
                   _ => (T, x + add_x(v)),
                 };
 
