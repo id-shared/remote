@@ -15,13 +15,10 @@ pub fn main() {
 
     let fy = |n: f64| xyz(radian(70.53_f64 / 2.), n / (screen_y / 2.), PIXELS_360);
     let fx = |n: f64| xyz(radian(103_f64 / 2.), n / (screen_x / 2.), PIXELS_360);
-
-    let xxyy = |x: f64, y: f64| match d2::is_h() {
+    let xy = |x: f64, y: f64| match d2::is_h() {
       T => d1::xy(&device, x, N as f64),
       _ => d1::xy(&device, x, y),
     };
-    let yy = |n: u32, y: f64| fy(y - add_y(n));
-    let xx = |n: u32, x: f64| fx(x + add_x(n));
     let kh = |a: bool| d2::h(&device, a);
 
     const MAX: f64 = 64.;
@@ -39,16 +36,16 @@ pub fn main() {
               _ => (T, x),
             };
 
-            let ay = yy(v, ny);
-            let ax = xx(v, nx);
+            let ay = fy(ny - add_y(v) + recoil(n));
+            let ax = fx(nx + add_x(v));
 
             match is_x && is_y {
               T => {
-                xxyy(ax, ay);
+                xy(ax, ay);
                 xo(MS * 4);
                 kh(F)
               },
-              _ => xxyy(ax, ay),
+              _ => xy(ax, ay),
             }
           },
           _ => F,
