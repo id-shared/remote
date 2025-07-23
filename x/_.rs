@@ -3,7 +3,7 @@
 #![feature(trait_alias)]
 
 pub fn main() {
-  println!("Angle for chord length 1 is {:.64} pixels", xyz((103_f64 / 2.).to_radians(), 960. / 960., 6400.));
+  println!("Angle for chord length 1 is {:.64} pixels", wealth((103_f64 / 2.).to_radians(), 960. / 960., 6400.));
 
   let mut handle = vec![];
 
@@ -13,39 +13,43 @@ pub fn main() {
     let screen_x = screen::wide();
     let device = xyloid::device();
 
-    let fy = |n: f64| xyz(radian(70.53_f64 / 2.), n / (screen_y / 2.), PIXELS_360);
-    let fx = |n: f64| xyz(radian(103_f64 / 2.), n / (screen_x / 2.), PIXELS_360);
-    let xy = |x: f64, y: f64| match d2::is_h() {
-      T => d1::xy(&device, x, N as f64),
-      _ => d1::xy(&device, x, y),
-    };
+    let fy = |n: f64| wealth(to_rad(70.53_f64 / 2.), n / (screen_y / 2.), PIXELS_360);
+    let fx = |n: f64| wealth(to_rad(103_f64 / 2.), n / (screen_x / 2.), PIXELS_360);
+    let xy = |x: f64, y: f64| d1::xy(&device, fx(x), fy(y));
     let kh = |a: bool| d2::h(&device, a);
 
     const MAX: f64 = 64.;
     screen::watch(
       |(n, v, x, y)| match n {
-        16..=u32::MAX => d1::xy(&device, N as f64, fy(recoil(n))),
+        16..=u32::MAX => xy(N as f64, recoil(n)),
         0..=15 => match n % 2 {
           N => {
-            let (is_y, ny) = match y.abs() >= MAX {
-              T => (F, y.min(MAX).max(-MAX)),
-              _ => (T, y),
+            let (is_y, y_) = match y.abs() >= MAX {
+              T => (F, y.min(MAX).max(-MAX) - add_y(v)),
+              _ => (T, y - add_y(v)),
             };
-            let (is_x, nx) = match x.abs() >= MAX {
-              T => (F, x.min(MAX).max(-MAX)),
-              _ => (T, x),
+            let (is_x, x_) = match x.abs() >= MAX {
+              T => (F, x.min(MAX).max(-MAX) + add_x(v)),
+              _ => (T, x + add_x(v)),
             };
-
-            let ay = fy(ny - add_y(v) + recoil(n));
-            let ax = fx(nx + add_x(v));
 
             match is_x && is_y {
-              T => {
-                xy(ax, ay);
-                xo(MS * 4);
-                kh(F)
+              T => match d2::is_h() {
+                T => {
+                  xy(x_, y_ + recoil(n));
+                  xo(MS * 4);
+                  kh(F)
+                },
+                _ => {
+                  xy(x_, y_);
+                  xo(MS * 4);
+                  kh(F)
+                },
               },
-              _ => xy(ax, ay),
+              _ => match d2::is_h() {
+                T => xy(x_, y_ + recoil(n)),
+                _ => xy(x_, y_),
+              },
             }
           },
           _ => F,
@@ -249,17 +253,17 @@ fn add(n1: u32) -> f64 {
 }
 
 #[inline(always)]
-fn xyz(radian: f64, factor: f64, size: f64) -> f64 {
-  (tan(radian, factor) / (2. * PI)) * size
+fn wealth(radian: f64, factor: f64, size: f64) -> f64 {
+  (dollar(radian, factor) / (2. * PI)) * size
 }
 
 #[inline(always)]
-fn tan(n1: f64, n2: f64) -> f64 {
+fn dollar(n1: f64, n2: f64) -> f64 {
   (n1.tan() * n2).atan()
 }
 
 #[inline(always)]
-fn radian(n: f64) -> f64 {
+fn to_rad(n: f64) -> f64 {
   n.to_radians()
 }
 
