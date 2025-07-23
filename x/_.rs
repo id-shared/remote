@@ -3,7 +3,7 @@
 #![feature(trait_alias)]
 
 pub fn main() {
-  println!("Angle for chord length 1 is {:.64} pixels", wealth((103_f64 / 2.).to_radians(), 960. / 960., 6400.));
+  println!("Angle for chord length 1 is {:.64} pixels", wealth(to_rad(103_f64 / 2.), 1. / 1280., 6400.));
 
   let mut handle = vec![];
 
@@ -16,11 +16,6 @@ pub fn main() {
     let get_y = |ay: f64| wealth(to_rad(70.53_f64 / 2.), ay / (screen_y / 2.), PIXELS_360);
     let get_x = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / (screen_x / 2.), PIXELS_360);
     let xy = |ax: f64, ay: f64| d1::xy(&device, get_x(ax), get_y(ay));
-
-    let mv = |is: bool, ax: f64, ay: f64| match is {
-      T => xy(ax, ay),
-      _ => xy(ax, N as f64),
-    };
     let kh = |is: bool| d2::h(&device, is);
 
     const MAX: f64 = 64.;
@@ -30,38 +25,30 @@ pub fn main() {
         T => {
           at = at + 1;
 
-          match n {
-            16..=u32::MAX => xy(N as f64, recoil(n)),
-            0..=15 => match n % 2 {
+          match 16 > n {
+            T => match n % 2 {
               N => {
-                let (is_y, y_) = match y.abs() >= MAX {
-                  T => (F, y.min(MAX).max(-MAX) - add_y(v)),
-                  _ => (T, y - add_y(v)),
+                let y_ = match y.abs() >= MAX {
+                  T => y.min(MAX).max(-MAX) - add_y(v),
+                  _ => y - add_y(v),
                 };
-                let (is_x, x_) = match x.abs() >= MAX {
-                  T => (F, x.min(MAX).max(-MAX) + add_x(v)),
-                  _ => (T, x + add_x(v)),
+                let x_ = match x.abs() >= MAX {
+                  T => x.min(MAX).max(-MAX) + add_x(v),
+                  _ => x + add_x(v),
                 };
 
-                match is_x && is_y {
-                  T => {
-                    xy(x_, y_);
-                    xo(MS * 4);
-                    kh(F)
-                  },
-                  _ => xy(x_, y_),
-                }
+                xy(x_, y_)
               },
               _ => F,
             },
+            _ => xy(N as f64, recoil(n)),
           }
         },
         _ => {
           at = N;
 
-          match n {
-            16..=u32::MAX => xy(N as f64, recoil(n)),
-            0..=15 => match n % 2 {
+          match 16 > n {
+            T => match n % 2 {
               N => {
                 let (is_y, y_) = match y.abs() >= MAX {
                   T => (F, y.min(MAX).max(-MAX) - add_y(v)),
@@ -83,6 +70,7 @@ pub fn main() {
               },
               _ => F,
             },
+            _ => F,
           }
         },
       },
