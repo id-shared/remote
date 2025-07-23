@@ -25,6 +25,8 @@ pub fn main() {
         T => {
           at = at + 1;
 
+          print!("at: {}", at);
+
           match 16 > n {
             T => match n % 2 {
               N => {
