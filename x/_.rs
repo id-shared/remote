@@ -23,40 +23,68 @@ pub fn main() {
     };
     let kh = |is: bool| d2::h(&device, is);
 
-    let mut at = N;
     const MAX: f64 = 64.;
+    let mut at = N;
     screen::watch(
-      |(n, v, x, y)| {
-        at = match n > N {
-          T => at,
-          _ => N,
-        };
+      |(n, v, x, y)| match d2::is_h() {
+        T => {
+          at = at + 1;
 
-        match n {
-          16..=u32::MAX => xy(N as f64, recoil(n)),
-          0..=15 => match n % 2 {
-            N => {
-              let (is_y, y_) = match y.abs() >= MAX {
-                T => (F, y.min(MAX).max(-MAX) - add_y(v)),
-                _ => (T, y - add_y(v)),
-              };
-              let (is_x, x_) = match x.abs() >= MAX {
-                T => (F, x.min(MAX).max(-MAX) + add_x(v)),
-                _ => (T, x + add_x(v)),
-              };
+          match n {
+            16..=u32::MAX => xy(N as f64, recoil(n)),
+            0..=15 => match n % 2 {
+              N => {
+                let (is_y, y_) = match y.abs() >= MAX {
+                  T => (F, y.min(MAX).max(-MAX) - add_y(v)),
+                  _ => (T, y - add_y(v)),
+                };
+                let (is_x, x_) = match x.abs() >= MAX {
+                  T => (F, x.min(MAX).max(-MAX) + add_x(v)),
+                  _ => (T, x + add_x(v)),
+                };
 
-              match is_x && is_y {
-                T => {
-                  mv(d2::is_h(), x_, y_);
-                  xo(MS * 4);
-                  kh(F)
-                },
-                _ => mv(d2::is_h(), x_, y_),
-              }
+                match is_x && is_y {
+                  T => {
+                    xy(x_, y_);
+                    xo(MS * 4);
+                    kh(F)
+                  },
+                  _ => xy(x_, y_),
+                }
+              },
+              _ => F,
             },
-            _ => F,
-          },
-        }
+          }
+        },
+        _ => {
+          at = N;
+
+          match n {
+            16..=u32::MAX => xy(N as f64, recoil(n)),
+            0..=15 => match n % 2 {
+              N => {
+                let (is_y, y_) = match y.abs() >= MAX {
+                  T => (F, y.min(MAX).max(-MAX) - add_y(v)),
+                  _ => (T, y - add_y(v)),
+                };
+                let (is_x, x_) = match x.abs() >= MAX {
+                  T => (F, x.min(MAX).max(-MAX) + add_x(v)),
+                  _ => (T, x + add_x(v)),
+                };
+
+                match is_x && is_y {
+                  T => {
+                    xy(x_, y_);
+                    xo(MS * 4);
+                    kh(F)
+                  },
+                  _ => xy(x_, y_),
+                }
+              },
+              _ => F,
+            },
+          }
+        },
       },
       |(n, v, x, y)| {
         let mut y_ = 0.;
