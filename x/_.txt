@@ -22,6 +22,12 @@
 //   }
 // }
 
+// #[inline(always)]
+// fn ease(t: f64) -> f64 {
+//   let t = t.clamp(0.0, 1.0);
+//   (3.0 * t * t) - (2.0 * t * t * t)
+// }
+
 #[inline(always)]
 fn xfov(hfov: f64, x: f64, y: f64) -> f64 {
   (2. * ((hfov.to_radians() / 2.).tan() * (y / x)).atan()).to_degrees()

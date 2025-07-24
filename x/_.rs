@@ -17,8 +17,8 @@ pub fn main() {
     let xy = |ax: f64, ay: f64| d1::xy(&device, get_x_(ax), get_y_(ay));
     let kh = |is: bool| d2::h(&device, is);
 
-    let axis_y = high_y / 64.;
-    let axis_x = wide_x / 64.;
+    let axis_y = high_y / 32.;
+    let axis_x = wide_x / 32.;
     let mut at = 0.;
 
     const _360: f64 = 6400.;
@@ -303,7 +303,7 @@ fn to_rad(n: f64) -> f64 {
 #[inline(always)]
 fn ease(t: f64) -> f64 {
   let t = t.clamp(0.0, 1.0);
-  1.0 - (1.0 - t).powf(1.5)
+  (3.0 * t * t) - (2.0 * t * t * t)
 }
 
 const CLR: u8 = 255 - 4;
