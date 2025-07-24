@@ -18,19 +18,21 @@ pub fn main() {
     let xy = |ax: f64, ay: f64| d1::xy(&device, get_x(ax), get_y(ay));
     let kh = |is: bool| d2::h(&device, is);
 
-    const MAX: u32 = 48;
+    const TIL: u32 = 48;
     const PER: u32 = 2;
-    let max = screen_x / 64.;
-    let abc = 2.;
+    let max_y = ((screen_x / 2.) / 64.) * 2.;
+    let max_x = ((screen_x / 2.) / 64.) * 1.;
+    let cut_y = 2.;
+    let cut_x = 2.;
     let mut at = N;
     screen::watch(
       |(n, v, x, y)| match d2::is_h() {
         T => {
-          at = match MAX > n {
+          at = match TIL > n {
             T => match n % PER {
               N => {
-                let x_ = match x.abs() >= max {
-                  T => x / abc,
+                let x_ = match x.abs() >= max_x {
+                  T => x / cut_x,
                   _ => x,
                 } + add_x(v);
 
@@ -51,15 +53,15 @@ pub fn main() {
           T
         },
         _ => {
-          at = match MAX > n {
+          at = match TIL > n {
             T => match n % PER {
               N => {
-                let (is_y, y_) = match y.abs() >= max {
-                  T => (F, y / abc),
+                let (is_y, y_) = match y.abs() >= max_y {
+                  T => (F, y / cut_y),
                   _ => (T, y),
                 };
-                let (is_x, x_) = match x.abs() >= max {
-                  T => (F, x / abc),
+                let (is_x, x_) = match x.abs() >= max_x {
+                  T => (F, x / cut_x),
                   _ => (T, x),
                 };
 
@@ -235,7 +237,7 @@ fn recoil(n: u32) -> f64 {
     44..=47 => -0.,
     40..=43 => -1.,
     36..=39 => -2.,
-    33..=35 => -3.,
+    33..=35 => -5.,
     28..=31 => -5.,
     24..=27 => -5.,
     20..=23 => -5.,
@@ -273,7 +275,7 @@ fn to_rad(n: f64) -> f64 {
   n.to_radians()
 }
 
-const CLR: u8 = 231;
+const CLR: u8 = 255 - 8;
 const ABS: u8 = 24;
 const APP: &str = "VAL";
 
