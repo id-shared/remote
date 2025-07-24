@@ -11,27 +11,28 @@ pub fn watch<F: FnMut((f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool,
       let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
       let mut data: Option<IDXGIResource> = None;
       match unsafe { recorder.framer.AcquireNextFrame(recorder.hz, &mut info, &mut data).is_ok() } {
-        T => {
-          let capturer = capturer(x / (id + 1.).min(16.), y / 16.);
-          let data = data.unwrap();
-          let cast = data.cast().unwrap();
-          let (is, an, ax, ay) = on_f(turn(cast, capturer, &recorder));
-          unsafe { recorder.framer.ReleaseFrame().unwrap() };
+        T => match is_f() {
+          T => {
+            let capturer = capturer(x / id.min(16.), y / 16.);
+            let data = data.unwrap();
+            let cast = data.cast().unwrap();
+            let (is, an, ax, ay) = on_f(turn(cast, capturer, &recorder));
+            unsafe { recorder.framer.ReleaseFrame().unwrap() };
+            id = id + 1.;
 
-          match is_f() {
-            T => match is {
+            match is {
               T => {
                 f((id, an, ax, ay));
-                id = id + 1.;
                 is
               },
               _ => is,
-            },
-            _ => {
-              id = 0.;
-              F
-            },
-          }
+            }
+          },
+          _ => {
+            unsafe { recorder.framer.ReleaseFrame().unwrap() };
+            id = 0.;
+            F
+          },
         },
         _ => F,
       }
