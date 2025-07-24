@@ -22,9 +22,9 @@ pub fn main() {
     let mut at = N;
 
     const PIXELS_360: f64 = 6400.;
-    const UNTILL: f64 = 48.;
-    const SCALER: f64 = 3.;
-    const FACTOR: f64 = 3.;
+    const UNTILL: f64 = 64.;
+    const SCALER: f64 = 4.;
+    const FACTOR: f64 = 2.;
     const EACH: f64 = 2.;
 
     screen::watch(
