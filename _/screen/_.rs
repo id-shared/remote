@@ -2,17 +2,17 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F: FnMut((u32, u32, f64, f64)) -> bool, F1: FnMut(Record) -> (bool, u32, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, x: f64, y: f64) -> bool {
+pub fn watch<F: FnMut((f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, x: f64, y: f64) -> bool {
   let capturer = |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
   let recorder = recorder();
-  let mut id = N;
+  let mut id: f64 = 0.;
   loop {
     let oneach = || {
       let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
       let mut data: Option<IDXGIResource> = None;
       match unsafe { recorder.framer.AcquireNextFrame(recorder.hz, &mut info, &mut data).is_ok() } {
         T => {
-          let capturer = capturer(x / (id.max(1).min(16)) as f64, y / 8.);
+          let capturer = capturer(x / (id + 1.).min(16.), y / 8.);
           let data = data.unwrap();
           let cast = data.cast().unwrap();
           let (is, an, ax, ay) = on_f(turn(cast, capturer, &recorder));
@@ -22,13 +22,13 @@ pub fn watch<F: FnMut((u32, u32, f64, f64)) -> bool, F1: FnMut(Record) -> (bool,
             T => match is {
               T => {
                 f((id, an, ax, ay));
-                id = id + 1;
+                id = id + 1.;
                 is
               },
               _ => is,
             },
             _ => {
-              id = N;
+              id = 0.;
               F
             },
           }

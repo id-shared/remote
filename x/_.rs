@@ -8,31 +8,33 @@ pub fn main() {
   let mut handle = vec![];
 
   handle.push(thread::spawn(|| {
-    const PIXELS_360: f64 = 6400.;
     let screen_y = screen::high();
     let screen_x = screen::wide();
     let device = xyloid::device();
 
-    let get_y = |ay: f64| wealth(to_rad(70.53_f64 / 2.), ay / (screen_y / 2.), PIXELS_360);
-    let get_x = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / (screen_x / 2.), PIXELS_360);
-    let xy = |ax: f64, ay: f64| d1::xy(&device, get_x(ax), get_y(ay));
+    let get_y_ = |ay: f64| wealth(to_rad(70.53_f64 / 2.), ay / (screen_y / 2.), PIXELS_360);
+    let get_x_ = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / (screen_x / 2.), PIXELS_360);
+    let xy = |ax: f64, ay: f64| d1::xy(&device, get_x_(ax), get_y_(ay));
     let kh = |is: bool| d2::h(&device, is);
 
-    const TIL: u32 = 48;
-    const PER: u32 = 2;
-    let max_y = ((screen_x / 2.) / 64.) * 2.;
-    let max_x = ((screen_x / 2.) / 64.) * 1.;
-    let cut_y = 2.;
-    let cut_x = 2.;
+    let max_y_ = (screen_y / 256.) * 2.;
+    let max_x_ = (screen_x / 256.) * 1.;
     let mut at = N;
+
+    const PIXELS_360: f64 = 6400.;
+    const UNTILL: f64 = 48.;
+    const SCALER: f64 = 4.;
+    const FACTOR: f64 = 2.;
+    const EACH: f64 = 2.;
+
     screen::watch(
       |(n, v, x, y)| match d2::is_h() {
         T => {
-          at = match TIL > n {
-            T => match n % PER {
-              N => {
-                let x_ = match x.abs() >= max_x {
-                  T => x / cut_x,
+          at = match UNTILL > n {
+            T => match n % EACH {
+              0. => {
+                let x_ = match x.abs() >= (max_x_ * SCALER) {
+                  T => x / FACTOR,
                   _ => x,
                 } + add_x(v);
 
@@ -53,15 +55,15 @@ pub fn main() {
           T
         },
         _ => {
-          at = match TIL > n {
-            T => match n % PER {
-              N => {
-                let (is_y, y_) = match y.abs() >= max_y {
-                  T => (F, y / cut_y),
+          at = match UNTILL > n {
+            T => match n % EACH {
+              0. => {
+                let (is_y, y_) = match y.abs() >= (max_y_ * SCALER) {
+                  T => (F, y / FACTOR),
                   _ => (T, y),
                 };
-                let (is_x, x_) = match x.abs() >= max_x {
-                  T => (F, x / cut_x),
+                let (is_x, x_) = match x.abs() >= (max_x_ * SCALER) {
+                  T => (F, x / FACTOR),
                   _ => (T, x),
                 };
 
@@ -89,7 +91,7 @@ pub fn main() {
       |(n, v, x, y)| {
         let mut y_ = 0.;
         let mut x_ = 0.;
-        let mut v_ = N;
+        let mut v_ = 0.;
         let mut is = F;
 
         for yn in 0..y {
@@ -103,13 +105,13 @@ pub fn main() {
             match is_pixel(nx) {
               T => match is {
                 T => {
-                  v_ = v_ + 1;
+                  v_ = v_ + 1.;
                   break 'x;
                 },
                 _ => {
                   y_ = ay as f64;
                   x_ = ax as f64;
-                  v_ = v_ + 1;
+                  v_ = v_ + 1.;
                   is = T;
                   break 'x;
                 },
@@ -251,13 +253,13 @@ fn recoil(n: u32) -> f64 {
 }
 
 #[inline(always)]
-fn add_y(n1: u32) -> f64 {
-  (n1 as f64) / 4.
+fn add_y(n1: f64) -> f64 {
+  n1 / 4.
 }
 
 #[inline(always)]
-fn add_x(n1: u32) -> f64 {
-  (n1 as f64) / 16.
+fn add_x(n1: f64) -> f64 {
+  n1 / 16.
 }
 
 #[inline(always)]
