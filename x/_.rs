@@ -11,9 +11,6 @@ pub fn main() {
     let device = xyloid::device();
     let high_y = screen::high();
     let wide_x = screen::wide();
-    let axis_y = high_y / 32.;
-    let axis_x = wide_x / 32.;
-    let mut at = N;
 
     let get_y_ = |ay: f64| wealth(to_rad(70.53_f64 / 2.), ay / (high_y / 2.), PIXELS_360);
     let get_x_ = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / (wide_x / 2.), PIXELS_360);
@@ -22,8 +19,12 @@ pub fn main() {
 
     const PIXELS_360: f64 = 6400.;
     const UNTILL: f64 = 64.;
-    const FACTOR: f64 = 4.;
+    const FACTOR: f64 = 8.;
     const EACH: f64 = 2.;
+
+    let axis_y = high_y / 128.;
+    let axis_x = wide_x / 128.;
+    let mut at = N;
 
     screen::watch(
       |(n, v, x, y)| match d2::is_h() {
@@ -34,7 +35,7 @@ pub fn main() {
               0. => {
                 let zx = x + add_x(v);
                 let ax = match zx.abs() >= axis_x {
-                  T => zx / FACTOR,
+                  T => zx * ease(n / FACTOR),
                   _ => zx,
                 };
 
@@ -62,11 +63,11 @@ pub fn main() {
                 let zx = x + add_x(v);
 
                 let (is_y, ay) = match zy.abs() >= axis_y {
-                  T => (F, zy / FACTOR),
+                  T => (F, zy * ease(n / FACTOR)),
                   _ => (T, zy),
                 };
                 let (is_x, ax) = match zx.abs() >= axis_x {
-                  T => (F, zx / FACTOR),
+                  T => (F, zx * ease(n / FACTOR)),
                   _ => (T, zx),
                 };
 
@@ -278,6 +279,12 @@ fn dollar(n1: f64, n2: f64) -> f64 {
 #[inline(always)]
 fn to_rad(n: f64) -> f64 {
   n.to_radians()
+}
+
+#[inline(always)]
+fn ease(t: f64) -> f64 {
+  let t = t.clamp(0.0, 1.0);
+  (3.0 * t * t) - (2.0 * t * t * t)
 }
 
 const CLR: u8 = 255 - 4;
