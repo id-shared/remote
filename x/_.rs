@@ -29,8 +29,8 @@ pub fn main() {
     // println!("{}", ease(1. / 4.));
 
     screen::watch(
-      |(a, n, v, x, y)| match T {
-        T => match at > 0. && d2::is_h() {
+      |(a, n, v, x, y)| match a {
+        T => match d2::is_h() {
           T => {
             let zy = recoil(at);
             at = match TILL > n {
