@@ -2,7 +2,7 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F: FnMut((f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, x: f64, y: f64) -> bool {
+pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, x: f64, y: f64) -> bool {
   let capturer = |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
   let recorder = recorder();
   let mut id: f64 = 0.;
@@ -21,11 +21,12 @@ pub fn watch<F: FnMut((f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool,
 
             match is {
               T => {
-                f((id, an, ax, ay));
+                f((is, id, an, ax, ay));
                 id = id + 1.;
                 is
               },
               _ => {
+                f((is, id, an, ax, ay));
                 id = id + 1.;
                 is
               },

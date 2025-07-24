@@ -17,106 +17,90 @@ pub fn main() {
     let xy = |ax: f64, ay: f64| d1::xy(&device, get_x_(ax), get_y_(ay));
     let kh = |is: bool| d2::h(&device, is);
 
-    let axis_y = high_y / 16.;
-    let axis_x = wide_x / 16.;
+    let axis_y = high_y / 64.;
+    let axis_x = wide_x / 64.;
     let mut at = 0.;
 
     const _360: f64 = 6400.;
     const TILL: f64 = 64.;
-    const FACT: f64 = 4.;
+    const FACT: f64 = 8.;
     const EACH: f64 = 2.;
 
-    #[inline(always)]
-    fn factor(n: f64) -> f64 {
-      match n {
-        48.0..=f64::MAX => 0.1,
-        44.0..=47. => 0.1,
-        40.0..=43. => 0.1,
-        36.0..=39. => 0.1,
-        33.0..=35. => 0.1,
-        28.0..=31. => 0.1,
-        24.0..=27. => 0.1,
-        20.0..=23. => 0.1,
-        16.0..=19. => 0.1,
-        12.0..=15. => 0.1,
-        8.0..=11. => 0.1,
-        4.0..=7. => 0.1,
-        0.0..=3. => 0.1,
-        _ => 0.1,
-      }
-    }
+    // println!("{}", ease(1. / 4.));
 
     screen::watch(
-      |(n, v, x, y)| match d2::is_h() {
-        T => {
-          let zy = recoil(at);
-          at = match TILL > n {
-            T => match n % EACH {
-              0. => {
-                let zx = x + add_x(v);
-                let nx = zx.abs();
-                let ax = match nx >= axis_x {
-                  T => zx / FACT,
-                  _ => zx,
-                };
+      |(a, n, v, x, y)| match a {
+        T => match at > 0. {
+          T => {
+            let zy = recoil(at);
+            at = match TILL > n {
+              T => match n % EACH {
+                0. => {
+                  let zx = x + add_x(v);
+                  let nx = zx.abs();
+                  let ax = match nx >= axis_x {
+                    T => zx * ease(n / FACT),
+                    _ => zx,
+                  };
 
-                xy(ax, zy);
-                at + 1.
+                  xy(ax, zy);
+                  at + 1.
+                },
+                _ => {
+                  xy(0., zy);
+                  at + 1.
+                },
               },
               _ => {
                 xy(0., zy);
                 at + 1.
               },
-            },
-            _ => {
-              xy(0., zy);
-              at + 1.
-            },
-          };
+            };
 
-          T
-        },
-        _ => {
-          at = match TILL > n {
-            T => match n % EACH {
-              0. => {
-                let zy = y - add_y(v);
-                let zx = x + add_x(v);
-                let ny = zy.abs();
-                let nx = zx.abs();
+            T
+          },
+          _ => {
+            at = match TILL > n {
+              T => match n % EACH {
+                0. => {
+                  let zy = y - add_y(v);
+                  let zx = x + add_x(v);
+                  let ny = zy.abs();
+                  let nx = zx.abs();
 
-                println!("{}", axis_x / nx);
+                  let (is_y, ay) = match ny >= axis_y {
+                    T => (F, zy * ease(n / FACT)),
+                    _ => (T, zy),
+                  };
+                  let (is_x, ax) = match nx >= axis_x {
+                    T => (F, zx * ease(n / FACT)),
+                    _ => (T, zx),
+                  };
 
-                // ease(factor(axis_x / nx))
-
-                let (is_y, ay) = match ny >= axis_y {
-                  T => (F, zy / FACT),
-                  _ => (T, zy),
-                };
-                let (is_x, ax) = match nx >= axis_x {
-                  T => (F, zx / FACT),
-                  _ => (T, zx),
-                };
-
-                match is_x && is_y {
-                  T => {
-                    xy(ax, ay);
-                    xo(MS * 4);
-                    kh(F);
-                    0.
-                  },
-                  _ => {
-                    xy(ax, ay);
-                    0.
-                  },
-                }
+                  match is_x && is_y {
+                    T => {
+                      xy(ax, ay);
+                      xo(MS * 4);
+                      kh(F);
+                      1.
+                    },
+                    _ => {
+                      xy(ax, ay);
+                      0.
+                    },
+                  }
+                },
+                _ => 0.,
               },
               _ => 0.,
-            },
-            _ => 0.,
-          };
+            };
 
-          T
+            T
+          },
+        },
+        _ => match at > 0. {
+          T => xy(0., recoil(at)),
+          _ => F,
         },
       },
       |(n, v, x, y)| {
@@ -267,18 +251,18 @@ fn is_pixel(x: u32) -> bool {
 fn recoil(n: f64) -> f64 {
   match n {
     48.0..=f64::MAX => -0.,
-    44.0..=47. => -0.,
+    44.0..=47. => -1.,
     40.0..=43. => -1.,
-    36.0..=39. => -2.,
-    33.0..=35. => -5.,
-    28.0..=31. => -5.,
+    36.0..=39. => -1.,
+    33.0..=35. => -3.,
+    28.0..=31. => -3.,
     24.0..=27. => -5.,
     20.0..=23. => -5.,
     16.0..=19. => -5.,
-    12.0..=15. => -5.,
-    8.0..=11. => -2.,
+    12.0..=15. => -7.,
+    8.0..=11. => -3.,
     4.0..=7. => -1.,
-    0.0..=3. => -0.,
+    0.0..=3. => -1.,
     _ => -0.,
   }
 }
@@ -311,7 +295,7 @@ fn to_rad(n: f64) -> f64 {
 #[inline(always)]
 fn ease(t: f64) -> f64 {
   let t = t.clamp(0.0, 1.0);
-  (3.0 * t * t) - (2.0 * t * t * t)
+  1.0 - (1.0 - t).powf(1.5)
 }
 
 const CLR: u8 = 255 - 4;
