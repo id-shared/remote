@@ -12,62 +12,89 @@ pub fn main() {
     let high_y = screen::high();
     let wide_x = screen::wide();
 
-    let get_y_ = |ay: f64| wealth(to_rad(70.53_f64 / 2.), ay / (high_y / 2.), PIXELS_360);
-    let get_x_ = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / (wide_x / 2.), PIXELS_360);
+    let get_y_ = |ay: f64| wealth(to_rad(70.53_f64 / 2.), ay / (high_y / 2.), _360);
+    let get_x_ = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / (wide_x / 2.), _360);
     let xy = |ax: f64, ay: f64| d1::xy(&device, get_x_(ax), get_y_(ay));
     let kh = |is: bool| d2::h(&device, is);
 
-    const PIXELS_360: f64 = 6400.;
-    const UNTILL: f64 = 64.;
-    const FACTOR: f64 = 8.;
+    let axis_y = high_y / 16.;
+    let axis_x = wide_x / 16.;
+    let mut at = 0.;
+
+    const _360: f64 = 6400.;
+    const TILL: f64 = 64.;
+    const FACT: f64 = 4.;
     const EACH: f64 = 2.;
 
-    let axis_y = high_y / 128.;
-    let axis_x = wide_x / 128.;
-    let mut at = N;
+    #[inline(always)]
+    fn factor(n: f64) -> f64 {
+      match n {
+        48.0..=f64::MAX => 0.1,
+        44.0..=47. => 0.1,
+        40.0..=43. => 0.1,
+        36.0..=39. => 0.1,
+        33.0..=35. => 0.1,
+        28.0..=31. => 0.1,
+        24.0..=27. => 0.1,
+        20.0..=23. => 0.1,
+        16.0..=19. => 0.1,
+        12.0..=15. => 0.1,
+        8.0..=11. => 0.1,
+        4.0..=7. => 0.1,
+        0.0..=3. => 0.1,
+        _ => 0.1,
+      }
+    }
 
     screen::watch(
       |(n, v, x, y)| match d2::is_h() {
         T => {
           let zy = recoil(at);
-          at = match UNTILL > n {
+          at = match TILL > n {
             T => match n % EACH {
               0. => {
                 let zx = x + add_x(v);
-                let ax = match zx.abs() >= axis_x {
-                  T => zx * ease(n / FACTOR),
+                let nx = zx.abs();
+                let ax = match nx >= axis_x {
+                  T => zx / FACT,
                   _ => zx,
                 };
 
                 xy(ax, zy);
-                at + 1
+                at + 1.
               },
               _ => {
                 xy(0., zy);
-                at + 1
+                at + 1.
               },
             },
             _ => {
               xy(0., zy);
-              at + 1
+              at + 1.
             },
           };
 
           T
         },
         _ => {
-          at = match UNTILL > n {
+          at = match TILL > n {
             T => match n % EACH {
               0. => {
                 let zy = y - add_y(v);
                 let zx = x + add_x(v);
+                let ny = zy.abs();
+                let nx = zx.abs();
 
-                let (is_y, ay) = match zy.abs() >= axis_y {
-                  T => (F, zy * ease(n / FACTOR)),
+                println!("{}", axis_x / nx);
+
+                // ease(factor(axis_x / nx))
+
+                let (is_y, ay) = match ny >= axis_y {
+                  T => (F, zy / FACT),
                   _ => (T, zy),
                 };
-                let (is_x, ax) = match zx.abs() >= axis_x {
-                  T => (F, zx * ease(n / FACTOR)),
+                let (is_x, ax) = match nx >= axis_x {
+                  T => (F, zx / FACT),
                   _ => (T, zx),
                 };
 
@@ -76,17 +103,17 @@ pub fn main() {
                     xy(ax, ay);
                     xo(MS * 4);
                     kh(F);
-                    N
+                    0.
                   },
                   _ => {
                     xy(ax, ay);
-                    N
+                    0.
                   },
                 }
               },
-              _ => N,
+              _ => 0.,
             },
-            _ => N,
+            _ => 0.,
           };
 
           T
@@ -237,21 +264,21 @@ fn is_pixel(x: u32) -> bool {
 }
 
 #[inline(always)]
-fn recoil(n: u32) -> f64 {
+fn recoil(n: f64) -> f64 {
   match n {
-    48..=u32::MAX => -0.,
-    44..=47 => -0.,
-    40..=43 => -1.,
-    36..=39 => -2.,
-    33..=35 => -5.,
-    28..=31 => -5.,
-    24..=27 => -5.,
-    20..=23 => -5.,
-    16..=19 => -5.,
-    12..=15 => -5.,
-    8..=11 => -2.,
-    4..=7 => -1.,
-    0..=3 => -0.,
+    48.0..=f64::MAX => -0.,
+    44.0..=47. => -0.,
+    40.0..=43. => -1.,
+    36.0..=39. => -2.,
+    33.0..=35. => -5.,
+    28.0..=31. => -5.,
+    24.0..=27. => -5.,
+    20.0..=23. => -5.,
+    16.0..=19. => -5.,
+    12.0..=15. => -5.,
+    8.0..=11. => -2.,
+    4.0..=7. => -1.,
+    0.0..=3. => -0.,
     _ => -0.,
   }
 }
