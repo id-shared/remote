@@ -11,8 +11,8 @@ pub fn main() {
     let device = xyloid::device();
     let high_y = screen::high();
     let wide_x = screen::wide();
-    let axis_y = high_y / 64.;
-    let axis_x = wide_x / 64.;
+    let axis_y = high_y / 32.;
+    let axis_x = wide_x / 32.;
     let mut at = N;
 
     let get_y_ = |ay: f64| wealth(to_rad(70.53_f64 / 2.), ay / (high_y / 2.), PIXELS_360);
@@ -22,7 +22,7 @@ pub fn main() {
 
     const PIXELS_360: f64 = 6400.;
     const UNTILL: f64 = 64.;
-    const FACTOR: f64 = 3.;
+    const FACTOR: f64 = 4.;
     const EACH: f64 = 2.;
 
     screen::watch(
