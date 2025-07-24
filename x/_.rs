@@ -23,8 +23,8 @@ pub fn main() {
 
     const PIXELS_360: f64 = 6400.;
     const UNTILL: f64 = 48.;
-    const SCALER: f64 = 4.;
-    const FACTOR: f64 = 2.;
+    const SCALER: f64 = 3.;
+    const FACTOR: f64 = 3.;
     const EACH: f64 = 2.;
 
     screen::watch(
