@@ -280,8 +280,8 @@ fn to_rad(n: f64) -> f64 {
   n.to_radians()
 }
 
-const CLR: u8 = 255 - 16;
-const ABS: u8 = 32;
+const CLR: u8 = 255 - 4;
+const ABS: u8 = 48;
 const APP: &str = "VAL";
 
 #[inline(always)]
