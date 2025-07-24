@@ -70,8 +70,6 @@ pub fn main() {
                   _ => (T, zx),
                 };
 
-                println!("{}, {}, {}, {}", is_x, is_y, x, y);
-
                 match is_x && is_y {
                   T => {
                     xy(ax, ay);
