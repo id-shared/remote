@@ -12,7 +12,7 @@ pub fn watch<F: FnMut((f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool,
       let mut data: Option<IDXGIResource> = None;
       match unsafe { recorder.framer.AcquireNextFrame(recorder.hz, &mut info, &mut data).is_ok() } {
         T => {
-          let capturer = capturer(x / (id + 1.).min(16.), y / 8.);
+          let capturer = capturer(x / (id + 4.).min(16.), y / 8.);
           let data = data.unwrap();
           let cast = data.cast().unwrap();
           let (is, an, ax, ay) = on_f(turn(cast, capturer, &recorder));

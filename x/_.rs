@@ -8,23 +8,22 @@ pub fn main() {
   let mut handle = vec![];
 
   handle.push(thread::spawn(|| {
-    let screen_y = screen::high();
-    let screen_x = screen::wide();
     let device = xyloid::device();
+    let high_y = screen::high();
+    let wide_x = screen::wide();
+    let axis_y = high_y / 256.;
+    let axis_x = wide_x / 256.;
+    let mut at = N;
 
-    let get_y_ = |ay: f64| wealth(to_rad(70.53_f64 / 2.), ay / (screen_y / 2.), PIXELS_360);
-    let get_x_ = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / (screen_x / 2.), PIXELS_360);
+    let get_y_ = |ay: f64| wealth(to_rad(70.53_f64 / 2.), ay / (high_y / 2.), PIXELS_360);
+    let get_x_ = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / (wide_x / 2.), PIXELS_360);
     let xy = |ax: f64, ay: f64| d1::xy(&device, get_x_(ax), get_y_(ay));
     let kh = |is: bool| d2::h(&device, is);
 
-    let max_y_ = (screen_y / 256.) * 2.;
-    let max_x_ = (screen_x / 256.) * 1.;
-    let mut at = N;
-
     const PIXELS_360: f64 = 6400.;
     const UNTILL: f64 = 64.;
-    const SCALER: f64 = 4.;
-    const FACTOR: f64 = 2.;
+    const SCALER: f64 = 5.;
+    const FACTOR: f64 = 3.;
     const EACH: f64 = 2.;
 
     screen::watch(
@@ -33,7 +32,7 @@ pub fn main() {
           at = match UNTILL > n {
             T => match n % EACH {
               0. => {
-                let x_ = match x.abs() >= (max_x_ * SCALER) {
+                let x_ = match x.abs() >= (axis_x * SCALER) {
                   T => x / FACTOR,
                   _ => x,
                 } + add_x(v);
@@ -58,11 +57,11 @@ pub fn main() {
           at = match UNTILL > n {
             T => match n % EACH {
               0. => {
-                let (is_y, y_) = match y.abs() >= (max_y_ * SCALER) {
+                let (is_y, y_) = match y.abs() >= (axis_y * SCALER) {
                   T => (F, y / FACTOR),
                   _ => (T, y),
                 };
-                let (is_x, x_) = match x.abs() >= (max_x_ * SCALER) {
+                let (is_x, x_) = match x.abs() >= (axis_x * SCALER) {
                   T => (F, x / FACTOR),
                   _ => (T, x),
                 };
@@ -133,8 +132,8 @@ pub fn main() {
         },
         _ => F,
       },
-      screen_x,
-      screen_y,
+      wide_x,
+      high_y,
     );
   }));
 
@@ -277,8 +276,8 @@ fn to_rad(n: f64) -> f64 {
   n.to_radians()
 }
 
-const CLR: u8 = 255 - 8;
-const ABS: u8 = 24;
+const CLR: u8 = 255 - 4;
+const ABS: u8 = 48;
 const APP: &str = "VAL";
 
 #[inline(always)]
