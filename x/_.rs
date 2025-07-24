@@ -11,8 +11,8 @@ pub fn main() {
     let device = xyloid::device();
     let high_y = screen::high();
     let wide_x = screen::wide();
-    let axis_y = high_y / 256.;
-    let axis_x = wide_x / 256.;
+    let axis_y = high_y / 64.;
+    let axis_x = wide_x / 64.;
     let mut at = N;
 
     let get_y_ = |ay: f64| wealth(to_rad(70.53_f64 / 2.), ay / (high_y / 2.), PIXELS_360);
@@ -22,31 +22,32 @@ pub fn main() {
 
     const PIXELS_360: f64 = 6400.;
     const UNTILL: f64 = 64.;
-    const SCALER: f64 = 5.;
     const FACTOR: f64 = 3.;
     const EACH: f64 = 2.;
 
     screen::watch(
       |(n, v, x, y)| match d2::is_h() {
         T => {
+          let zy = recoil(at);
           at = match UNTILL > n {
             T => match n % EACH {
               0. => {
-                let x_ = match x.abs() >= (axis_x * SCALER) {
-                  T => x / FACTOR,
-                  _ => x,
-                } + add_x(v);
+                let zx = x + add_x(v);
+                let ax = match zx.abs() >= axis_x {
+                  T => zx / FACTOR,
+                  _ => zx,
+                };
 
-                xy(x_, recoil(at));
+                xy(ax, zy);
                 at + 1
               },
               _ => {
-                xy(N as f64, recoil(at));
+                xy(0., zy);
                 at + 1
               },
             },
             _ => {
-              xy(N as f64, recoil(at));
+              xy(0., zy);
               at + 1
             },
           };
@@ -57,24 +58,29 @@ pub fn main() {
           at = match UNTILL > n {
             T => match n % EACH {
               0. => {
-                let (is_y, y_) = match y.abs() >= (axis_y * SCALER) {
-                  T => (F, y / FACTOR),
-                  _ => (T, y),
+                let zy = y - add_y(v);
+                let zx = x + add_x(v);
+
+                let (is_y, ay) = match zy.abs() >= axis_y {
+                  T => (F, zy / FACTOR),
+                  _ => (T, zy),
                 };
-                let (is_x, x_) = match x.abs() >= (axis_x * SCALER) {
-                  T => (F, x / FACTOR),
-                  _ => (T, x),
+                let (is_x, ax) = match zx.abs() >= axis_x {
+                  T => (F, zx / FACTOR),
+                  _ => (T, zx),
                 };
+
+                println!("{}, {}, {}, {}", is_x, is_y, x, y);
 
                 match is_x && is_y {
                   T => {
-                    xy(x_ + add_x(v), y_ - add_y(v));
+                    xy(ax, ay);
                     xo(MS * 4);
                     kh(F);
                     N
                   },
                   _ => {
-                    xy(x_ + add_x(v), y_ - add_y(v));
+                    xy(ax, ay);
                     N
                   },
                 }
