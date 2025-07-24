@@ -23,7 +23,7 @@ pub fn main() {
 
     const _360: f64 = 6400.;
     const TILL: f64 = 64.;
-    const FACT: f64 = 8.;
+    const FACT: f64 = 4.;
     const EACH: f64 = 2.;
 
     // println!("{}", ease(1. / 4.));
@@ -99,14 +99,13 @@ pub fn main() {
           },
         },
         _ => {
-          at = match at > 0. {
-            T => {
-              xy(0., recoil(at));
-              kh(F);
-              at
-            },
-            _ => 0.,
-          };
+          // at = match at > 0. {
+          //   T => {
+          //     xy(0., recoil(at));
+          //     at
+          //   },
+          //   _ => 0.,
+          // };
 
           T
         },
