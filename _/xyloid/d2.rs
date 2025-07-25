@@ -1,4 +1,14 @@
 #[inline(always)]
+pub fn lmenu(device: &Device, up: bool) -> bool {
+  key_(device, VK_LMENU, up)
+}
+
+#[inline(always)]
+pub fn ctrl(device: &Device, up: bool) -> bool {
+  key_(device, VK_CONTROL, up)
+}
+
+#[inline(always)]
 pub fn ar(device: &Device, up: bool) -> bool {
   key_(device, VK_RIGHT, up)
 }
@@ -19,17 +29,22 @@ pub fn u(device: &Device, up: bool) -> bool {
 }
 
 #[inline(always)]
-pub fn ctrl(device: &Device, up: bool) -> bool {
-  key_(device, VK_CONTROL, up)
-}
-
-#[inline(always)]
 pub fn h(device: &Device, up: bool) -> bool {
   key_(device, VK_H, up)
 }
 
 #[inline(always)]
-pub fn ctrl_is() -> bool {
+pub fn is_lmenu() -> bool {
+  is(VK_LMENU)
+}
+
+#[inline(always)]
+pub fn is_ctrl() -> bool {
+  is(VK_CONTROL)
+}
+
+#[inline(always)]
+pub fn is_alt() -> bool {
   is(VK_CONTROL)
 }
 
@@ -138,6 +153,7 @@ use {
       VK_H,
       VK_LBUTTON,
       VK_LEFT,
+      VK_LMENU,
       VK_RBUTTON,
       VK_RIGHT,
       VK_S,

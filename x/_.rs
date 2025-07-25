@@ -16,6 +16,7 @@ pub fn main() {
     let get_x_ = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / (wide_x / 2.), _360);
     let xy = |ax: f64, ay: f64| d1::xy(&device, get_x_(ax), get_y_(ay));
     let kh = |is: bool| d2::h(&device, is);
+    let kr = |is: bool| d2::lmenu(&device, is);
 
     let axis_y = high_y / 32.;
     let axis_x = wide_x / 32.;
@@ -23,10 +24,8 @@ pub fn main() {
 
     const _360: f64 = 6400.;
     const TILL: f64 = 64.;
-    const FACT: f64 = 4.;
+    const FACT: f64 = 8.;
     const EACH: f64 = 2.;
-
-    // println!("{}", ease(1. / 4.));
 
     screen::watch(
       |(a, n, v, x, y)| match a {
@@ -80,9 +79,8 @@ pub fn main() {
                   match is_x && is_y {
                     T => {
                       xy(ax, ay);
-                      xo(MS * 4);
                       kh(F);
-                      1.
+                      0.
                     },
                     _ => {
                       xy(ax, ay);
@@ -99,13 +97,13 @@ pub fn main() {
           },
         },
         _ => {
-          // at = match at > 0. {
-          //   T => {
-          //     xy(0., recoil(at));
-          //     at
-          //   },
-          //   _ => 0.,
-          // };
+          at = match d2::is_h() {
+            T => {
+              xy(0., recoil(at));
+              at
+            },
+            _ => 0.,
+          };
 
           T
         },

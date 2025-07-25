@@ -13,7 +13,7 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
       match unsafe { recorder.framer.AcquireNextFrame(recorder.hz, &mut info, &mut data).is_ok() } {
         T => match is_f() {
           T => {
-            let capturer = capturer(x / (id + 1.).min(16.), y / 16.);
+            let capturer = capturer(x / (id + 1.).min(32.), y / 32.);
             let data = data.unwrap();
             let cast = data.cast().unwrap();
             let (is, an, ax, ay) = on_f(turn(cast, capturer, &recorder));
