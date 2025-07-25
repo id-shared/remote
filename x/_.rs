@@ -284,7 +284,7 @@ fn add_x(n: f64) -> f64 {
 
 #[inline(always)]
 fn io(n: f64) -> f64 {
-  n / 2.
+  n / 4.
 }
 
 #[inline(always)]
