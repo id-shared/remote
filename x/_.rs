@@ -21,7 +21,9 @@ pub fn main() {
 
     let axis_y = high_y / 32.;
     let axis_x = wide_x / 32.;
-    let mut at = 0.;
+
+    let mut at = Instant::now();
+    let mut an = 0.;
 
     const _360: f64 = 6400.;
     const TILL: f64 = 64.;
@@ -31,8 +33,8 @@ pub fn main() {
       |(a, n, v, x, y)| match a {
         T => match is_kl() {
           T => {
-            let zy = recoil(at);
-            at = match TILL > n {
+            let zy = recoil(at.elapsed().as_millis_f64());
+            an = match TILL > n {
               T => match n % EACH {
                 0. => {
                   let zx = x + add_x(v);
@@ -43,23 +45,23 @@ pub fn main() {
                   };
 
                   xy(ax, zy);
-                  at + 1.
+                  an + 1.
                 },
                 _ => {
                   xy(0., zy);
-                  at + 1.
+                  an + 1.
                 },
               },
               _ => {
                 xy(0., zy);
-                at + 1.
+                an + 1.
               },
             };
 
             T
           },
           _ => {
-            at = match TILL > n {
+            an = match TILL > n {
               T => match n % EACH {
                 0. => {
                   let zy = y - add_y(v);
@@ -76,17 +78,19 @@ pub fn main() {
                     _ => (T, zx),
                   };
 
-                  match is_x && is_y {
+                  at = match is_x && is_y {
                     T => {
                       xy(ax, ay);
                       kl(F);
-                      0.
+                      Instant::now()
                     },
                     _ => {
                       xy(ax, ay);
-                      0.
+                      Instant::now()
                     },
-                  }
+                  };
+
+                  0.
                 },
                 _ => 0.,
               },
@@ -97,10 +101,10 @@ pub fn main() {
           },
         },
         _ => {
-          at = match is_kl() {
+          an = match is_kl() {
             T => {
-              xy(0., recoil(at));
-              at + 1.
+              xy(0., recoil(at.elapsed().as_millis_f64()));
+              an + 1.
             },
             _ => 0.,
           };
@@ -255,20 +259,16 @@ fn is_pixel(x: u32) -> bool {
 #[inline(always)]
 fn recoil(n: f64) -> f64 {
   match n {
-    48.0..=f64::MAX => -0.,
-    44.0..=47. => -0.,
-    40.0..=43. => -1.,
-    36.0..=39. => -2.,
-    33.0..=35. => -5.,
-    28.0..=31. => -5.,
-    24.0..=27. => -5.,
-    20.0..=23. => -5.,
-    16.0..=19. => -5.,
-    12.0..=15. => -5.,
-    8.0..=11. => -2.,
-    4.0..=7. => -1.,
-    0.0..=3. => -0.,
-    _ => -0.,
+    801.0..=f64::MAX => 0.,
+    701.0..=800. => -2.,
+    601.0..=700. => -4.,
+    501.0..=600. => -4.,
+    401.0..=500. => -4.,
+    301.0..=400. => -5.,
+    201.0..=300. => -4.,
+    101.0..=200. => -2.,
+    0.0..=100. => -1.,
+    _ => 0.,
   }
 }
 
