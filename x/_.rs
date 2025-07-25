@@ -16,9 +16,8 @@ pub fn main() {
     let get_x_ = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / (wide_x / 2.), _360);
     let xy = |ax: f64, ay: f64| d1::xy(&device, get_x_(ax), get_y_(ay));
 
-    let is_kl = || d2::is_lmenu();
-    let kr = |is: bool| d2::rmenu(&device, is);
-    let kl = |is: bool| d2::lmenu(&device, is);
+    let is_kl = || d2::is_h();
+    let kl = |is: bool| d2::h(&device, is);
 
     let axis_y = high_y / 32.;
     let axis_x = wide_x / 32.;

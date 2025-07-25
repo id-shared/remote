@@ -23,12 +23,12 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
               T => {
                 f((is, id, an, ax, ay));
                 id = id + 1.;
-                is
+                T
               },
               _ => {
                 f((is, id, an, ax, ay));
                 id = id + 1.;
-                is
+                T
               },
             }
           },
@@ -38,7 +38,10 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
             F
           },
         },
-        _ => F,
+        _ => {
+          println!("{}", F);
+          F
+        },
       }
     };
 
@@ -201,7 +204,7 @@ pub fn xo(n: Duration) -> bool {
 }
 
 pub const MS: Duration = Duration::from_millis(1);
-pub const HZ: u32 = 16;
+pub const HZ: u32 = 32;
 
 pub const N: u32 = 0;
 pub const F: bool = false;
