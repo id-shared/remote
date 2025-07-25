@@ -54,11 +54,6 @@ pub fn is_ctrl() -> bool {
 }
 
 #[inline(always)]
-pub fn is_alt() -> bool {
-  is(VK_CONTROL)
-}
-
-#[inline(always)]
 pub fn is_mr() -> bool {
   is(VK_RBUTTON)
 }
