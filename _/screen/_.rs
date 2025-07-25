@@ -13,7 +13,7 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
       match unsafe { recorder.framer.AcquireNextFrame(recorder.hz, &mut info, &mut data).is_ok() } {
         T => match is_f() {
           T => {
-            let capturer = capturer(x / (id + 1.).min(16.), y / 16.);
+            let capturer = capturer(x / (id + 1.).min(8.), y / 8.);
             let data = data.unwrap();
             let cast = data.cast().unwrap();
             let (is, an, ax, ay) = on_f(turn(cast, capturer, &recorder));
@@ -35,7 +35,7 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
           _ => {
             unsafe { recorder.framer.ReleaseFrame().unwrap() };
             id = 0.;
-            F
+            T
           },
         },
         _ => {
@@ -204,7 +204,7 @@ pub fn xo(n: Duration) -> bool {
 }
 
 pub const MS: Duration = Duration::from_millis(1);
-pub const HZ: u32 = 32;
+pub const HZ: u32 = 16 + 1; // HINT: +1 is for being safe with framedrops.
 
 pub const N: u32 = 0;
 pub const F: bool = false;

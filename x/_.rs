@@ -25,7 +25,6 @@ pub fn main() {
 
     const _360: f64 = 6400.;
     const TILL: f64 = 64.;
-    const FACT: f64 = 8.;
     const EACH: f64 = 2.;
 
     screen::watch(
@@ -39,7 +38,7 @@ pub fn main() {
                   let zx = x + add_x(v);
                   let nx = zx.abs();
                   let ax = match nx >= axis_x {
-                    T => zx * ease(n / FACT),
+                    T => io(zx),
                     _ => zx,
                   };
 
@@ -69,11 +68,11 @@ pub fn main() {
                   let nx = zx.abs();
 
                   let (is_y, ay) = match ny >= axis_y {
-                    T => (F, zy * ease(n / FACT)),
+                    T => (F, io(zy)),
                     _ => (T, zy),
                   };
                   let (is_x, ax) = match nx >= axis_x {
-                    T => (F, zx * ease(n / FACT)),
+                    T => (F, io(zx)),
                     _ => (T, zx),
                   };
 
@@ -173,9 +172,9 @@ pub fn main() {
           a = on_key(d2::is_a, d2::ar, &io, a);
           w = on_key(d2::is_w, d2::d, &io, w);
           s = on_key(d2::is_s, d2::u, &io, s);
-          xo(MS)
+          screen::xo(screen::MS)
         },
-        _ => xo(MS),
+        _ => screen::xo(screen::MS),
       };
     }
   }));
@@ -195,18 +194,18 @@ fn on_key<F1: Fn() -> bool, F2: Fn(&Device, bool) -> bool>(f1: F1, f2: F2, io: &
       match n {
         17..=32 => {
           f2(io, F);
-          xo(MS * ((4 * 16) + ((n - 16) * 2)) as u32);
+          screen::xo(screen::MS * ((4 * 16) + ((n - 16) * 2)) as u32);
           f2(io, T)
         },
         6..=16 => {
           f2(io, F);
-          xo(MS * (4 * n) as u32);
+          screen::xo(screen::MS * (4 * n) as u32);
           f2(io, T)
         },
         0..=5 => T,
         _ => {
           f2(io, F);
-          xo(MS * 96);
+          screen::xo(screen::MS * 96);
           f2(io, T)
         },
       };
@@ -274,13 +273,18 @@ fn recoil(n: f64) -> f64 {
 }
 
 #[inline(always)]
-fn add_y(n1: f64) -> f64 {
-  n1 / 4.
+fn add_y(n: f64) -> f64 {
+  n / 4.
 }
 
 #[inline(always)]
-fn add_x(n1: f64) -> f64 {
-  n1 / 16.
+fn add_x(n: f64) -> f64 {
+  n / 16.
+}
+
+#[inline(always)]
+fn io(n: f64) -> f64 {
+  n / 2.
 }
 
 #[inline(always)]
@@ -298,23 +302,15 @@ fn to_rad(n: f64) -> f64 {
   n.to_radians()
 }
 
-#[inline(always)]
-fn ease(t: f64) -> f64 {
-  let t = t.clamp(0.0, 1.0);
-  (3.0 * t * t) - (2.0 * t * t * t)
-}
+// #[inline(always)]
+// fn ease(t: f64) -> f64 {
+//   let t = t.clamp(0.0, 1.0);
+//   (3.0 * t * t) - (2.0 * t * t * t)
+// }
 
 const CLR: u8 = 255 - 16;
 const ABS: u8 = 32;
 const APP: &str = "VAL";
-
-#[inline(always)]
-pub fn xo(n: Duration) -> bool {
-  thread::sleep(n);
-  T
-}
-pub const MS: Duration = Duration::from_millis(1);
-pub const HZ: u32 = 16;
 
 pub const N: u32 = 0;
 pub const F: bool = false;
@@ -326,10 +322,7 @@ use {
     f64::consts::PI,
     i32,
     thread,
-    time::{
-      Duration,
-      Instant,
-    },
+    time::Instant,
     u32,
   },
   xyloid::{
