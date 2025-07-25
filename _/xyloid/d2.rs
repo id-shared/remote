@@ -1,4 +1,9 @@
 #[inline(always)]
+pub fn rmenu(device: &Device, up: bool) -> bool {
+  key_(device, VK_RMENU, up)
+}
+
+#[inline(always)]
 pub fn lmenu(device: &Device, up: bool) -> bool {
   key_(device, VK_LMENU, up)
 }
@@ -31,6 +36,11 @@ pub fn u(device: &Device, up: bool) -> bool {
 #[inline(always)]
 pub fn h(device: &Device, up: bool) -> bool {
   key_(device, VK_H, up)
+}
+
+#[inline(always)]
+pub fn is_rmenu() -> bool {
+  is(VK_RMENU)
 }
 
 #[inline(always)]
@@ -86,14 +96,8 @@ pub fn is_w() -> bool {
 #[inline(always)]
 pub fn key_(device: &Device, key: VIRTUAL_KEY, up: bool) -> bool {
   match up {
-    T => match is(key) {
-      T => k_(device, key, 1),
-      _ => F,
-    },
-    _ => match is(key) {
-      T => T,
-      _ => k_(device, key, 0),
-    },
+    T => k_(device, key, 1),
+    _ => k_(device, key, 0),
   }
 }
 
@@ -156,6 +160,7 @@ use {
       VK_LMENU,
       VK_RBUTTON,
       VK_RIGHT,
+      VK_RMENU,
       VK_S,
       VK_UP,
       VK_W,
