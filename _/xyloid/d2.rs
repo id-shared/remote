@@ -91,8 +91,14 @@ pub fn is_w() -> bool {
 #[inline(always)]
 pub fn key_(device: &Device, key: VIRTUAL_KEY, up: bool) -> bool {
   match up {
-    T => k_(device, key, 1),
-    _ => k_(device, key, 0),
+    T => match is(key) {
+      T => k_(device, key, 1),
+      _ => F,
+    },
+    _ => match is(key) {
+      T => T,
+      _ => k_(device, key, 0),
+    },
   }
 }
 

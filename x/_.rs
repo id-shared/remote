@@ -305,8 +305,8 @@ fn ease(t: f64) -> f64 {
   (3.0 * t * t) - (2.0 * t * t * t)
 }
 
-const CLR: u8 = 255 - 4;
-const ABS: u8 = 48;
+const CLR: u8 = 255 - 16;
+const ABS: u8 = 32;
 const APP: &str = "VAL";
 
 #[inline(always)]
@@ -314,7 +314,6 @@ pub fn xo(n: Duration) -> bool {
   thread::sleep(n);
   T
 }
-
 pub const MS: Duration = Duration::from_millis(1);
 pub const HZ: u32 = 16;
 
