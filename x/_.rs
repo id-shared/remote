@@ -20,9 +20,6 @@ pub fn main() {
     let is_kl = || d2::is_i();
     let kl = |is: bool| d2::i(&device, is);
 
-    let axis_y = high_y / 256.;
-    let axis_x = wide_x / 256.;
-
     let mut at = time::now();
     let mut an = N;
 
@@ -105,7 +102,7 @@ pub fn main() {
             let ay = recoil(FREQ as f64, time::till(at));
             an = match each(n) {
               T => {
-                let (_, ax) = into(axis_x, 2., x + add_x(v));
+                let (_, ax) = into(wide_x / 256., 2., x + add_x(v));
 
                 xy(ax, ay);
                 an + 1.
@@ -121,8 +118,8 @@ pub fn main() {
           _ => {
             an = match each(n) {
               T => {
-                let (is_y, ay) = into(axis_y, 4., y - add_y(v));
-                let (is_x, ax) = into(axis_x, 4., x + add_x(v));
+                let (is_y, ay) = into(high_y / 256., 4., y - add_y(v));
+                let (is_x, ax) = into(wide_x / 256., 4., x + add_x(v));
 
                 at = match is_x && is_y {
                   T => {
