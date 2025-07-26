@@ -28,13 +28,12 @@ pub fn main() {
     const _360: f64 = 6400.;
     const TILL: f64 = 64.;
     const PACE: f64 = 8.;
-    const FACT: f64 = 1.;
 
     screen::watch(
       |(a, n, v, x, y)| match a {
         T => match is_kl() {
           T => {
-            let zy = recoil(time::till(at), FACT);
+            let zy = recoil(time::till(at));
             an = match TILL > n {
               T => {
                 let zx = x + add_x(v);
@@ -95,7 +94,7 @@ pub fn main() {
         _ => {
           an = match is_kl() {
             T => {
-              xy(N, recoil(time::till(at), FACT));
+              xy(N, recoil(time::till(at)));
               an + 1.
             },
             _ => N,
@@ -249,17 +248,18 @@ fn is_pixel(x: u32) -> bool {
 }
 
 #[inline(always)]
-fn recoil(i: f64, n: f64) -> f64 {
-  match i {
-    801.0..=f64::MAX => N * n,
-    701.0..=800. => -2. * n,
-    601.0..=700. => -4. * n,
-    501.0..=600. => -4. * n,
-    401.0..=500. => -4. * n,
-    301.0..=400. => -5. * n,
-    201.0..=300. => -4. * n,
-    101.0..=200. => -2. * n,
-    0.0..=100. => -1. * n,
+fn recoil(n: f64) -> f64 {
+  let n_ = (screen::HZ / 16) as f64;
+  match n {
+    801.0..=f64::MAX => N,
+    701.0..=800. => n_ * -2.,
+    601.0..=700. => n_ * -4.,
+    501.0..=600. => n_ * -4.,
+    401.0..=500. => n_ * -4.,
+    301.0..=400. => n_ * -5.,
+    201.0..=300. => n_ * -4.,
+    101.0..=200. => n_ * -2.,
+    0.0..=100. => n_ * -1.,
     _ => N,
   }
 }
