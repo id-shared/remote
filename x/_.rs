@@ -19,15 +19,16 @@ pub fn main() {
     let is_kl = || d2::is_h();
     let kl = |is: bool| d2::h(&device, is);
 
-    let axis_y = high_y / 32.;
-    let axis_x = wide_x / 32.;
+    let axis_y = high_y / 64.;
+    let axis_x = wide_x / 64.;
 
     let mut at = Instant::now();
     let mut an = N;
 
     const _360: f64 = 6400.;
     const TILL: f64 = 64.;
-    const PACE: f64 = 8.;
+    const PACE: f64 = 4.;
+    const EACH: f64 = 2.;
 
     screen::watch(
       |(a, n, v, x, y)| match a {
@@ -35,16 +36,22 @@ pub fn main() {
           T => {
             let zy = recoil(time::till(at));
             an = match TILL > n {
-              T => {
-                let zx = x + add_x(v);
-                let nx = zx.abs();
-                let ax = match nx >= axis_x {
-                  T => pace(zx, PACE),
-                  _ => zx,
-                };
+              T => match n % EACH {
+                N => {
+                  let zx = x + add_x(v);
+                  let nx = zx.abs();
+                  let ax = match nx >= axis_x {
+                    T => pace(zx, PACE),
+                    _ => zx,
+                  };
 
-                xy(ax, zy);
-                an + 1.
+                  xy(ax, zy);
+                  an + 1.
+                },
+                _ => {
+                  xy(N, zy);
+                  an + 1.
+                },
               },
               _ => {
                 xy(N, zy);
@@ -56,34 +63,37 @@ pub fn main() {
           },
           _ => {
             an = match TILL > n {
-              T => {
-                let zy = y - add_y(v);
-                let zx = x + add_x(v);
-                let ny = zy.abs();
-                let nx = zx.abs();
+              T => match n % EACH {
+                N => {
+                  let zy = y - add_y(v);
+                  let zx = x + add_x(v);
+                  let ny = zy.abs();
+                  let nx = zx.abs();
 
-                let (is_y, ay) = match ny >= axis_y {
-                  T => (F, pace(zy, PACE)),
-                  _ => (T, zy),
-                };
-                let (is_x, ax) = match nx >= axis_x {
-                  T => (F, pace(zx, PACE)),
-                  _ => (T, zx),
-                };
+                  let (is_y, ay) = match ny >= axis_y {
+                    T => (F, pace(zy, PACE)),
+                    _ => (T, zy),
+                  };
+                  let (is_x, ax) = match nx >= axis_x {
+                    T => (F, pace(zx, PACE)),
+                    _ => (T, zx),
+                  };
 
-                at = match is_x && is_y {
-                  T => {
-                    xy(ax, ay);
-                    kl(F);
-                    Instant::now()
-                  },
-                  _ => {
-                    xy(ax, ay);
-                    Instant::now()
-                  },
-                };
+                  at = match is_x && is_y {
+                    T => {
+                      xy(ax, ay);
+                      kl(F);
+                      Instant::now()
+                    },
+                    _ => {
+                      xy(ax, ay);
+                      Instant::now()
+                    },
+                  };
 
-                N
+                  N
+                },
+                _ => N,
               },
               _ => N,
             };
