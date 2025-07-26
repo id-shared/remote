@@ -20,24 +20,32 @@ pub fn main() {
     let is_kl = || d2::is_i();
     let kl = |is: bool| d2::i(&device, is);
 
-    let axis_y = high_y / 64.;
-    let axis_x = wide_x / 64.;
+    let axis_y = high_y / 256.;
+    let axis_x = wide_x / 256.;
 
     let mut at = Instant::now();
     let mut an = N;
 
-    const COLOR_TINT: u8 = 255 - 4;
-    const COLOR_DIFF: u8 = 44;
+    const COLOR_TINT: u8 = 255 - 8;
+    const COLOR_DIFF: u8 = 40;
 
     const _360: f64 = 6400.;
     const FREQ: u32 = 18;
-    const INTO: f64 = 8.;
 
+    #[inline(always)]
+    fn into(i: f64, k: f64, n: f64) -> (bool, f64) {
+      match n.abs() >= i {
+        T => (F, n / k),
+        _ => (T, n),
+      }
+    }
+
+    #[inline(always)]
     fn each(n: f64) -> bool {
       let back = match n {
         64.0..=f64::MAX => F,
-        16.0..=64. => (n % 2.) == 1.,
-        0.0..=16. => T,
+        // 16.0..=64. => (n % 2.) == 1.,
+        0.0..=64. => T,
         _ => F,
       };
       println!("{} {}", n, back);
@@ -51,12 +59,7 @@ pub fn main() {
             let zy = recoil(FREQ as f64, time::till(at));
             an = match each(n) {
               T => {
-                let zx = x + add_x(v);
-                let nx = zx.abs();
-                let ax = match nx >= axis_x {
-                  T => into(zx, INTO),
-                  _ => zx,
-                };
+                let (_, ax) = into(axis_x, 2., x + add_x(v));
 
                 xy(ax, zy);
                 an + 1.
@@ -72,19 +75,8 @@ pub fn main() {
           _ => {
             an = match each(n) {
               T => {
-                let zy = y - add_y(v);
-                let zx = x + add_x(v);
-                let ny = zy.abs();
-                let nx = zx.abs();
-
-                let (is_y, ay) = match ny >= axis_y {
-                  T => (F, into(zy, INTO)),
-                  _ => (T, zy),
-                };
-                let (is_x, ax) = match nx >= axis_x {
-                  T => (F, into(zx, INTO)),
-                  _ => (T, zx),
-                };
+                let (is_y, ay) = into(axis_y, 4., y - add_y(v));
+                let (is_x, ax) = into(axis_x, 4., x + add_x(v));
 
                 at = match is_x && is_y {
                   T => {
@@ -265,7 +257,7 @@ fn is_pixel(k: u8, n: u8, x: u32) -> bool {
 
 #[inline(always)]
 fn recoil(k: f64, n: f64) -> f64 {
-  let n_ = k / 16.;
+  let n_ = (k / 16.).round();
   match n {
     800.0..=f64::MAX => N,
     700.0..=800. => n_ * -2.,
@@ -278,11 +270,6 @@ fn recoil(k: f64, n: f64) -> f64 {
     0.0..=100. => n_ * -1.,
     _ => N,
   }
-}
-
-#[inline(always)]
-fn into(i: f64, n: f64) -> f64 {
-  i / n
 }
 
 #[inline(always)]
