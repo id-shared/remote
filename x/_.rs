@@ -25,8 +25,8 @@ pub fn main() {
     let mut at = time::now();
     let mut an = N;
 
-    const COLOR_TINT: u8 = 255 - 16;
-    const COLOR_DIFF: u8 = 32;
+    const COLOR_TINT: u8 = 255 - 24;
+    const COLOR_DIFF: u8 = 24;
 
     const _360: f64 = 6400.;
     const FREQ: u32 = 18;
@@ -120,7 +120,7 @@ pub fn main() {
           _ => {
             an = match each(n) {
               T => {
-                let (__, ay) = into(ny, 2., y - add_y(v));
+                let (__, ay) = into(ny, 4., y - add_y(v));
                 let (is, ax) = into(nx, 4., x + add_x(v));
 
                 at = match is {
