@@ -6,6 +6,7 @@ pub fn main() {
   println!("Angle for chord length 1 is {:.64} pixels", wealth(to_rad(103_f64 / 2.), 1. / 1280., 6400.));
 
   let mut handle = vec![];
+  const APP: &str = "VAL";
 
   handle.push(thread::spawn(|| {
     let device = xyloid::device();
@@ -25,23 +26,27 @@ pub fn main() {
     let mut at = Instant::now();
     let mut an = N;
 
+    const COLOR_TINT: u8 = 255 - 4;
+    const COLOR_DIFF: u8 = 44;
+
     const _360: f64 = 6400.;
     const TILL: f64 = 64.;
-    const PACE: f64 = 4.;
-    const EACH: f64 = 2.;
+    const FREQ: u32 = 18;
+    const INTO: f64 = 8.;
+    const EACH: f64 = 1.;
 
     screen::watch(
       |(a, n, v, x, y)| match a {
         T => match is_kl() {
           T => {
-            let zy = recoil(time::till(at));
+            let zy = recoil(FREQ as f64, time::till(at));
             an = match TILL > n {
               T => match n % EACH {
                 N => {
                   let zx = x + add_x(v);
                   let nx = zx.abs();
                   let ax = match nx >= axis_x {
-                    T => pace(zx, PACE),
+                    T => pace(zx, INTO),
                     _ => zx,
                   };
 
@@ -71,11 +76,11 @@ pub fn main() {
                   let nx = zx.abs();
 
                   let (is_y, ay) = match ny >= axis_y {
-                    T => (F, pace(zy, PACE)),
+                    T => (F, pace(zy, INTO)),
                     _ => (T, zy),
                   };
                   let (is_x, ax) = match nx >= axis_x {
-                    T => (F, pace(zx, PACE)),
+                    T => (F, pace(zx, INTO)),
                     _ => (T, zx),
                   };
 
@@ -104,7 +109,7 @@ pub fn main() {
         _ => {
           an = match is_kl() {
             T => {
-              xy(N, recoil(time::till(at)));
+              xy(N, recoil(FREQ as f64, time::till(at)));
               an + 1.
             },
             _ => N,
@@ -127,7 +132,7 @@ pub fn main() {
             let nx = unsafe { *ny.add(xn) };
             let ax = (x as i32 / 2) - xn as i32;
 
-            match is_pixel(nx) {
+            match is_pixel(COLOR_TINT, COLOR_DIFF, nx) {
               T => match is {
                 T => {
                   v_ = v_ + 1.;
@@ -158,6 +163,7 @@ pub fn main() {
         },
         _ => F,
       },
+      FREQ,
       wide_x,
       high_y,
     );
@@ -237,18 +243,18 @@ fn on<F1: Fn() -> bool, F2: Fn(BI) -> BI, F3: Fn(BI) -> BI>(f1: F1, f2: F2, f3: 
 type BI = (bool, Instant);
 
 #[inline(always)]
-fn is_pixel(x: u32) -> bool {
+fn is_pixel(k: u8, n: u8, x: u32) -> bool {
   let n1 = ((x >> 16) & 0xff) as u8;
   let n2 = ((x >> 8) & 0xff) as u8;
   let n3 = (x & 0xff) as u8;
 
-  match n1 > CLR && n3 > CLR {
+  match n1 > k && n3 > k {
     T => match n1 > n3 {
-      T => match n3.abs_diff(n2) > ABS {
+      T => match n3.abs_diff(n2) > n {
         T => T,
         _ => F,
       },
-      _ => match n1.abs_diff(n2) > ABS {
+      _ => match n1.abs_diff(n2) > n {
         T => T,
         _ => F,
       },
@@ -258,8 +264,8 @@ fn is_pixel(x: u32) -> bool {
 }
 
 #[inline(always)]
-fn recoil(n: f64) -> f64 {
-  let n_ = (screen::HZ / 16) as f64;
+fn recoil(k: f64, n: f64) -> f64 {
+  let n_ = k / 16.;
   match n {
     801.0..=f64::MAX => N,
     701.0..=800. => n_ * -2.,
@@ -309,10 +315,6 @@ fn to_rad(n: f64) -> f64 {
 //   let t = t.clamp(N, 1.0);
 //   (3.0 * t * t) - (2.0 * t * t * t)
 // }
-
-const CLR: u8 = 255 - 16;
-const ABS: u8 = 32;
-const APP: &str = "VAL";
 
 use {
   common::{

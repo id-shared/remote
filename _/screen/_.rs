@@ -2,9 +2,9 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, x: f64, y: f64) -> bool {
+pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, n: u32, x: f64, y: f64) -> bool {
   let capturer = |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
-  let recorder = recorder();
+  let recorder = recorder(n);
   let mut id: f64 = N;
   loop {
     let oneach = || {
@@ -102,7 +102,7 @@ fn capturer(l: f64, t: f64, x: f64, y: f64) -> Capturer {
   }
 }
 
-fn recorder() -> Recorder {
+fn recorder(n: u32) -> Recorder {
   let mut context: Option<ID3D11DeviceContext> = None;
   let mut device: Option<ID3D11Device> = None;
   let mut level = D3D_FEATURE_LEVEL_12_2;
@@ -134,7 +134,7 @@ fn recorder() -> Recorder {
     context,
     device,
     framer,
-    hz: HZ,
+    hz: n,
   }
 }
 
@@ -183,8 +183,6 @@ pub fn wide() -> f64 {
 pub fn high() -> f64 {
   unsafe { GetSystemMetrics(SM_CYSCREEN) as f64 }
 }
-
-pub const HZ: u32 = 18; // HINT: +1 is for being safe with framedrops.
 
 type Record = (*const u8, usize, usize, usize);
 
