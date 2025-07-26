@@ -23,7 +23,7 @@ pub fn main() {
     let axis_y = high_y / 128.;
     let axis_x = wide_x / 128.;
 
-    let mut at = Instant::now();
+    let mut at = time::now();
     let mut an = N;
 
     const COLOR_TINT: u8 = 255 - 24;
@@ -82,11 +82,11 @@ pub fn main() {
                   T => {
                     xy(ax, ay);
                     kl(F);
-                    Instant::now()
+                    time::now()
                   },
                   _ => {
                     xy(ax, ay);
-                    Instant::now()
+                    time::now()
                   },
                 };
 
@@ -163,10 +163,10 @@ pub fn main() {
 
   handle.push(thread::spawn(|| {
     let io = xyloid::device();
-    let mut d = (F, Instant::now());
-    let mut a = (F, Instant::now());
-    let mut w = (F, Instant::now());
-    let mut s = (F, Instant::now());
+    let mut d = (F, time::now());
+    let mut a = (F, time::now());
+    let mut w = (F, time::now());
+    let mut s = (F, time::now());
 
     loop {
       match screen::name().contains(APP) {
@@ -191,7 +191,7 @@ pub fn main() {
 fn on_key<F1: Fn() -> bool, F2: Fn(&Device, bool) -> bool>(f1: F1, f2: F2, io: &Device, z1: BI) -> BI {
   on(
     f1,
-    |_| (T, Instant::now()),
+    |_| (T, time::now()),
     |x| {
       let n = (time::till(x.1) / 10.).round() as u64;
       match n {
@@ -212,7 +212,7 @@ fn on_key<F1: Fn() -> bool, F2: Fn(&Device, bool) -> bool>(f1: F1, f2: F2, io: &
           f2(io, T)
         },
       };
-      (F, Instant::now())
+      (F, time::now())
     },
     z1,
   )
