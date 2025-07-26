@@ -102,7 +102,7 @@ pub fn main() {
             let ay = recoil(FREQ as f64, time::till(at));
             an = match each(n) {
               T => {
-                let (_, ax) = into(wide_x / 64., 2., x + add_x(v));
+                let (_, ax) = into(wide_x / 256., 2., x + add_x(v));
 
                 xy(ax, ay);
                 an + 1.
