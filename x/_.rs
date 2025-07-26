@@ -27,18 +27,20 @@ pub fn main() {
 
     const _360: f64 = 6400.;
     const TILL: f64 = 64.;
+    const PACE: f64 = 8.;
+    const FACT: f64 = 1.;
 
     screen::watch(
       |(a, n, v, x, y)| match a {
         T => match is_kl() {
           T => {
-            let zy = recoil(at.elapsed().as_millis_f64());
+            let zy = recoil(time::till(at), FACT);
             an = match TILL > n {
               T => {
                 let zx = x + add_x(v);
                 let nx = zx.abs();
                 let ax = match nx >= axis_x {
-                  T => io(zx),
+                  T => pace(zx, PACE),
                   _ => zx,
                 };
 
@@ -62,11 +64,11 @@ pub fn main() {
                 let nx = zx.abs();
 
                 let (is_y, ay) = match ny >= axis_y {
-                  T => (F, io(zy)),
+                  T => (F, pace(zy, PACE)),
                   _ => (T, zy),
                 };
                 let (is_x, ax) = match nx >= axis_x {
-                  T => (F, io(zx)),
+                  T => (F, pace(zx, PACE)),
                   _ => (T, zx),
                 };
 
@@ -93,7 +95,7 @@ pub fn main() {
         _ => {
           an = match is_kl() {
             T => {
-              xy(N, recoil(at.elapsed().as_millis_f64()));
+              xy(N, recoil(time::till(at), FACT));
               an + 1.
             },
             _ => N,
@@ -184,7 +186,7 @@ fn on_key<F1: Fn() -> bool, F2: Fn(&Device, bool) -> bool>(f1: F1, f2: F2, io: &
     f1,
     |_| (T, Instant::now()),
     |x| {
-      let n = (x.1.elapsed().as_millis_f64() / 10.).round() as u64;
+      let n = (time::till(x.1) / 10.).round() as u64;
       match n {
         17..=32 => {
           f2(io, F);
@@ -247,20 +249,24 @@ fn is_pixel(x: u32) -> bool {
 }
 
 #[inline(always)]
-fn recoil(n: f64) -> f64 {
-  let n_ = 1.;
-  match n {
-    801.0..=f64::MAX => N * n_,
-    701.0..=800. => -2. * n_,
-    601.0..=700. => -4. * n_,
-    501.0..=600. => -4. * n_,
-    401.0..=500. => -4. * n_,
-    301.0..=400. => -5. * n_,
-    201.0..=300. => -4. * n_,
-    101.0..=200. => -2. * n_,
-    0.0..=100. => -1. * n_,
+fn recoil(i: f64, n: f64) -> f64 {
+  match i {
+    801.0..=f64::MAX => N * n,
+    701.0..=800. => -2. * n,
+    601.0..=700. => -4. * n,
+    501.0..=600. => -4. * n,
+    401.0..=500. => -4. * n,
+    301.0..=400. => -5. * n,
+    201.0..=300. => -4. * n,
+    101.0..=200. => -2. * n,
+    0.0..=100. => -1. * n,
     _ => N,
   }
+}
+
+#[inline(always)]
+fn pace(i: f64, n: f64) -> f64 {
+  i / n
 }
 
 #[inline(always)]
@@ -271,11 +277,6 @@ fn add_y(n: f64) -> f64 {
 #[inline(always)]
 fn add_x(n: f64) -> f64 {
   n / 16.
-}
-
-#[inline(always)]
-fn io(n: f64) -> f64 {
-  n / 4.
 }
 
 #[inline(always)]
