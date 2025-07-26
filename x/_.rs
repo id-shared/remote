@@ -10,16 +10,18 @@ pub fn main() {
 
   handle.push(thread::spawn(|| {
     let device = xyloid::device();
-    let high_y = screen::high();
-    let wide_x = screen::wide();
+    let y_high = screen::high();
+    let x_wide = screen::wide();
 
-    let get_y_ = |ay: f64| wealth(to_rad(70.53_f64 / 2.), ay / (high_y / 2.), _360);
-    let get_x_ = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / (wide_x / 2.), _360);
+    let get_y_ = |ay: f64| wealth(to_rad(70.53_f64 / 2.), ay / (y_high / 2.), _360);
+    let get_x_ = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / (x_wide / 2.), _360);
     let xy = |ax: f64, ay: f64| d1::xy(&device, get_x_(ax), get_y_(ay));
 
     let is_kl = || d2::is_i();
     let kl = |is: bool| d2::i(&device, is);
 
+    let ny = y_high / 256.;
+    let nx = x_wide / 256.;
     let mut at = time::now();
     let mut an = N;
 
@@ -68,18 +70,10 @@ pub fn main() {
     }
 
     #[inline(always)]
-    fn into(c: f64, i: f64, k: f64, n: f64) -> (bool, f64) {
-      let n_ = n.abs();
-
-      match c >= 4. {
-        T => match n_ >= (i * 4.) {
-          T => (F, n / k),
-          _ => (T, n),
-        },
-        _ => match n_ >= (i * 1.) {
-          T => (F, n / k),
-          _ => (T, n),
-        },
+    fn into(i: f64, k: f64, n: f64) -> (bool, f64) {
+      match n.abs() >= i {
+        T => (F, n / k),
+        _ => (T, n),
       }
     }
 
@@ -110,7 +104,7 @@ pub fn main() {
             let ay = recoil(FREQ as f64, time::till(at));
             an = match each(n) {
               T => {
-                let (_, ax) = into(n, wide_x / 256., 4., x + add_x(v));
+                let (__, ax) = into(nx, 4., x + add_x(v));
 
                 xy(ax, ay);
                 an + 1.
@@ -126,10 +120,10 @@ pub fn main() {
           _ => {
             an = match each(n) {
               T => {
-                let (is_y, ay) = into(n, high_y / 256., 4., y - add_y(v));
-                let (is_x, ax) = into(n, wide_x / 256., 4., x + add_x(v));
+                let (__, ay) = into(ny, 2., y - add_y(v));
+                let (is, ax) = into(nx, 4., x + add_x(v));
 
-                at = match is_x && is_y {
+                at = match is {
                   T => {
                     xy(ax, ay);
                     kl(F);
@@ -207,8 +201,8 @@ pub fn main() {
         _ => F,
       },
       FREQ,
-      wide_x,
-      high_y,
+      x_wide,
+      y_high,
     );
   }));
 
