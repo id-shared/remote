@@ -10,10 +10,10 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
     let oneach = || {
       let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
       let mut data: Option<IDXGIResource> = None;
-      match unsafe { recorder.framer.AcquireNextFrame(recorder.hz, &mut info, &mut data).is_ok() } {
-        T => match is_f() {
+      match unsafe { recorder.framer.AcquireNextFrame(recorder.hz, &mut info, &mut data) } {
+        Ok(_) => match is_f() {
           T => {
-            let capturer = capturer(x / (id + 1.).min(8.), y / 8.);
+            let capturer = capturer(x / (id + 1.).min(4.), y / 8.);
             let data = data.unwrap();
             let cast = data.cast().unwrap();
             let (is, an, ax, ay) = on_f(turn(cast, capturer, &recorder));
@@ -35,10 +35,13 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
           _ => {
             unsafe { recorder.framer.ReleaseFrame().unwrap() };
             id = N;
-            T
+            F
           },
         },
-        _ => F,
+        Err(e) => {
+          println!("Frame: {}", e);
+          F
+        },
       }
     };
 
@@ -181,7 +184,7 @@ pub fn high() -> f64 {
   unsafe { GetSystemMetrics(SM_CYSCREEN) as f64 }
 }
 
-pub const HZ: u32 = 16 + 1; // HINT: +1 is for being safe with framedrops.
+pub const HZ: u32 = 18; // HINT: +1 is for being safe with framedrops.
 
 type Record = (*const u8, usize, usize, usize);
 

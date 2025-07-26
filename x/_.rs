@@ -27,7 +27,6 @@ pub fn main() {
 
     const _360: f64 = 6400.;
     const TILL: f64 = 64.;
-    const EACH: f64 = 2.;
 
     screen::watch(
       |(a, n, v, x, y)| match a {
@@ -35,22 +34,16 @@ pub fn main() {
           T => {
             let zy = recoil(at.elapsed().as_millis_f64());
             an = match TILL > n {
-              T => match n % EACH {
-                N => {
-                  let zx = x + add_x(v);
-                  let nx = zx.abs();
-                  let ax = match nx >= axis_x {
-                    T => io(zx),
-                    _ => zx,
-                  };
+              T => {
+                let zx = x + add_x(v);
+                let nx = zx.abs();
+                let ax = match nx >= axis_x {
+                  T => io(zx),
+                  _ => zx,
+                };
 
-                  xy(ax, zy);
-                  an + 1.
-                },
-                _ => {
-                  xy(N, zy);
-                  an + 1.
-                },
+                xy(ax, zy);
+                an + 1.
               },
               _ => {
                 xy(N, zy);
@@ -62,37 +55,34 @@ pub fn main() {
           },
           _ => {
             an = match TILL > n {
-              T => match n % EACH {
-                N => {
-                  let zy = y - add_y(v);
-                  let zx = x + add_x(v);
-                  let ny = zy.abs();
-                  let nx = zx.abs();
+              T => {
+                let zy = y - add_y(v);
+                let zx = x + add_x(v);
+                let ny = zy.abs();
+                let nx = zx.abs();
 
-                  let (is_y, ay) = match ny >= axis_y {
-                    T => (F, io(zy)),
-                    _ => (T, zy),
-                  };
-                  let (is_x, ax) = match nx >= axis_x {
-                    T => (F, io(zx)),
-                    _ => (T, zx),
-                  };
+                let (is_y, ay) = match ny >= axis_y {
+                  T => (F, io(zy)),
+                  _ => (T, zy),
+                };
+                let (is_x, ax) = match nx >= axis_x {
+                  T => (F, io(zx)),
+                  _ => (T, zx),
+                };
 
-                  at = match is_x && is_y {
-                    T => {
-                      xy(ax, ay);
-                      kl(F);
-                      Instant::now()
-                    },
-                    _ => {
-                      xy(ax, ay);
-                      Instant::now()
-                    },
-                  };
+                at = match is_x && is_y {
+                  T => {
+                    xy(ax, ay);
+                    kl(F);
+                    Instant::now()
+                  },
+                  _ => {
+                    xy(ax, ay);
+                    Instant::now()
+                  },
+                };
 
-                  N
-                },
-                _ => N,
+                N
               },
               _ => N,
             };
@@ -258,16 +248,17 @@ fn is_pixel(x: u32) -> bool {
 
 #[inline(always)]
 fn recoil(n: f64) -> f64 {
+  let n_ = 1.;
   match n {
-    801.0..=f64::MAX => N,
-    701.0..=800. => -2.,
-    601.0..=700. => -4.,
-    501.0..=600. => -4.,
-    401.0..=500. => -4.,
-    301.0..=400. => -5.,
-    201.0..=300. => -4.,
-    101.0..=200. => -2.,
-    0.0..=100. => -1.,
+    801.0..=f64::MAX => N * n_,
+    701.0..=800. => -2. * n_,
+    601.0..=700. => -4. * n_,
+    501.0..=600. => -4. * n_,
+    401.0..=500. => -4. * n_,
+    301.0..=400. => -5. * n_,
+    201.0..=300. => -4. * n_,
+    101.0..=200. => -2. * n_,
+    0.0..=100. => -1. * n_,
     _ => N,
   }
 }
