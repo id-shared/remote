@@ -20,14 +20,14 @@ pub fn main() {
     let is_kl = || d2::is_i();
     let kl = |is: bool| d2::i(&device, is);
 
-    let axis_y = high_y / 256.;
-    let axis_x = wide_x / 256.;
+    let axis_y = high_y / 128.;
+    let axis_x = wide_x / 128.;
 
     let mut at = Instant::now();
     let mut an = N;
 
-    const COLOR_TINT: u8 = 255 - 8;
-    const COLOR_DIFF: u8 = 40;
+    const COLOR_TINT: u8 = 255 - 24;
+    const COLOR_DIFF: u8 = 24;
 
     const _360: f64 = 6400.;
     const FREQ: u32 = 18;
@@ -56,16 +56,16 @@ pub fn main() {
       |(a, n, v, x, y)| match a {
         T => match is_kl() {
           T => {
-            let zy = recoil(FREQ as f64, time::till(at));
+            let ay = recoil(FREQ as f64, time::till(at));
             an = match each(n) {
               T => {
                 let (_, ax) = into(axis_x, 2., x + add_x(v));
 
-                xy(ax, zy);
+                xy(ax, ay);
                 an + 1.
               },
               _ => {
-                xy(N, zy);
+                xy(N, ay);
                 an + 1.
               },
             };
