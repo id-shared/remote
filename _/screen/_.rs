@@ -42,7 +42,7 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
       }
     };
 
-    sure(oneach, MS * recorder.hz);
+    time::sure(oneach, time::MS * recorder.hz);
   }
 }
 
@@ -149,19 +149,6 @@ struct Recorder {
   hz: u32,
 }
 
-fn sure<F: FnMut() -> bool>(mut f1: F, n1: Duration) -> bool {
-  let init = Instant::now();
-  let back = f1();
-  let rest = init.elapsed();
-  match back && n1 > rest {
-    T => {
-      sleep(n1 - rest);
-      back
-    },
-    F => back,
-  }
-}
-
 #[inline(always)]
 pub fn name() -> String {
   match unsafe { GetForegroundWindow() } {
@@ -194,13 +181,6 @@ pub fn high() -> f64 {
   unsafe { GetSystemMetrics(SM_CYSCREEN) as f64 }
 }
 
-#[inline(always)]
-pub fn xo(n: Duration) -> bool {
-  thread::sleep(n);
-  T
-}
-
-pub const MS: Duration = Duration::from_millis(1);
 pub const HZ: u32 = 16 + 1; // HINT: +1 is for being safe with framedrops.
 
 pub const N: u32 = 0;
@@ -210,15 +190,8 @@ pub const T: bool = true;
 type Record = (*const u8, usize, usize, usize);
 
 use {
+  common::time,
   std::{
-    thread::{
-      self,
-      sleep,
-    },
-    time::{
-      Duration,
-      Instant,
-    },
     u32,
     usize,
   },

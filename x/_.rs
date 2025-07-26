@@ -148,7 +148,7 @@ pub fn main() {
         (is, v_, -x_, y_)
       },
       || match screen::name().contains(APP) {
-        T => match d2::is_ml() {
+        T => match d2::is_ml() || d2::is_mr() {
           T => T,
           _ => {
             kl(T);
@@ -176,9 +176,9 @@ pub fn main() {
           a = on_key(d2::is_a, d2::ar, &io, a);
           w = on_key(d2::is_w, d2::d, &io, w);
           s = on_key(d2::is_s, d2::u, &io, s);
-          screen::xo(screen::MS)
+          time::rest(time::MS)
         },
-        _ => screen::xo(screen::MS),
+        _ => time::rest(time::MS),
       };
     }
   }));
@@ -198,18 +198,18 @@ fn on_key<F1: Fn() -> bool, F2: Fn(&Device, bool) -> bool>(f1: F1, f2: F2, io: &
       match n {
         17..=32 => {
           f2(io, F);
-          screen::xo(screen::MS * ((4 * 16) + ((n - 16) * 2)) as u32);
+          time::rest(time::MS * ((4 * 16) + ((n - 16) * 2)) as u32);
           f2(io, T)
         },
         6..=16 => {
           f2(io, F);
-          screen::xo(screen::MS * (4 * n) as u32);
+          time::rest(time::MS * (4 * n) as u32);
           f2(io, T)
         },
         0..=5 => T,
         _ => {
           f2(io, F);
-          screen::xo(screen::MS * 96);
+          time::rest(time::MS * 96);
           f2(io, T)
         },
       };
@@ -317,6 +317,7 @@ pub const F: bool = false;
 pub const T: bool = true;
 
 use {
+  common::time,
   screen,
   std::{
     f64::consts::PI,

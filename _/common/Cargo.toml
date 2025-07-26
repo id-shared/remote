@@ -1,16 +1,4 @@
 [dependencies]
-windows = { version = "0.61.3", features = [
-  "Win32_UI_WindowsAndMessaging",
-  "Win32_System_WinRT_Graphics_Capture",
-  "Win32_System_SystemServices",
-  "Win32_Graphics_Gdi",
-  "Win32_Graphics_Dxgi",
-  "Win32_Graphics_Dxgi_Common",
-  "Win32_Graphics_Direct3D11",
-  "Win32_Graphics_Direct3D",
-  "Win32_Foundation",
-] }
-common = { path = "./../common" }
 
 [package]
 authors = ["Zyrosk <hq.zyrosk@gmail.com>"]
@@ -19,7 +7,7 @@ description = "A Chrome DevTools Protocol client"
 edition = "2021"
 keywords = ["chrome", "client", "devtools", "protocol"]
 license = "MIT OR Apache-2.0"
-name = "screen"
+name = "common"
 repository = "https://github.com/hq-zyrosk/main"
 version = "0.0.1"
 

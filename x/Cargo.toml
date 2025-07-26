@@ -1,6 +1,7 @@
 [dependencies]
 xyloid = { path = "./../_/xyloid" }
 screen = { path = "./../_/screen" }
+common = { path = "./../_/common" }
 
 [[bin]]
 doctest = false
