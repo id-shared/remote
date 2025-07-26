@@ -32,16 +32,15 @@ pub fn main() {
     const _360: f64 = 6400.;
     const FREQ: u32 = 18;
     const INTO: f64 = 8.;
-    const EACH: f64 = 2.;
 
-    fn each(k: f64, n: f64) -> bool {
+    fn each(n: f64) -> bool {
       let back = match n {
         64.0..=f64::MAX => F,
-        4.0..=64. => (n % k) == 1.,
-        0.0..=4. => T,
+        16.0..=64. => (n % 2.) == 1.,
+        0.0..=16. => T,
         _ => F,
       };
-      println!("{} {} {}", k, n, back);
+      println!("{} {}", n, back);
       back
     }
 
@@ -50,7 +49,7 @@ pub fn main() {
         T => match is_kl() {
           T => {
             let zy = recoil(FREQ as f64, time::till(at));
-            an = match each(EACH, n) {
+            an = match each(n) {
               T => {
                 let zx = x + add_x(v);
                 let nx = zx.abs();
@@ -71,7 +70,7 @@ pub fn main() {
             T
           },
           _ => {
-            an = match each(EACH, n) {
+            an = match each(n) {
               T => {
                 let zy = y - add_y(v);
                 let zx = x + add_x(v);
