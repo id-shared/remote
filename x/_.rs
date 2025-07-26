@@ -20,8 +20,8 @@ pub fn main() {
     let is_kl = || d2::is_i();
     let kl = |is: bool| d2::i(&device, is);
 
-    let axis_y = high_y / 128.;
-    let axis_x = wide_x / 128.;
+    let axis_y = high_y / 256.;
+    let axis_x = wide_x / 256.;
 
     let mut at = time::now();
     let mut an = N;
@@ -80,14 +80,12 @@ pub fn main() {
 
     #[inline(always)]
     fn each(n: f64) -> bool {
-      let back = match n {
+      match n {
         64.0..=f64::MAX => F,
-        // 16.0..=64. => (n % 2.) == 1.,
+        16.0..=64. => (n % 2.) == 1.,
         0.0..=64. => T,
         _ => F,
-      };
-      println!("{} {}", n, back);
-      back
+      }
     }
 
     #[inline(always)]
