@@ -33,6 +33,44 @@ pub fn main() {
     const FREQ: u32 = 18;
 
     #[inline(always)]
+    fn is_pixel(k: u8, n: u8, x: u32) -> bool {
+      let n1 = ((x >> 16) & 0xff) as u8;
+      let n2 = ((x >> 8) & 0xff) as u8;
+      let n3 = (x & 0xff) as u8;
+
+      match n1 > k && n3 > k {
+        T => match n1 > n3 {
+          T => match n3.abs_diff(n2) > n {
+            T => T,
+            _ => F,
+          },
+          _ => match n1.abs_diff(n2) > n {
+            T => T,
+            _ => F,
+          },
+        },
+        _ => F,
+      }
+    }
+
+    #[inline(always)]
+    fn recoil(k: f64, n: f64) -> f64 {
+      let n_ = (k / 16.).round();
+      match n {
+        800.0..=f64::MAX => N,
+        700.0..=800. => n_ * -2.,
+        600.0..=700. => n_ * -4.,
+        500.0..=600. => n_ * -4.,
+        400.0..=500. => n_ * -4.,
+        300.0..=400. => n_ * -5.,
+        200.0..=300. => n_ * -4.,
+        100.0..=200. => n_ * -2.,
+        0.0..=100. => n_ * -1.,
+        _ => N,
+      }
+    }
+
+    #[inline(always)]
     fn into(i: f64, k: f64, n: f64) -> (bool, f64) {
       match n.abs() >= i {
         T => (F, n / k),
@@ -50,6 +88,16 @@ pub fn main() {
       };
       println!("{} {}", n, back);
       back
+    }
+
+    #[inline(always)]
+    fn add_y(n: f64) -> f64 {
+      n / 4.
+    }
+
+    #[inline(always)]
+    fn add_x(n: f64) -> f64 {
+      n / 16.
     }
 
     screen::watch(
@@ -168,6 +216,53 @@ pub fn main() {
     let mut w = (F, time::now());
     let mut s = (F, time::now());
 
+    #[inline(always)]
+    fn on_key<F1: Fn() -> bool, F2: Fn(&Device, bool) -> bool>(f1: F1, f2: F2, io: &Device, z1: BI) -> BI {
+      on(
+        f1,
+        |_| (T, time::now()),
+        |x| {
+          let n = (time::till(x.1) / 10.).round() as u64;
+          match n {
+            17..=32 => {
+              f2(io, F);
+              time::rest(time::MS * ((4 * 16) + ((n - 16) * 2)) as u32);
+              f2(io, T)
+            },
+            6..=16 => {
+              f2(io, F);
+              time::rest(time::MS * (4 * n) as u32);
+              f2(io, T)
+            },
+            0..=5 => T,
+            _ => {
+              f2(io, F);
+              time::rest(time::MS * 96);
+              f2(io, T)
+            },
+          };
+          (F, time::now())
+        },
+        z1,
+      )
+    }
+
+    #[inline(always)]
+    fn on<F1: Fn() -> bool, F2: Fn(BI) -> BI, F3: Fn(BI) -> BI>(f1: F1, f2: F2, f3: F3, z1: BI) -> BI {
+      match z1.0 {
+        T => match f1() {
+          T => z1,
+          _ => f3(z1),
+        },
+        _ => match f1() {
+          T => f2(z1),
+          _ => z1,
+        },
+      }
+    }
+
+    type BI = (bool, Instant);
+
     loop {
       match screen::name().contains(APP) {
         T => {
@@ -188,112 +283,17 @@ pub fn main() {
 }
 
 #[inline(always)]
-fn on_key<F1: Fn() -> bool, F2: Fn(&Device, bool) -> bool>(f1: F1, f2: F2, io: &Device, z1: BI) -> BI {
-  on(
-    f1,
-    |_| (T, time::now()),
-    |x| {
-      let n = (time::till(x.1) / 10.).round() as u64;
-      match n {
-        17..=32 => {
-          f2(io, F);
-          time::rest(time::MS * ((4 * 16) + ((n - 16) * 2)) as u32);
-          f2(io, T)
-        },
-        6..=16 => {
-          f2(io, F);
-          time::rest(time::MS * (4 * n) as u32);
-          f2(io, T)
-        },
-        0..=5 => T,
-        _ => {
-          f2(io, F);
-          time::rest(time::MS * 96);
-          f2(io, T)
-        },
-      };
-      (F, time::now())
-    },
-    z1,
-  )
-}
-
-#[inline(always)]
-fn on<F1: Fn() -> bool, F2: Fn(BI) -> BI, F3: Fn(BI) -> BI>(f1: F1, f2: F2, f3: F3, z1: BI) -> BI {
-  match z1.0 {
-    T => match f1() {
-      T => z1,
-      _ => f3(z1),
-    },
-    _ => match f1() {
-      T => f2(z1),
-      _ => z1,
-    },
-  }
-}
-
-type BI = (bool, Instant);
-
-#[inline(always)]
-fn is_pixel(k: u8, n: u8, x: u32) -> bool {
-  let n1 = ((x >> 16) & 0xff) as u8;
-  let n2 = ((x >> 8) & 0xff) as u8;
-  let n3 = (x & 0xff) as u8;
-
-  match n1 > k && n3 > k {
-    T => match n1 > n3 {
-      T => match n3.abs_diff(n2) > n {
-        T => T,
-        _ => F,
-      },
-      _ => match n1.abs_diff(n2) > n {
-        T => T,
-        _ => F,
-      },
-    },
-    _ => F,
-  }
-}
-
-#[inline(always)]
-fn recoil(k: f64, n: f64) -> f64 {
-  let n_ = (k / 16.).round();
-  match n {
-    800.0..=f64::MAX => N,
-    700.0..=800. => n_ * -2.,
-    600.0..=700. => n_ * -4.,
-    500.0..=600. => n_ * -4.,
-    400.0..=500. => n_ * -4.,
-    300.0..=400. => n_ * -5.,
-    200.0..=300. => n_ * -4.,
-    100.0..=200. => n_ * -2.,
-    0.0..=100. => n_ * -1.,
-    _ => N,
-  }
-}
-
-#[inline(always)]
-fn add_y(n: f64) -> f64 {
-  n / 4.
-}
-
-#[inline(always)]
-fn add_x(n: f64) -> f64 {
-  n / 16.
-}
-
-#[inline(always)]
-fn wealth(radian: f64, factor: f64, size: f64) -> f64 {
+pub fn wealth(radian: f64, factor: f64, size: f64) -> f64 {
   (dollar(radian, factor) / (2. * PI)) * size
 }
 
 #[inline(always)]
-fn dollar(n1: f64, n2: f64) -> f64 {
+pub fn dollar(n1: f64, n2: f64) -> f64 {
   (n1.tan() * n2).atan()
 }
 
 #[inline(always)]
-fn to_rad(n: f64) -> f64 {
+pub fn to_rad(n: f64) -> f64 {
   n.to_radians()
 }
 
