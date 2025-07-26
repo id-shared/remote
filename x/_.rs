@@ -23,8 +23,8 @@ pub fn main() {
     let mut at = time::now();
     let mut an = N;
 
-    const COLOR_TINT: u8 = 255 - 24;
-    const COLOR_DIFF: u8 = 24;
+    const COLOR_TINT: u8 = 255 - 16;
+    const COLOR_DIFF: u8 = 32;
 
     const _360: f64 = 6400.;
     const FREQ: u32 = 18;
@@ -68,10 +68,18 @@ pub fn main() {
     }
 
     #[inline(always)]
-    fn into(i: f64, k: f64, n: f64) -> (bool, f64) {
-      match n.abs() >= i {
-        T => (F, n / k),
-        _ => (T, n),
+    fn into(c: f64, i: f64, k: f64, n: f64) -> (bool, f64) {
+      let n_ = n.abs();
+
+      match c >= 4. {
+        T => match n_ >= (i * 4.) {
+          T => (F, n / k),
+          _ => (T, n),
+        },
+        _ => match n_ >= (i * 1.) {
+          T => (F, n / k),
+          _ => (T, n),
+        },
       }
     }
 
@@ -102,7 +110,7 @@ pub fn main() {
             let ay = recoil(FREQ as f64, time::till(at));
             an = match each(n) {
               T => {
-                let (_, ax) = into(wide_x / 256., 2., x + add_x(v));
+                let (_, ax) = into(n, wide_x / 256., 4., x + add_x(v));
 
                 xy(ax, ay);
                 an + 1.
@@ -118,8 +126,8 @@ pub fn main() {
           _ => {
             an = match each(n) {
               T => {
-                let (is_y, ay) = into(high_y / 256., 4., y - add_y(v));
-                let (is_x, ax) = into(wide_x / 256., 4., x + add_x(v));
+                let (is_y, ay) = into(n, high_y / 256., 4., y - add_y(v));
+                let (is_x, ax) = into(n, wide_x / 256., 4., x + add_x(v));
 
                 at = match is_x && is_y {
                   T => {
@@ -189,7 +197,7 @@ pub fn main() {
         (is, v_, -x_, y_)
       },
       || match screen::name().contains(APP) {
-        T => match d2::is_ml() || d2::is_mr() {
+        T => match d2::is_ml() {
           T => T,
           _ => {
             kl(T);

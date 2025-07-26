@@ -11,7 +11,7 @@ live:
   cargo run --bin live
 
 proxy:
-  mitmweb --mode local:vgc.exe --script mitm.py
+  mitmproxy --mode local:vgc.exe --script mitm.py
 
 devices:
   ./devices.bat
