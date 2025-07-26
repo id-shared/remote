@@ -70,8 +70,8 @@ pub fn main() {
     }
 
     #[inline(always)]
-    fn into(i: f64, k: f64, n: f64) -> (bool, f64) {
-      match n.abs() >= i {
+    fn into(k: f64, l: f64, n: f64) -> (bool, f64) {
+      match n.abs() >= l {
         T => (F, n / k),
         _ => (T, n),
       }
@@ -104,7 +104,7 @@ pub fn main() {
             let ay = recoil(FREQ as f64, time::till(at));
             an = match each(n) {
               T => {
-                let (__, ax) = into(nx, 4., x + add_x(v));
+                let (__, ax) = into(4., nx, x + add_x(v));
 
                 xy(ax, ay);
                 an + 1.
@@ -120,8 +120,8 @@ pub fn main() {
           _ => {
             an = match each(n) {
               T => {
-                let (__, ay) = into(ny, 4., y - add_y(v));
-                let (is, ax) = into(nx, 4., x + add_x(v));
+                let (__, ay) = into(4., ny, y - add_y(v));
+                let (is, ax) = into(4., nx, x + add_x(v));
 
                 at = match is {
                   T => {
