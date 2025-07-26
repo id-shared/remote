@@ -17,8 +17,8 @@ pub fn main() {
     let get_x_ = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / (wide_x / 2.), _360);
     let xy = |ax: f64, ay: f64| d1::xy(&device, get_x_(ax), get_y_(ay));
 
-    let is_kl = || d2::is_h();
-    let kl = |is: bool| d2::h(&device, is);
+    let is_kl = || d2::is_i();
+    let kl = |is: bool| d2::i(&device, is);
 
     let axis_y = high_y / 64.;
     let axis_x = wide_x / 64.;
@@ -32,8 +32,8 @@ pub fn main() {
     const _360: f64 = 6400.;
     const TILL: f64 = 64.;
     const FREQ: u32 = 18;
-    const INTO: f64 = 8.;
-    const EACH: f64 = 1.;
+    const INTO: f64 = 4.;
+    const EACH: f64 = 2.;
 
     screen::watch(
       |(a, n, v, x, y)| match a {
@@ -43,10 +43,11 @@ pub fn main() {
             an = match TILL > n {
               T => match n % EACH {
                 N => {
+                  println!("{}", n);
                   let zx = x + add_x(v);
                   let nx = zx.abs();
                   let ax = match nx >= axis_x {
-                    T => pace(zx, INTO),
+                    T => into(zx, INTO),
                     _ => zx,
                   };
 
@@ -70,17 +71,18 @@ pub fn main() {
             an = match TILL > n {
               T => match n % EACH {
                 N => {
+                  println!("{}", n);
                   let zy = y - add_y(v);
                   let zx = x + add_x(v);
                   let ny = zy.abs();
                   let nx = zx.abs();
 
                   let (is_y, ay) = match ny >= axis_y {
-                    T => (F, pace(zy, INTO)),
+                    T => (F, into(zy, INTO)),
                     _ => (T, zy),
                   };
                   let (is_x, ax) = match nx >= axis_x {
-                    T => (F, pace(zx, INTO)),
+                    T => (F, into(zx, INTO)),
                     _ => (T, zx),
                   };
 
@@ -181,8 +183,8 @@ pub fn main() {
         T => {
           d = on_key(d2::is_d, d2::al, &io, d);
           a = on_key(d2::is_a, d2::ar, &io, a);
-          w = on_key(d2::is_w, d2::d, &io, w);
-          s = on_key(d2::is_s, d2::u, &io, s);
+          w = on_key(d2::is_w, d2::ad, &io, w);
+          s = on_key(d2::is_s, d2::au, &io, s);
           time::rest(time::MS)
         },
         _ => time::rest(time::MS),
@@ -281,7 +283,7 @@ fn recoil(k: f64, n: f64) -> f64 {
 }
 
 #[inline(always)]
-fn pace(i: f64, n: f64) -> f64 {
+fn into(i: f64, n: f64) -> f64 {
   i / n
 }
 

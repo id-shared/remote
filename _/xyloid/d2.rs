@@ -24,18 +24,33 @@ pub fn al(device: &Device, up: bool) -> bool {
 }
 
 #[inline(always)]
-pub fn d(device: &Device, up: bool) -> bool {
+pub fn ad(device: &Device, up: bool) -> bool {
   key_(device, VK_DOWN, up)
 }
 
 #[inline(always)]
-pub fn u(device: &Device, up: bool) -> bool {
+pub fn au(device: &Device, up: bool) -> bool {
   key_(device, VK_UP, up)
 }
 
 #[inline(always)]
-pub fn h(device: &Device, up: bool) -> bool {
-  key_(device, VK_H, up)
+pub fn l(device: &Device, up: bool) -> bool {
+  key_(device, VK_L, up)
+}
+
+#[inline(always)]
+pub fn k(device: &Device, up: bool) -> bool {
+  key_(device, VK_K, up)
+}
+
+#[inline(always)]
+pub fn j(device: &Device, up: bool) -> bool {
+  key_(device, VK_J, up)
+}
+
+#[inline(always)]
+pub fn i(device: &Device, up: bool) -> bool {
+  key_(device, VK_I, up)
 }
 
 #[inline(always)]
@@ -64,8 +79,23 @@ pub fn is_ml() -> bool {
 }
 
 #[inline(always)]
-pub fn is_h() -> bool {
-  is(VK_H)
+pub fn is_l() -> bool {
+  is(VK_L)
+}
+
+#[inline(always)]
+pub fn is_k() -> bool {
+  is(VK_K)
+}
+
+#[inline(always)]
+pub fn is_j() -> bool {
+  is(VK_J)
+}
+
+#[inline(always)]
+pub fn is_i() -> bool {
+  is(VK_I)
 }
 
 #[inline(always)]
@@ -155,7 +185,10 @@ use {
       VK_CONTROL,
       VK_D,
       VK_DOWN,
-      VK_H,
+      VK_I,
+      VK_J,
+      VK_K,
+      VK_L,
       VK_LBUTTON,
       VK_LEFT,
       VK_LMENU,
