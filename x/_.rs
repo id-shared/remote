@@ -30,34 +30,37 @@ pub fn main() {
     const COLOR_DIFF: u8 = 44;
 
     const _360: f64 = 6400.;
-    const TILL: f64 = 64.;
     const FREQ: u32 = 18;
-    const INTO: f64 = 4.;
+    const INTO: f64 = 8.;
     const EACH: f64 = 2.;
+
+    fn each(k: f64, n: f64) -> bool {
+      let back = match n {
+        64.0..=f64::MAX => F,
+        4.0..=64. => (n % k) == 1.,
+        0.0..=4. => T,
+        _ => F,
+      };
+      println!("{} {} {}", k, n, back);
+      back
+    }
 
     screen::watch(
       |(a, n, v, x, y)| match a {
         T => match is_kl() {
           T => {
             let zy = recoil(FREQ as f64, time::till(at));
-            an = match TILL > n {
-              T => match n % EACH {
-                N => {
-                  println!("{}", n);
-                  let zx = x + add_x(v);
-                  let nx = zx.abs();
-                  let ax = match nx >= axis_x {
-                    T => into(zx, INTO),
-                    _ => zx,
-                  };
+            an = match each(EACH, n) {
+              T => {
+                let zx = x + add_x(v);
+                let nx = zx.abs();
+                let ax = match nx >= axis_x {
+                  T => into(zx, INTO),
+                  _ => zx,
+                };
 
-                  xy(ax, zy);
-                  an + 1.
-                },
-                _ => {
-                  xy(N, zy);
-                  an + 1.
-                },
+                xy(ax, zy);
+                an + 1.
               },
               _ => {
                 xy(N, zy);
@@ -68,39 +71,35 @@ pub fn main() {
             T
           },
           _ => {
-            an = match TILL > n {
-              T => match n % EACH {
-                N => {
-                  println!("{}", n);
-                  let zy = y - add_y(v);
-                  let zx = x + add_x(v);
-                  let ny = zy.abs();
-                  let nx = zx.abs();
+            an = match each(EACH, n) {
+              T => {
+                let zy = y - add_y(v);
+                let zx = x + add_x(v);
+                let ny = zy.abs();
+                let nx = zx.abs();
 
-                  let (is_y, ay) = match ny >= axis_y {
-                    T => (F, into(zy, INTO)),
-                    _ => (T, zy),
-                  };
-                  let (is_x, ax) = match nx >= axis_x {
-                    T => (F, into(zx, INTO)),
-                    _ => (T, zx),
-                  };
+                let (is_y, ay) = match ny >= axis_y {
+                  T => (F, into(zy, INTO)),
+                  _ => (T, zy),
+                };
+                let (is_x, ax) = match nx >= axis_x {
+                  T => (F, into(zx, INTO)),
+                  _ => (T, zx),
+                };
 
-                  at = match is_x && is_y {
-                    T => {
-                      xy(ax, ay);
-                      kl(F);
-                      Instant::now()
-                    },
-                    _ => {
-                      xy(ax, ay);
-                      Instant::now()
-                    },
-                  };
+                at = match is_x && is_y {
+                  T => {
+                    xy(ax, ay);
+                    kl(F);
+                    Instant::now()
+                  },
+                  _ => {
+                    xy(ax, ay);
+                    Instant::now()
+                  },
+                };
 
-                  N
-                },
-                _ => N,
+                N
               },
               _ => N,
             };
@@ -269,14 +268,14 @@ fn is_pixel(k: u8, n: u8, x: u32) -> bool {
 fn recoil(k: f64, n: f64) -> f64 {
   let n_ = k / 16.;
   match n {
-    801.0..=f64::MAX => N,
-    701.0..=800. => n_ * -2.,
-    601.0..=700. => n_ * -4.,
-    501.0..=600. => n_ * -4.,
-    401.0..=500. => n_ * -4.,
-    301.0..=400. => n_ * -5.,
-    201.0..=300. => n_ * -4.,
-    101.0..=200. => n_ * -2.,
+    800.0..=f64::MAX => N,
+    700.0..=800. => n_ * -2.,
+    600.0..=700. => n_ * -4.,
+    500.0..=600. => n_ * -4.,
+    400.0..=500. => n_ * -4.,
+    300.0..=400. => n_ * -5.,
+    200.0..=300. => n_ * -4.,
+    100.0..=200. => n_ * -2.,
     0.0..=100. => n_ * -1.,
     _ => N,
   }
