@@ -23,7 +23,7 @@ pub fn main() {
     let axis_x = wide_x / 32.;
 
     let mut at = Instant::now();
-    let mut an = 0.;
+    let mut an = N;
 
     const _360: f64 = 6400.;
     const TILL: f64 = 64.;
@@ -36,7 +36,7 @@ pub fn main() {
             let zy = recoil(at.elapsed().as_millis_f64());
             an = match TILL > n {
               T => match n % EACH {
-                0. => {
+                N => {
                   let zx = x + add_x(v);
                   let nx = zx.abs();
                   let ax = match nx >= axis_x {
@@ -48,12 +48,12 @@ pub fn main() {
                   an + 1.
                 },
                 _ => {
-                  xy(0., zy);
+                  xy(N, zy);
                   an + 1.
                 },
               },
               _ => {
-                xy(0., zy);
+                xy(N, zy);
                 an + 1.
               },
             };
@@ -63,7 +63,7 @@ pub fn main() {
           _ => {
             an = match TILL > n {
               T => match n % EACH {
-                0. => {
+                N => {
                   let zy = y - add_y(v);
                   let zx = x + add_x(v);
                   let ny = zy.abs();
@@ -90,11 +90,11 @@ pub fn main() {
                     },
                   };
 
-                  0.
+                  N
                 },
-                _ => 0.,
+                _ => N,
               },
-              _ => 0.,
+              _ => N,
             };
 
             T
@@ -103,19 +103,19 @@ pub fn main() {
         _ => {
           an = match is_kl() {
             T => {
-              xy(0., recoil(at.elapsed().as_millis_f64()));
+              xy(N, recoil(at.elapsed().as_millis_f64()));
               an + 1.
             },
-            _ => 0.,
+            _ => N,
           };
 
           T
         },
       },
       |(n, v, x, y)| {
-        let mut y_ = 0.;
-        let mut x_ = 0.;
-        let mut v_ = 0.;
+        let mut y_ = N;
+        let mut x_ = N;
+        let mut v_ = N;
         let mut is = F;
 
         for yn in 0..y {
@@ -259,7 +259,7 @@ fn is_pixel(x: u32) -> bool {
 #[inline(always)]
 fn recoil(n: f64) -> f64 {
   match n {
-    801.0..=f64::MAX => 0.,
+    801.0..=f64::MAX => N,
     701.0..=800. => -2.,
     601.0..=700. => -4.,
     501.0..=600. => -4.,
@@ -268,7 +268,7 @@ fn recoil(n: f64) -> f64 {
     201.0..=300. => -4.,
     101.0..=200. => -2.,
     0.0..=100. => -1.,
-    _ => 0.,
+    _ => N,
   }
 }
 
@@ -304,7 +304,7 @@ fn to_rad(n: f64) -> f64 {
 
 // #[inline(always)]
 // fn ease(t: f64) -> f64 {
-//   let t = t.clamp(0.0, 1.0);
+//   let t = t.clamp(N, 1.0);
 //   (3.0 * t * t) - (2.0 * t * t * t)
 // }
 
@@ -312,12 +312,13 @@ const CLR: u8 = 255 - 16;
 const ABS: u8 = 32;
 const APP: &str = "VAL";
 
-pub const N: u32 = 0;
-pub const F: bool = false;
-pub const T: bool = true;
-
 use {
-  common::time,
+  common::{
+    F,
+    N,
+    T,
+    time,
+  },
   screen,
   std::{
     f64::consts::PI,

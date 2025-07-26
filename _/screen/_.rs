@@ -5,7 +5,7 @@
 pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, x: f64, y: f64) -> bool {
   let capturer = |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
   let recorder = recorder();
-  let mut id: f64 = 0.;
+  let mut id: f64 = N;
   loop {
     let oneach = || {
       let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
@@ -34,7 +34,7 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
           },
           _ => {
             unsafe { recorder.framer.ReleaseFrame().unwrap() };
-            id = 0.;
+            id = N;
             T
           },
         },
@@ -183,14 +183,15 @@ pub fn high() -> f64 {
 
 pub const HZ: u32 = 16 + 1; // HINT: +1 is for being safe with framedrops.
 
-pub const N: u32 = 0;
-pub const F: bool = false;
-pub const T: bool = true;
-
 type Record = (*const u8, usize, usize, usize);
 
 use {
-  common::time,
+  common::{
+    F,
+    N,
+    T,
+    time,
+  },
   std::{
     u32,
     usize,
