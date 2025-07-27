@@ -4,12 +4,11 @@
 
 pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, n: u32, x: f64, y: f64) -> bool {
   let recorder = recorder(n);
-  let capturer = |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
+  let capturer = |x1: f64, y1: f64| ((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
 
-  // let capturer = capturer(x / (((id + 1.) / 4.).ceil() * 4.), y / 8.);
+  // let capturer = (x / (((id + 1.) / 4.).ceil() * 4.), y / 8.);
 
-  let capturer = capturer(x / 4., y / 8.);
-  let apple = &apple(&capturer, &recorder);
+  let apple = &apple(capturer(x / 4., y / 8.), &recorder);
   let mut id: f64 = N;
   loop {
     let oneach = || {
@@ -67,13 +66,14 @@ fn turn(d: ID3D11Texture2D, apple: &Apple, z: &Recorder) -> Record {
 
   unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
 
-  (data_ptr, pitch, apple.x, apple.y)
+  (data_ptr, pitch, apple.x as usize, apple.y as usize)
 }
 
-fn apple(v: &Capturer, z: &Recorder) -> Apple {
+fn apple(v: (f64, f64, f64, f64), z: &Recorder) -> Apple {
+  let (l, t, x, y) = v;
   let desc = D3D11_TEXTURE2D_DESC {
-    Width: v.x as u32,
-    Height: v.y as u32,
+    Width: x as u32,
+    Height: y as u32,
     MipLevels: 1,
     ArraySize: 1,
     Format: DXGI_FORMAT_B8G8R8A8_UNORM,
@@ -91,27 +91,27 @@ fn apple(v: &Capturer, z: &Recorder) -> Apple {
   unsafe { z.device.CreateTexture2D(&desc, None, Some(&mut texture)).unwrap() };
 
   let region = D3D11_BOX {
-    left: v.l as u32,
-    top: v.t as u32,
+    left: l as u32,
+    top: t as u32,
     front: 0,
-    right: (v.l + v.x) as u32,
-    bottom: (v.t + v.y) as u32,
+    right: (l + x) as u32,
+    bottom: (t + y) as u32,
     back: 1,
   };
 
   Apple {
     texture,
     region,
-    y: v.y as usize,
-    x: v.x as usize,
+    y: y,
+    x: x,
   }
 }
 
 struct Apple {
   texture: Option<ID3D11Texture2D>,
   region: D3D11_BOX,
-  y: usize,
-  x: usize,
+  y: f64,
+  x: f64,
 }
 
 fn recorder(n: u32) -> Recorder {
@@ -155,22 +155,6 @@ struct Recorder {
   device: ID3D11Device,
   framer: IDXGIOutputDuplication,
   hz: u32,
-}
-
-fn capturer(l: f64, t: f64, x: f64, y: f64) -> Capturer {
-  Capturer {
-    l,
-    t,
-    x,
-    y,
-  }
-}
-
-struct Capturer {
-  l: f64,
-  t: f64,
-  x: f64,
-  y: f64,
 }
 
 #[inline(always)]
