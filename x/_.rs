@@ -22,9 +22,9 @@ pub fn main() {
     let mut at = time::now();
     let mut an = N;
 
-    const COLOR_N_3: u8 = 255 - 24;
-    const COLOR_N_2: u8 = 64;
-    const COLOR_N_1: u8 = 16;
+    const COLOR_N_3: u8 = 255 - 4;
+    const COLOR_N_2: u8 = 175;
+    const COLOR_N_1: u8 = 4;
 
     const _360: f64 = 6400.;
     const FREQ: u32 = 18;
@@ -35,10 +35,10 @@ pub fn main() {
       let n2 = ((x >> 8) & 0xff) as u8;
       let n3 = (x & 0xff) as u8;
 
-      match n1 > n_3 {
-        T => match n_1 > n2.abs_diff(n3) {
-          T => match n2 > n3 {
-            T => match n1.abs_diff(n2) > n_2 {
+      match n1 >= n_3 && n2 >= n_3 {
+        T => match n_1 >= n1.abs_diff(n2) {
+          T => match n1 > n2 {
+            T => match n2.abs_diff(n3) > n_2 {
               T => T,
               _ => F,
             },
@@ -105,8 +105,8 @@ pub fn main() {
             T
           },
           _ => {
-            let (__, zy) = into(4., y_high / 32., y - add_y(v));
-            let (ax, zx) = into(4., x_wide / 32., x + add_x(v));
+            let (__, zy) = into(4., y_high / 64., y - add_y(v));
+            let (ax, zx) = into(4., x_wide / 64., x + add_x(v));
 
             at = time::now();
             an = N;
