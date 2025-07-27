@@ -3,21 +3,33 @@
 #![feature(trait_alias)]
 
 pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, n: u32, x: f64, y: f64) -> bool {
-  let producer = recorder(n);
-  let recorder = supplier(ltxy((4., x), (8., y)), &producer);
+  let recorder_1 = recorder(n);
+
+  let supplier_4 = supplier(ltxy((16., x), (8., y)), &recorder_1);
+  let supplier_3 = supplier(ltxy((12., x), (8., y)), &recorder_1);
+  let supplier_2 = supplier(ltxy((8., x), (8., y)), &recorder_1);
+  let supplier_1 = supplier(ltxy((4., x), (8., y)), &recorder_1);
+
   let mut id: f64 = N;
   loop {
     let oneach = || {
       let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
       let mut data: Option<IDXGIResource> = None;
-      // let capturer = (x / (((id + 1.) / 4.).ceil() * 4.), y / 8.);
-      match unsafe { producer.framer.AcquireNextFrame(producer.hz, &mut info, &mut data) } {
+      match unsafe { recorder_1.framer.AcquireNextFrame(recorder_1.hz, &mut info, &mut data) } {
         Ok(_) => match is_f() {
           T => {
             let data = data.unwrap();
             let cast = data.cast().unwrap();
-            let (is, an, ax, ay) = on_f(each(cast, &recorder, &producer));
-            unsafe { producer.framer.ReleaseFrame().unwrap() };
+            let supplier = match (id / 4.).ceil() as u64 {
+              4..=u64::MAX => &supplier_4,
+              3 => &supplier_4,
+              2 => &supplier_3,
+              1 => &supplier_2,
+              _ => &supplier_1,
+            };
+
+            let (is, an, ax, ay) = on_f(each(cast, supplier, &recorder_1));
+            unsafe { recorder_1.framer.ReleaseFrame().unwrap() };
 
             match is {
               T => {
@@ -33,7 +45,7 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
             }
           },
           _ => {
-            unsafe { producer.framer.ReleaseFrame().unwrap() };
+            unsafe { recorder_1.framer.ReleaseFrame().unwrap() };
             id = N;
             F
           },
@@ -45,13 +57,13 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
       }
     };
 
-    time::sure(oneach, time::MS * producer.hz);
+    time::sure(oneach, time::MS * recorder_1.hz);
   }
 }
 
-fn each(d: ID3D11Texture2D, apple: &Supplier, z: &Recorder) -> Record {
-  let texture = &apple.texture;
-  let region = apple.region;
+fn each(d: ID3D11Texture2D, v: &Supplier, z: &Recorder) -> Record {
+  let texture = &v.texture;
+  let region = v.region;
 
   unsafe { z.context.CopySubresourceRegion(texture.as_ref().unwrap(), 0, 0, 0, 0, &d, 0, Some(&region)) };
 
@@ -63,7 +75,7 @@ fn each(d: ID3D11Texture2D, apple: &Supplier, z: &Recorder) -> Record {
 
   unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
 
-  (data_ptr, pitch, apple.x as usize, apple.y as usize)
+  (data_ptr, pitch, v.x as usize, v.y as usize)
 }
 
 fn supplier(v: (f64, f64, f64, f64), z: &Recorder) -> Supplier {
