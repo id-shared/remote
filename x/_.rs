@@ -5,10 +5,9 @@
 pub fn main() {
   println!("Angle for chord length 1 is {:.64} pixels", wealth(to_rad(103_f64 / 2.), 1. / 1280., 6400.));
 
-  let mut handle = vec![];
-  const APP: &str = "VAL";
+  let mut zz = vec![];
 
-  handle.push(thread::spawn(|| {
+  zz.push(thread::spawn(move || {
     let device = xyloid::device();
     let y_high = screen::high();
     let x_wide = screen::wide();
@@ -105,55 +104,49 @@ pub fn main() {
         T => match is_kl() {
           T => {
             let ay = recoil(FREQ as f64, time::till(at));
-            an = match each(n) {
+            match each(n) {
               T => {
                 xy((x + add_x(v)) / 2., ay);
-                an + 1.
+                an = an + 1.;
+                T
               },
               _ => {
                 xy(N, ay);
-                an + 1.
+                an = an + 1.;
+                F
               },
-            };
-
-            T
+            }
           },
-          _ => {
-            an = match each(n) {
-              T => {
-                let (__, zy) = into(4., y_high / 32., y - add_y(v));
-                let (ax, zx) = into(4., x_wide / 32., x + add_x(v));
+          _ => match each(n) {
+            T => {
+              let (__, zy) = into(4., y_high / 32., y - add_y(v));
+              let (ax, zx) = into(4., x_wide / 32., x + add_x(v));
 
-                at = match ax {
-                  T => {
-                    xy(zx, zy);
-                    kl(F);
-                    time::now()
-                  },
-                  _ => {
-                    xy(zx, zy);
-                    time::now()
-                  },
-                };
-
-                N
-              },
-              _ => N,
-            };
-
-            T
+              match ax {
+                T => {
+                  xy(zx, zy);
+                  kl(F);
+                  at = time::now();
+                  an = N;
+                  T
+                },
+                _ => {
+                  xy(zx, zy);
+                  F
+                },
+              }
+            },
+            _ => F,
           },
         },
-        _ => {
-          an = match is_kl() {
-            T => {
-              xy(N, recoil(FREQ as f64, time::till(at)));
-              an + 1.
-            },
-            _ => N,
-          };
-
-          T
+        _ => match is_kl() {
+          T => {
+            xy(N, recoil(FREQ as f64, time::till(at)));
+            at = time::now();
+            an = an + 1.;
+            T
+          },
+          _ => F,
         },
       },
       |(n, v, x, y)| {
@@ -191,15 +184,12 @@ pub fn main() {
 
         (is, v_, -x_, y_)
       },
-      || match screen::name().contains(APP) {
-        T => match d2::is_ml() {
-          T => T,
-          _ => {
-            kl(T);
-            F
-          },
+      || match d2::is_ml() {
+        T => T,
+        _ => {
+          kl(T);
+          F
         },
-        _ => F,
       },
       FREQ,
       x_wide,
@@ -207,7 +197,7 @@ pub fn main() {
     );
   }));
 
-  handle.push(thread::spawn(|| {
+  zz.push(thread::spawn(|| {
     let io = xyloid::device();
     let mut d = (F, time::now());
     let mut a = (F, time::now());
@@ -262,20 +252,15 @@ pub fn main() {
     type BI = (bool, Instant);
 
     loop {
-      match screen::name().contains(APP) {
-        T => {
-          d = on_key(d2::is_d, d2::al, &io, d);
-          a = on_key(d2::is_a, d2::ar, &io, a);
-          w = on_key(d2::is_w, d2::ad, &io, w);
-          s = on_key(d2::is_s, d2::au, &io, s);
-          time::rest(time::MS)
-        },
-        _ => time::rest(time::MS),
-      };
+      d = on_key(d2::is_d, d2::al, &io, d);
+      a = on_key(d2::is_a, d2::ar, &io, a);
+      w = on_key(d2::is_w, d2::ad, &io, w);
+      s = on_key(d2::is_s, d2::au, &io, s);
+      time::rest(time::MS);
     }
   }));
 
-  for x in handle {
+  for x in zz {
     x.join().unwrap();
   }
 }
@@ -300,7 +285,6 @@ pub fn to_rad(n: f64) -> f64 {
 //   let t = t.clamp(N, 1.0);
 //   (3.0 * t * t) - (2.0 * t * t * t)
 // }
-
 use {
   common::{
     F,
