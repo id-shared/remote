@@ -91,12 +91,12 @@ pub fn main() {
 
     #[inline(always)]
     fn add_y(n: f64) -> f64 {
-      n / 4.
+      n / 3.
     }
 
     #[inline(always)]
     fn add_x(n: f64) -> f64 {
-      n / 16.
+      n / 9.
     }
 
     screen::watch(
@@ -104,15 +104,16 @@ pub fn main() {
         T => match is_kl() {
           T => {
             let ay = recoil(FREQ as f64, time::till(at));
+
+            an = an + 1.;
+
             match each(n) {
               T => {
                 xy((x + add_x(v)) / 2., ay);
-                an = an + 1.;
                 T
               },
               _ => {
                 xy(N, ay);
-                an = an + 1.;
                 F
               },
             }
@@ -122,12 +123,13 @@ pub fn main() {
               let (__, zy) = into(4., y_high / 32., y - add_y(v));
               let (ax, zx) = into(4., x_wide / 32., x + add_x(v));
 
+              at = time::now();
+              an = N;
+
               match ax {
                 T => {
                   xy(zx, zy);
                   kl(F);
-                  at = time::now();
-                  an = N;
                   T
                 },
                 _ => {
@@ -141,9 +143,10 @@ pub fn main() {
         },
         _ => match is_kl() {
           T => {
-            xy(N, recoil(FREQ as f64, time::till(at)));
             at = time::now();
             an = an + 1.;
+
+            xy(N, recoil(FREQ as f64, time::till(at)));
             T
           },
           _ => F,
