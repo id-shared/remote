@@ -18,15 +18,16 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
       match unsafe { recorder_1.framer.AcquireNextFrame(recorder_1.hz, &mut info, &mut data) } {
         Ok(_) => match is_f() {
           T => {
-            let data = data.unwrap();
-            let cast = data.cast().unwrap();
-            let supplier = match (id / 4.).ceil() as u64 {
-              4..=u64::MAX => &supplier_4,
-              3 => &supplier_4,
-              2 => &supplier_3,
-              1 => &supplier_2,
+            let supplier = match (id + 1.) / 4. {
+              3.0..=f64::MAX => &supplier_4,
+              2.0..=3. => &supplier_3,
+              1.0..=2. => &supplier_2,
+              0.0..=1. => &supplier_1,
               _ => &supplier_1,
             };
+
+            let data = data.unwrap();
+            let cast = data.cast().unwrap();
 
             let (is, an, ax, ay) = on_f(each(cast, supplier, &recorder_1));
             unsafe { recorder_1.framer.ReleaseFrame().unwrap() };
