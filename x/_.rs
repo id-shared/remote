@@ -110,7 +110,7 @@ pub fn main() {
             let ay = recoil(FREQ as f64, time::till(at));
             an = match each(n) {
               T => {
-                let (__, ax) = into((4., 256.), (2., 1024.), x_wide, x + add_x(v));
+                let (__, ax) = into((4., 256.), (2., 512.), x_wide, x + add_x(v));
 
                 xy(ax, ay);
                 an + 1.
@@ -126,17 +126,17 @@ pub fn main() {
           _ => {
             an = match each(n) {
               T => {
-                let (__, ay) = into((4., 256.), (2., 1024.), y_high, y - add_y(v));
-                let (is, ax) = into((4., 256.), (2., 1024.), x_wide, x + add_x(v));
+                let (__, zy) = into((2., 128.), (1., 256.), y_high, y - add_y(v));
+                let (ax, zx) = into((4., 256.), (2., 512.), x_wide, x + add_x(v));
 
-                at = match is {
+                at = match ax {
                   T => {
-                    xy(ax, ay);
+                    xy(zx, zy);
                     kl(F);
                     time::now()
                   },
                   _ => {
-                    xy(ax, ay);
+                    xy(zx, zy);
                     time::now()
                   },
                 };
