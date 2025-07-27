@@ -77,7 +77,7 @@ pub fn main() {
       match (l / 4.) >= n_ {
         T => (T, n),
         _ => match l >= n_ {
-          T => (F, n / (k / 2.)),
+          T => (F, n / (k / 1.)),
           _ => (F, n / (k / 1.)),
         },
       }
