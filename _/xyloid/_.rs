@@ -75,19 +75,47 @@ pub fn device() -> Device {
 }
 
 #[inline(always)]
-pub fn io(device: &Device, mut xyloid: Xyloid) -> bool {
+pub fn d2(x: KEYBOARD_INPUT_DATA, z: &Device) -> bool {
+  io(
+    Xyloid {
+      unk1: 0,
+      type_: XyloidType::Keyboard,
+      input: XyloidInput {
+        ki: x,
+      },
+    },
+    z,
+  )
+}
+
+#[inline(always)]
+pub fn d1(x: MOUSE_INPUT_DATA, z: &Device) -> bool {
+  io(
+    Xyloid {
+      unk1: 0,
+      type_: XyloidType::Mouse,
+      input: XyloidInput {
+        mi: x,
+      },
+    },
+    z,
+  )
+}
+
+#[inline(always)]
+pub fn io(mut x: Xyloid, z: &Device) -> bool {
   let mut bytes_returned: u32 = 0;
 
   unsafe {
     DeviceIoControl(
-      device.handle,
+      z.handle,
       0x88883020,
-      Some(&mut xyloid as *mut _ as *mut _), // lpInBuffer
-      std::mem::size_of::<Xyloid>() as u32,  // nInBufferSize
-      None,                                  // lpOutBuffer
-      0,                                     // nOutBufferSize
-      Some(&mut bytes_returned),             // lpBytesReturned
-      None,                                  // lpOverlapped
+      Some(&mut x as *mut _ as *mut _),     // lpInBuffer
+      std::mem::size_of::<Xyloid>() as u32, // nInBufferSize
+      None,                                 // lpOutBuffer
+      0,                                    // nOutBufferSize
+      Some(&mut bytes_returned),            // lpBytesReturned
+      None,                                 // lpOverlapped
     )
   }
   .is_ok()

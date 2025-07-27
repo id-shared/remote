@@ -15,10 +15,10 @@ pub fn main() {
 
     let get_y_ = |ay: f64| wealth(to_rad(70.53_f64 / 2.), ay / (y_high / 2.), _360);
     let get_x_ = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / (x_wide / 2.), _360);
-    let xy = |ax: f64, ay: f64| d1::xy(&device, get_x_(ax), get_y_(ay));
+    let xy = |ax: f64, ay: f64| d1::xy(get_x_(ax), get_y_(ay), &device);
 
     let is_kl = || d2::is_i();
-    let kl = |is: bool| d2::i(&device, is);
+    let kl = |is: bool| d2::i(is, &device);
 
     let mut at = time::now();
     let mut an = N;
@@ -107,7 +107,7 @@ pub fn main() {
             let ay = recoil(FREQ as f64, time::till(at));
             an = match each(n) {
               T => {
-                xy((x + add_x(v)) / 4., ay);
+                xy((x + add_x(v)) / 2., ay);
                 an + 1.
               },
               _ => {
@@ -215,7 +215,7 @@ pub fn main() {
     let mut s = (F, time::now());
 
     #[inline(always)]
-    fn on_key<F1: Fn() -> bool, F2: Fn(&Device, bool) -> bool>(f1: F1, f2: F2, io: &Device, z1: BI) -> BI {
+    fn on_key<F1: Fn() -> bool, F2: Fn(bool, &Device) -> bool>(f1: F1, f2: F2, io: &Device, z1: BI) -> BI {
       on(
         f1,
         |_| (T, time::now()),
@@ -223,20 +223,20 @@ pub fn main() {
           let n = (time::till(x.1) / 10.).round() as u64;
           match n {
             17..=32 => {
-              f2(io, F);
+              f2(F, io);
               time::rest(time::MS * ((4 * 16) + ((n - 16) * 2)) as u32);
-              f2(io, T)
+              f2(T, io)
             },
             6..=16 => {
-              f2(io, F);
+              f2(F, io);
               time::rest(time::MS * (4 * n) as u32);
-              f2(io, T)
+              f2(T, io)
             },
             0..=5 => T,
             _ => {
-              f2(io, F);
+              f2(F, io);
               time::rest(time::MS * 96);
-              f2(io, T)
+              f2(T, io)
             },
           };
           (F, time::now())

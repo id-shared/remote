@@ -1,56 +1,56 @@
 #[inline(always)]
-pub fn rmenu(device: &Device, up: bool) -> bool {
-  key_(device, VK_RMENU, up)
+pub fn rmenu(a: bool, z: &Device) -> bool {
+  key(a, VK_RMENU, z)
 }
 
 #[inline(always)]
-pub fn lmenu(device: &Device, up: bool) -> bool {
-  key_(device, VK_LMENU, up)
+pub fn lmenu(a: bool, z: &Device) -> bool {
+  key(a, VK_LMENU, z)
 }
 
 #[inline(always)]
-pub fn ctrl(device: &Device, up: bool) -> bool {
-  key_(device, VK_CONTROL, up)
+pub fn ctrl(a: bool, z: &Device) -> bool {
+  key(a, VK_CONTROL, z)
 }
 
 #[inline(always)]
-pub fn ar(device: &Device, up: bool) -> bool {
-  key_(device, VK_RIGHT, up)
+pub fn ar(a: bool, z: &Device) -> bool {
+  key(a, VK_RIGHT, z)
 }
 
 #[inline(always)]
-pub fn al(device: &Device, up: bool) -> bool {
-  key_(device, VK_LEFT, up)
+pub fn al(a: bool, z: &Device) -> bool {
+  key(a, VK_LEFT, z)
 }
 
 #[inline(always)]
-pub fn ad(device: &Device, up: bool) -> bool {
-  key_(device, VK_DOWN, up)
+pub fn ad(a: bool, z: &Device) -> bool {
+  key(a, VK_DOWN, z)
 }
 
 #[inline(always)]
-pub fn au(device: &Device, up: bool) -> bool {
-  key_(device, VK_UP, up)
+pub fn au(a: bool, z: &Device) -> bool {
+  key(a, VK_UP, z)
 }
 
 #[inline(always)]
-pub fn l(device: &Device, up: bool) -> bool {
-  key_(device, VK_L, up)
+pub fn l(a: bool, z: &Device) -> bool {
+  key(a, VK_L, z)
 }
 
 #[inline(always)]
-pub fn k(device: &Device, up: bool) -> bool {
-  key_(device, VK_K, up)
+pub fn k(a: bool, z: &Device) -> bool {
+  key(a, VK_K, z)
 }
 
 #[inline(always)]
-pub fn j(device: &Device, up: bool) -> bool {
-  key_(device, VK_J, up)
+pub fn j(a: bool, z: &Device) -> bool {
+  key(a, VK_J, z)
 }
 
 #[inline(always)]
-pub fn i(device: &Device, up: bool) -> bool {
-  key_(device, VK_I, up)
+pub fn i(a: bool, z: &Device) -> bool {
+  key(a, VK_I, z)
 }
 
 #[inline(always)]
@@ -119,44 +119,36 @@ pub fn is_w() -> bool {
 }
 
 #[inline(always)]
-pub fn key_(device: &Device, key: VIRTUAL_KEY, up: bool) -> bool {
-  match up {
-    T => match is(key) {
-      T => k_(device, key, 1),
-      _ => F,
+pub fn key(a: bool, k: VIRTUAL_KEY, z: &Device) -> bool {
+  match a {
+    T => match is(k) {
+      T => io(k, 1, z),
+      _ => T,
     },
-    _ => match is(key) {
+    _ => match is(k) {
       T => T,
-      _ => k_(device, key, 0),
+      _ => io(k, 0, z),
     },
   }
 }
 
 #[inline(always)]
-pub fn k_(device: &Device, key: VIRTUAL_KEY, flag: u16) -> bool {
-  io2(device, KEYBOARD_INPUT_DATA {
-    UnitId: 0,
-    MakeCode: mkcode(key),
-    Flags: flag,
-    Reserved: 0,
-    ExtraInformation: 0,
-  })
+pub fn io(k: VIRTUAL_KEY, n: u16, z: &Device) -> bool {
+  d2(
+    KEYBOARD_INPUT_DATA {
+      UnitId: 0,
+      MakeCode: mkcode(k),
+      Flags: n,
+      Reserved: 0,
+      ExtraInformation: 0,
+    },
+    z,
+  )
 }
 
 #[inline(always)]
 pub fn mkcode(key: VIRTUAL_KEY) -> u16 {
   unsafe { MapVirtualKeyW(key.0 as u32, windows::Win32::UI::Input::KeyboardAndMouse::MAP_VIRTUAL_KEY_TYPE(0)) as u16 }
-}
-
-#[inline(always)]
-pub fn io2(device: &Device, ki: KEYBOARD_INPUT_DATA) -> bool {
-  io(device, Xyloid {
-    unk1: 0,
-    type_: XyloidType::Keyboard,
-    input: XyloidInput {
-      ki: ki,
-    },
-  })
 }
 
 #[inline(always)]
@@ -170,10 +162,7 @@ pub const T: bool = true;
 use {
   crate::{
     Device,
-    Xyloid,
-    XyloidInput,
-    XyloidType,
-    io,
+    d2,
   },
   windows::Win32::{
     Devices::HumanInterfaceDevice::KEYBOARD_INPUT_DATA,
