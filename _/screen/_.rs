@@ -4,11 +4,10 @@
 
 pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, n: u32, x: f64, y: f64) -> bool {
   let recorder = recorder(n);
-  let capturer = |x1: f64, y1: f64| ((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
 
   // let capturer = (x / (((id + 1.) / 4.).ceil() * 4.), y / 8.);
 
-  let apple = &apple(capturer(x / 4., y / 8.), &recorder);
+  let apple = apple(ltxy((4., x), (8., y)), &recorder);
   let mut id: f64 = N;
   loop {
     let oneach = || {
@@ -155,6 +154,14 @@ struct Recorder {
   device: ID3D11Device,
   framer: IDXGIOutputDuplication,
   hz: u32,
+}
+
+fn ltxy(x: (f64, f64), y: (f64, f64)) -> (f64, f64, f64, f64) {
+  let (y1, y2) = y;
+  let (x1, x2) = x;
+  let y3 = y2 / y1;
+  let x3 = x2 / x1;
+  ((x2 / 2.) - (x3 / 2.), (y2 / 2.) - (y3 / 2.), x3, y3)
 }
 
 #[inline(always)]

@@ -184,7 +184,7 @@ pub fn main() {
 
         (is, v_, -x_, y_)
       },
-      || match d2::is_ml() {
+      || match screen::name().contains("VAL") && d2::is_ml() {
         T => T,
         _ => {
           kl(T);
@@ -252,11 +252,17 @@ pub fn main() {
     type BI = (bool, Instant);
 
     loop {
-      d = on_key(d2::is_d, d2::al, &io, d);
-      a = on_key(d2::is_a, d2::ar, &io, a);
-      w = on_key(d2::is_w, d2::ad, &io, w);
-      s = on_key(d2::is_s, d2::au, &io, s);
-      time::rest(time::MS);
+      match screen::name().contains("VAL") {
+        T => {
+          d = on_key(d2::is_d, d2::al, &io, d);
+          a = on_key(d2::is_a, d2::ar, &io, a);
+          w = on_key(d2::is_w, d2::ad, &io, w);
+          s = on_key(d2::is_s, d2::au, &io, s);
+          time::rest(time::MS);
+          T
+        },
+        _ => F,
+      };
     }
   }));
 
