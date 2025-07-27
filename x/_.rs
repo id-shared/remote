@@ -22,28 +22,32 @@ pub fn main() {
     let mut at = time::now();
     let mut an = N;
 
-    const COLOR_TINT: u8 = 255 - 24;
-    const COLOR_DIFF: u8 = 24;
+    const COLOR_N_3: u8 = 255 - 24;
+    const COLOR_N_2: u8 = 64;
+    const COLOR_N_1: u8 = 16;
 
     const _360: f64 = 6400.;
     const FREQ: u32 = 18;
 
     #[inline(always)]
-    fn is_pixel(k: u8, n: u8, x: u32) -> bool {
+    fn is_pixel(n_1: u8, n_2: u8, n_3: u8, x: u32) -> bool {
       let n1 = ((x >> 16) & 0xff) as u8;
       let n2 = ((x >> 8) & 0xff) as u8;
       let n3 = (x & 0xff) as u8;
 
-      match n1 > k && n3 > k {
-        T => match n1 > n3 {
-          T => match n3.abs_diff(n2) > n {
-            T => T,
-            _ => F,
+      match n1 > n_3 {
+        T => match n_1 > n2.abs_diff(n3) {
+          T => match n2 > n3 {
+            T => match n1.abs_diff(n2) > n_2 {
+              T => T,
+              _ => F,
+            },
+            _ => match n1.abs_diff(n3) > n_2 {
+              T => T,
+              _ => F,
+            },
           },
-          _ => match n1.abs_diff(n2) > n {
-            T => T,
-            _ => F,
-          },
+          _ => F,
         },
         _ => F,
       }
@@ -145,7 +149,7 @@ pub fn main() {
             let nx = unsafe { *ny.add(xn) };
             let ax = (x as i32 / 2) - xn as i32;
 
-            match is_pixel(COLOR_TINT, COLOR_DIFF, nx) {
+            match is_pixel(COLOR_N_1, COLOR_N_2, COLOR_N_3, nx) {
               T => match is {
                 T => {
                   v_ = v_ + 1.;
