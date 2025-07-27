@@ -20,8 +20,6 @@ pub fn main() {
     let is_kl = || d2::is_i();
     let kl = |is: bool| d2::i(&device, is);
 
-    let ny = y_high / 256.;
-    let nx = x_wide / 256.;
     let mut at = time::now();
     let mut an = N;
 
@@ -70,19 +68,27 @@ pub fn main() {
     }
 
     #[inline(always)]
-    fn into(k: f64, l: f64, n: f64) -> (bool, f64) {
-      match n.abs() >= l {
-        T => (F, n / k),
-        _ => (T, n),
+    fn into(k1: (f64, f64), k2: (f64, f64), l: f64, n: f64) -> (bool, f64) {
+      let (s1, t1) = k1;
+      let (s2, t2) = k2;
+
+      let n_ = n.abs();
+
+      match (l / t2) >= n_ {
+        T => (T, n),
+        _ => match (l / t1) >= n_ {
+          T => (F, n / s2),
+          _ => (F, n / s1),
+        },
       }
     }
 
     #[inline(always)]
     fn each(n: f64) -> bool {
       match n {
-        64.0..=f64::MAX => F,
-        16.0..=64. => (n % 2.) == 1.,
-        0.0..=64. => T,
+        64.0..=f64::MAX => T,
+        16.0..=64. => T,
+        0.0..=16. => T,
         _ => F,
       }
     }
@@ -104,7 +110,7 @@ pub fn main() {
             let ay = recoil(FREQ as f64, time::till(at));
             an = match each(n) {
               T => {
-                let (__, ax) = into(4., nx, x + add_x(v));
+                let (__, ax) = into((4., 256.), (2., 1024.), x_wide, x + add_x(v));
 
                 xy(ax, ay);
                 an + 1.
@@ -120,8 +126,8 @@ pub fn main() {
           _ => {
             an = match each(n) {
               T => {
-                let (__, ay) = into(4., ny, y - add_y(v));
-                let (is, ax) = into(4., nx, x + add_x(v));
+                let (__, ay) = into((4., 256.), (2., 1024.), y_high, y - add_y(v));
+                let (is, ax) = into((4., 256.), (2., 1024.), x_wide, x + add_x(v));
 
                 at = match is {
                   T => {
