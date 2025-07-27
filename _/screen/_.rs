@@ -3,8 +3,8 @@
 #![feature(trait_alias)]
 
 pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, n: u32, x: f64, y: f64) -> bool {
-  let producer = producer(n);
-  let recorder = recorder(ltxy((4., x), (8., y)), &producer);
+  let producer = recorder(n);
+  let recorder = supplier(ltxy((4., x), (8., y)), &producer);
   let mut id: f64 = N;
   loop {
     let oneach = || {
@@ -16,7 +16,7 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
           T => {
             let data = data.unwrap();
             let cast = data.cast().unwrap();
-            let (is, an, ax, ay) = on_f(supplier(cast, &recorder, &producer));
+            let (is, an, ax, ay) = on_f(each(cast, &recorder, &producer));
             unsafe { producer.framer.ReleaseFrame().unwrap() };
 
             match is {
@@ -49,7 +49,7 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
   }
 }
 
-fn supplier(d: ID3D11Texture2D, apple: &Recorder, z: &Producer) -> Record {
+fn each(d: ID3D11Texture2D, apple: &Supplier, z: &Recorder) -> Record {
   let texture = &apple.texture;
   let region = apple.region;
 
@@ -66,7 +66,7 @@ fn supplier(d: ID3D11Texture2D, apple: &Recorder, z: &Producer) -> Record {
   (data_ptr, pitch, apple.x as usize, apple.y as usize)
 }
 
-fn recorder(v: (f64, f64, f64, f64), z: &Producer) -> Recorder {
+fn supplier(v: (f64, f64, f64, f64), z: &Recorder) -> Supplier {
   let (l, t, x, y) = v;
   let desc = D3D11_TEXTURE2D_DESC {
     Width: x as u32,
@@ -96,7 +96,7 @@ fn recorder(v: (f64, f64, f64, f64), z: &Producer) -> Recorder {
     back: 1,
   };
 
-  Recorder {
+  Supplier {
     texture,
     region,
     y: y,
@@ -104,14 +104,14 @@ fn recorder(v: (f64, f64, f64, f64), z: &Producer) -> Recorder {
   }
 }
 
-struct Recorder {
+struct Supplier {
   texture: Option<ID3D11Texture2D>,
   region: D3D11_BOX,
   y: f64,
   x: f64,
 }
 
-fn producer(n: u32) -> Producer {
+fn recorder(n: u32) -> Recorder {
   let mut context: Option<ID3D11DeviceContext> = None;
   let mut device: Option<ID3D11Device> = None;
   let mut level = D3D_FEATURE_LEVEL_12_2;
@@ -139,7 +139,7 @@ fn producer(n: u32) -> Producer {
   let output_cast: IDXGIOutput1 = output.cast().unwrap();
   let framer = unsafe { output_cast.DuplicateOutput(&device).unwrap() };
 
-  Producer {
+  Recorder {
     context,
     device,
     framer,
@@ -147,7 +147,7 @@ fn producer(n: u32) -> Producer {
   }
 }
 
-struct Producer {
+struct Recorder {
   context: ID3D11DeviceContext,
   device: ID3D11Device,
   framer: IDXGIOutputDuplication,
