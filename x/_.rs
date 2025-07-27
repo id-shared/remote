@@ -80,16 +80,6 @@ pub fn main() {
     }
 
     #[inline(always)]
-    fn each(n: f64) -> bool {
-      match n {
-        64.0..=f64::MAX => T,
-        16.0..=64. => T,
-        0.0..=16. => T,
-        _ => F,
-      }
-    }
-
-    #[inline(always)]
     fn add_y(n: f64) -> f64 {
       n / 3.
     }
@@ -100,45 +90,34 @@ pub fn main() {
     }
 
     screen::watch(
-      |(a, n, v, x, y)| match a {
+      |(a, _n, v, x, y)| match a {
         T => match is_kl() {
           T => {
             let ay = recoil(FREQ as f64, time::till(at));
 
             an = an + 1.;
 
-            match each(n) {
+            xy((x + add_x(v)) / 2., ay);
+            T
+          },
+          _ => {
+            let (__, zy) = into(4., y_high / 32., y - add_y(v));
+            let (ax, zx) = into(4., x_wide / 32., x + add_x(v));
+
+            at = time::now();
+            an = N;
+
+            match ax {
               T => {
-                xy((x + add_x(v)) / 2., ay);
+                xy(zx, zy);
+                kl(F);
                 T
               },
               _ => {
-                xy(N, ay);
+                xy(zx, zy);
                 F
               },
             }
-          },
-          _ => match each(n) {
-            T => {
-              let (__, zy) = into(4., y_high / 32., y - add_y(v));
-              let (ax, zx) = into(4., x_wide / 32., x + add_x(v));
-
-              at = time::now();
-              an = N;
-
-              match ax {
-                T => {
-                  xy(zx, zy);
-                  kl(F);
-                  T
-                },
-                _ => {
-                  xy(zx, zy);
-                  F
-                },
-              }
-            },
-            _ => F,
           },
         },
         _ => match is_kl() {
