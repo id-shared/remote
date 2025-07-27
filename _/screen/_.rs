@@ -93,15 +93,6 @@ fn turn(d: ID3D11Texture2D, v: Capturer, z: &Recorder) -> Record {
   (data_ptr, pitch, wide, high)
 }
 
-fn capturer(l: f64, t: f64, x: f64, y: f64) -> Capturer {
-  Capturer {
-    l,
-    t,
-    x,
-    y,
-  }
-}
-
 fn recorder(n: u32) -> Recorder {
   let mut context: Option<ID3D11DeviceContext> = None;
   let mut device: Option<ID3D11Device> = None;
@@ -135,6 +126,15 @@ fn recorder(n: u32) -> Recorder {
     device,
     framer,
     hz: n,
+  }
+}
+
+fn capturer(l: f64, t: f64, x: f64, y: f64) -> Capturer {
+  Capturer {
+    l,
+    t,
+    x,
+    y,
   }
 }
 
