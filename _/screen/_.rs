@@ -3,8 +3,13 @@
 #![feature(trait_alias)]
 
 pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, n: u32, x: f64, y: f64) -> bool {
-  let capturer = |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
   let recorder = recorder(n);
+  let capturer = |x1: f64, y1: f64| capturer((x / 2.) - (x1 / 2.), (y / 2.) - (y1 / 2.), x1, y1);
+
+  // let capturer = capturer(x / (((id + 1.) / 4.).ceil() * 4.), y / 8.);
+
+  let capturer = capturer(x / 4., y / 8.);
+  let apple = &apple(&capturer, &recorder);
   let mut id: f64 = N;
   loop {
     let oneach = || {
@@ -13,10 +18,9 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
       match unsafe { recorder.framer.AcquireNextFrame(recorder.hz, &mut info, &mut data) } {
         Ok(_) => match is_f() {
           T => {
-            let capturer = capturer(x / (((id + 1.) / 4.).ceil() * 4.), y / 8.);
             let data = data.unwrap();
             let cast = data.cast().unwrap();
-            let (is, an, ax, ay) = on_f(turn(cast, capturer, &recorder));
+            let (is, an, ax, ay) = on_f(turn(cast, &apple, &recorder));
             unsafe { recorder.framer.ReleaseFrame().unwrap() };
 
             match is {
@@ -49,12 +53,27 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
   }
 }
 
-fn turn(d: ID3D11Texture2D, v: Capturer, z: &Recorder) -> Record {
-  let high = v.y as usize;
-  let wide = v.x as usize;
+fn turn(d: ID3D11Texture2D, apple: &Apple, z: &Recorder) -> Record {
+  let texture = &apple.texture;
+  let region = apple.region;
+
+  unsafe { z.context.CopySubresourceRegion(texture.as_ref().unwrap(), 0, 0, 0, 0, &d, 0, Some(&region)) };
+
+  let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
+  unsafe { z.context.Map(texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
+
+  let pitch = mapped.RowPitch as usize;
+  let data_ptr = mapped.pData as *const u8;
+
+  unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
+
+  (data_ptr, pitch, apple.x, apple.y)
+}
+
+fn apple(v: &Capturer, z: &Recorder) -> Apple {
   let desc = D3D11_TEXTURE2D_DESC {
-    Width: wide as u32,
-    Height: high as u32,
+    Width: v.x as u32,
+    Height: v.y as u32,
     MipLevels: 1,
     ArraySize: 1,
     Format: DXGI_FORMAT_B8G8R8A8_UNORM,
@@ -80,17 +99,19 @@ fn turn(d: ID3D11Texture2D, v: Capturer, z: &Recorder) -> Record {
     back: 1,
   };
 
-  unsafe { z.context.CopySubresourceRegion(texture.as_ref().unwrap(), 0, 0, 0, 0, &d, 0, Some(&region)) };
+  Apple {
+    texture,
+    region,
+    y: v.y as usize,
+    x: v.x as usize,
+  }
+}
 
-  let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
-  unsafe { z.context.Map(texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
-
-  let pitch = mapped.RowPitch as usize;
-  let data_ptr = mapped.pData as *const u8;
-
-  unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
-
-  (data_ptr, pitch, wide, high)
+struct Apple {
+  texture: Option<ID3D11Texture2D>,
+  region: D3D11_BOX,
+  y: usize,
+  x: usize,
 }
 
 fn recorder(n: u32) -> Recorder {
@@ -129,6 +150,13 @@ fn recorder(n: u32) -> Recorder {
   }
 }
 
+struct Recorder {
+  context: ID3D11DeviceContext,
+  device: ID3D11Device,
+  framer: IDXGIOutputDuplication,
+  hz: u32,
+}
+
 fn capturer(l: f64, t: f64, x: f64, y: f64) -> Capturer {
   Capturer {
     l,
@@ -143,13 +171,6 @@ struct Capturer {
   t: f64,
   x: f64,
   y: f64,
-}
-
-struct Recorder {
-  context: ID3D11DeviceContext,
-  device: ID3D11Device,
-  framer: IDXGIOutputDuplication,
-  hz: u32,
 }
 
 #[inline(always)]
