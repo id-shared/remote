@@ -105,7 +105,7 @@ pub fn main() {
             at = time::now();
             an = N;
 
-            let (ax, zx) = into(2., x_wide / 4., x + add_x(v));
+            let (ax, zx) = into(4., x_wide / 4., x + add_x(v));
 
             match ax {
               T => {
