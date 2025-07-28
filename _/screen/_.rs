@@ -9,6 +9,7 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
   let supplier_3 = supplier(ltxy((12., x), (8., y)), &recorder_1);
   let supplier_2 = supplier(ltxy((8., x), (8., y)), &recorder_1);
   let supplier_1 = supplier(ltxy((4., x), (8., y)), &recorder_1);
+  let supplier = supplier(ltxy((2., x), (8., y)), &recorder_1);
 
   let mut id: f64 = N;
   loop {
@@ -19,11 +20,12 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
         Ok(_) => match is_f() {
           T => {
             let supplier = match (id + 1.) / 4. {
-              3.0..=f64::MAX => &supplier_4,
-              2.0..=3. => &supplier_3,
-              1.0..=2. => &supplier_2,
-              0.0..=1. => &supplier_1,
-              _ => &supplier_1,
+              4.0..=f64::MAX => &supplier_4,
+              3.0..=4. => &supplier_3,
+              2.0..=3. => &supplier_2,
+              1.0..=2. => &supplier_1,
+              0.0..=1. => &supplier,
+              _ => &supplier,
             };
 
             let data = data.unwrap();
