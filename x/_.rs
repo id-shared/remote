@@ -160,7 +160,12 @@ pub fn main() {
             xy(N, recoil(FREQ as f64, time::till(at)));
             T
           },
-          _ => F,
+          _ => {
+            at = time::now();
+            an = N;
+
+            F
+          },
         },
       },
       |(n, v, x, y)| {
@@ -207,6 +212,8 @@ pub fn main() {
             |n| {
               println!("{}", n);
               d2::i(F, &device);
+              time::rest(time::MS * 108);
+              // xy(N, -10.);
               d2::i(F, &device);
               T
             },
