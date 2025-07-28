@@ -14,8 +14,8 @@ pub fn main() {
     let y_high = screen_high / 2.;
     let x_wide = screen_wide / 2.;
 
-    let get_y_ = |ay: f64| wealth(to_rad(70.53_f64 / 2.), ay / y_high, _360);
-    let get_x_ = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / x_wide, _360);
+    let get_y_ = |ay: f64| wealth(to_rad(VFOV / 2.), ay / y_high, _360);
+    let get_x_ = |ax: f64| wealth(to_rad(HFOV / 2.), ax / x_wide, _360);
     let xy = |ax: f64, ay: f64| d1::xy(get_x_(ax), get_y_(ay), &device);
 
     let is_kl = || d2::is_i();
@@ -30,7 +30,16 @@ pub fn main() {
     const COLOR_N_1: u8 = 4;
 
     const _360: f64 = 6396.5885;
+    const VFOV: f64 = 70.53;
+    const HFOV: f64 = 103.;
     const FREQ: u32 = 18;
+
+    #[inline(always)]
+    fn hfov(k: f64, l: f64, n: f64) -> f64 {
+      (k / l) * n
+    }
+
+    println!("{}", hfov(_360, HFOV, HFOV / 1.25));
 
     #[inline(always)]
     fn is_pixel(n_1: u8, n_2: u8, n_3: u8, x: u32) -> bool {
@@ -209,22 +218,24 @@ pub fn main() {
     let mut w = (F, time::now());
     let mut s = (F, time::now());
 
+    let mut l = (F, time::now());
+
     #[inline(always)]
-    fn on_key<F1: Fn() -> bool, F2: Fn(bool, &Device) -> bool>(f_1: F1, f_2: F2, x: BI, z: &Device) -> BI {
+    fn held<F1: Fn() -> bool, F2: Fn(bool, &Device) -> bool>(f_1: F1, f_2: F2, x: BI, z: &Device) -> BI {
       on(
         f_1,
-        |_| (T, time::now()),
-        |x| {
-          let n = (time::till(x.1) / 10.).round() as u64;
-          match n {
+        |_| T,
+        |n| {
+          let n_ = (n / 10.).round() as u64;
+          match n_ {
             17..=32 => {
               f_2(F, z);
-              time::rest(time::MS * ((4 * 16) + ((n - 16) * 2)) as u32);
+              time::rest(time::MS * ((4 * 16) + ((n_ - 16) * 2)) as u32);
               f_2(T, z)
             },
             6..=16 => {
               f_2(F, z);
-              time::rest(time::MS * (4 * n) as u32);
+              time::rest(time::MS * (4 * n_) as u32);
               f_2(T, z)
             },
             0..=5 => T,
@@ -234,22 +245,30 @@ pub fn main() {
               f_2(T, z)
             },
           };
-          (F, time::now())
+          T
         },
         x,
       )
     }
 
     #[inline(always)]
-    fn on<F1: Fn() -> bool, F2: Fn(BI) -> BI, F3: Fn(BI) -> BI>(f1: F1, f2: F2, f3: F3, z1: BI) -> BI {
-      match z1.0 {
+    fn on<F1: Fn() -> bool, F2: Fn(f64) -> bool, F3: Fn(f64) -> bool>(f1: F1, f2: F2, f3: F3, z: BI) -> BI {
+      let (is, it) = z;
+
+      match is {
         T => match f1() {
-          T => z1,
-          _ => f3(z1),
+          T => z,
+          _ => match f3(time::till(it)) {
+            T => (F, time::now()),
+            _ => (T, time::now()),
+          },
         },
         _ => match f1() {
-          T => f2(z1),
-          _ => z1,
+          T => match f2(time::till(it)) {
+            T => (T, time::now()),
+            _ => (F, time::now()),
+          },
+          _ => z,
         },
       }
     }
@@ -257,12 +276,23 @@ pub fn main() {
     type BI = (bool, Instant);
 
     loop {
-      match screen::name().contains("VAL") {
+      match screen::name().contains("") {
         T => {
-          d = on_key(d2::is_d, d2::al, d, &io);
-          a = on_key(d2::is_a, d2::ar, a, &io);
-          w = on_key(d2::is_w, d2::ad, w, &io);
-          s = on_key(d2::is_s, d2::au, s, &io);
+          d = held(d2::is_d, d2::al, d, &io);
+          a = held(d2::is_a, d2::ar, a, &io);
+          w = held(d2::is_w, d2::ad, w, &io);
+          s = held(d2::is_s, d2::au, s, &io);
+
+          l = on(
+            d2::is_l,
+            |_| T,
+            |n| {
+              println!("{}", n);
+              T
+            },
+            l,
+          );
+
           time::rest(time::MS);
           T
         },
@@ -291,11 +321,6 @@ pub fn to_rad(n: f64) -> f64 {
   n.to_radians()
 }
 
-// #[inline(always)]
-// fn ease(t: f64) -> f64 {
-//   let t = t.clamp(N, 1.0);
-//   (3.0 * t * t) - (2.0 * t * t * t)
-// }
 use {
   common::{
     F,
