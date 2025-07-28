@@ -8,12 +8,14 @@ pub fn main() {
   let mut zz = vec![];
 
   zz.push(thread::spawn(move || {
+    let screen_high = screen::high();
+    let screen_wide = screen::wide();
     let device = xyloid::device();
-    let y_high = screen::high();
-    let x_wide = screen::wide();
+    let y_high = screen_high / 2.;
+    let x_wide = screen_wide / 2.;
 
-    let get_y_ = |ay: f64| wealth(to_rad(70.53_f64 / 2.), ay / (y_high / 2.), _360);
-    let get_x_ = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / (x_wide / 2.), _360);
+    let get_y_ = |ay: f64| wealth(to_rad(70.53_f64 / 2.), ay / y_high, _360);
+    let get_x_ = |ax: f64| wealth(to_rad(103.0_f64 / 2.), ax / x_wide, _360);
     let xy = |ax: f64, ay: f64| d1::xy(get_x_(ax), get_y_(ay), &device);
 
     let is_kl = || d2::is_i();
@@ -80,7 +82,7 @@ pub fn main() {
 
     #[inline(always)]
     fn add_y(n: f64) -> f64 {
-      n / 8.
+      n / 4.
     }
 
     #[inline(always)]
@@ -95,21 +97,31 @@ pub fn main() {
             let zy = recoil(FREQ as f64, time::till(at));
             an = an + 1.;
 
-            xy((x + add_x(v)) / 2., zy);
+            xy((x + add_x(v)) / 4., zy);
             T
           },
           _ => {
-            let zy = y - add_y(v) / 2.;
+            let zy = y - add_y(v) / 4.;
             at = time::now();
             an = N;
 
-            let (ax, zx) = into(2., x_wide / 512., x + add_x(v));
+            let (ax, zx) = into(4., x_wide / 16., x + add_x(v));
 
             match ax {
               T => {
-                xy(zx, zy);
-                kl(F);
-                T
+                let (ax, zx) = into(2., x_wide / 64., x + add_x(v));
+
+                match ax {
+                  T => {
+                    xy(zx, zy);
+                    kl(F);
+                    T
+                  },
+                  _ => {
+                    xy(zx, zy);
+                    F
+                  },
+                }
               },
               _ => {
                 xy(zx, zy);
@@ -172,8 +184,8 @@ pub fn main() {
         },
       },
       FREQ,
-      x_wide,
-      y_high,
+      screen_wide,
+      screen_high,
     );
   }));
 
