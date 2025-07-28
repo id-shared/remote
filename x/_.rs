@@ -24,8 +24,8 @@ pub fn main() {
     let mut at = time::now();
     let mut an = N;
 
-    const COLOR_N_3: u8 = 255 - 4;
-    const COLOR_N_2: u8 = 175;
+    const COLOR_N_3: u8 = 255 - 16;
+    const COLOR_N_2: u8 = 159;
     const COLOR_N_1: u8 = 4;
 
     const _360: f64 = 6400.;
@@ -113,9 +113,19 @@ pub fn main() {
 
                 match ax {
                   T => {
-                    xy(zx, zy);
-                    kl(F);
-                    T
+                    let (ax, zx) = into(4., x_wide / 256., x + add_x(v));
+
+                    match ax {
+                      T => {
+                        xy(zx, zy);
+                        kl(F);
+                        T
+                      },
+                      _ => {
+                        xy(zx, zy);
+                        F
+                      },
+                    }
                   },
                   _ => {
                     xy(zx, zy);
