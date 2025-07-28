@@ -1,65 +1,29 @@
-// #[inline(always)]
-// fn zz(io: xyloid::HANDLE, i: i32, n: i32, x: f64, y: f64) -> bool {
-//   match i <= n {
-//     T => {
-//       let rr = ease(i as f64 / n as f64);
-//       let ay = rr * y;
-//       let ax = rr * x;
+let mut ll = (F, time::now());
 
-//       // println!("{} {} | {:.2} {} {}", i, n, rr, ax, ay);
+let shift = |n: f64| {
+  time::rest(time::MS * 14);
+  xy(N, n);
+  time::rest(time::MS * 100);
+  T
+};
 
-//       xyloid::xy(io, ax, ay);
-//       xo(MS * HZ);
-//       zz(io, i + 1, n, x - ax, y - ay)
-//     },
-//     _ => {
-//       xyloid::xy(io, x, y);
-//       match xyloid::is_h() {
-//         T => T,
-//         _ => xyloid::key_h(io, F),
-//       }
-//     },
-//   }
-// }
+ll = on(
+  d2::is_l,
+  |_| T,
+  |_| {
+    d2::i(F, &device);
+    shift(-10.);
+    shift(-10.);
+    shift(-25.);
+    shift(-25.);
+    shift(-30.);
+    shift(-15.);
+    shift(-15.);
+    shift(-15.);
+    time::rest(time::MS * 5000);
+    d2::i(F, &device);
 
-// #[inline(always)]
-// fn ease(t: f64) -> f64 {
-//   let t = t.clamp(0.0, 1.0);
-//   (3.0 * t * t) - (2.0 * t * t * t)
-// }
-
-#[inline(always)]
-fn xfov(hfov: f64, x: f64, y: f64) -> f64 {
-  (2. * ((hfov.to_radians() / 2.).tan() * (y / x)).atan()).to_degrees()
-}
-
-#[inline(always)]
-pub fn send<T>(i: &Sender<T>, o: T) -> bool {
-  i.try_send(o).is_ok()
-}
-
-#[inline(always)]
-fn stim(n1: i32, n2: i32) -> (i32, i32) {
-  let next = step(n1, n2);
-
-  match next.cmp(&0) {
-    Greater => (n1, next),
-    Less => (-n1, next),
-    Equal => (n2, next),
-  }
-}
-
-#[inline(always)]
-fn step(n1: i32, n2: i32) -> i32 {
-  match n2.cmp(&0) {
-    Greater => (n2 - n1).max(0),
-    Less => (n2 + n1).min(0),
-    Equal => 0,
-  }
-}
-
-cmp::Ordering::{
-  Equal,
-  Greater,
-  Less,
-},
+    T
+  },
+  ll,
+);

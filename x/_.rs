@@ -21,7 +21,6 @@ pub fn main() {
     let is_kl = || d2::is_i();
     let kl = |is: bool| d2::i(is, &device);
 
-    let mut ll = (F, time::now());
     let mut an = 0;
 
     const COLOR_N_3: u8 = 175;
@@ -58,7 +57,7 @@ pub fn main() {
     }
 
     #[inline(always)]
-    fn recoil(n: u64) -> f64 {
+    fn pull(n: u64) -> f64 {
       match n {
         52..=u64::MAX => N,
         44..=48 => -3.,
@@ -95,7 +94,7 @@ pub fn main() {
       |(a, _n, v, x, y)| match a {
         T => match is_kl() {
           T => {
-            let zy = recoil(an);
+            let zy = pull(an);
             let zx = (x + add_x(v)) / 3.;
             an = an + 1;
 
@@ -145,7 +144,7 @@ pub fn main() {
           T => {
             an = an + 1;
 
-            xy(N, recoil(an));
+            xy(N, pull(an));
             T
           },
           _ => {
@@ -193,34 +192,6 @@ pub fn main() {
       || match screen::name().contains("VAL") && d2::is_ml() {
         T => T,
         _ => {
-          ll = on(
-            d2::is_l,
-            |_| T,
-            |_| {
-              let shift = |n: f64| {
-                time::rest(time::MS * 14);
-                xy(N, n);
-                time::rest(time::MS * 100);
-                T
-              };
-
-              d2::i(F, &device);
-              shift(-10.);
-              shift(-10.);
-              shift(-25.);
-              shift(-25.);
-              shift(-30.);
-              shift(-15.);
-              shift(-15.);
-              shift(-15.);
-              time::rest(time::MS * 5000);
-              d2::i(F, &device);
-
-              T
-            },
-            ll,
-          );
-
           kl(T);
 
           F
