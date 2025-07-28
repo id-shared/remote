@@ -19,12 +19,10 @@ pub fn main() {
     let xy = |ax: f64, ay: f64| d1::xy(get_x_(ax), get_y_(ay), &device);
 
     let is_kl = || d2::is_i();
-    let kr = |is: bool| d2::k(is, &device);
     let kl = |is: bool| d2::i(is, &device);
 
     let mut ll = (F, time::now());
-    let mut at = time::now();
-    let mut an = N;
+    let mut an = 0;
 
     const COLOR_N_3: u8 = 175;
     const COLOR_N_2: u8 = 127;
@@ -34,13 +32,6 @@ pub fn main() {
     const VFOV: f64 = 70.53;
     const HFOV: f64 = 103.;
     const FREQ: u32 = 18;
-
-    #[inline(always)]
-    fn hfov(k: f64, l: f64, n: f64) -> f64 {
-      (k / l) * n
-    }
-
-    println!("{}", hfov(_360, HFOV, HFOV / 1.25));
 
     #[inline(always)]
     fn is_pixel(n_1: u8, n_2: u8, n_3: u8, x: u32) -> bool {
@@ -67,18 +58,17 @@ pub fn main() {
     }
 
     #[inline(always)]
-    fn recoil(k: f64, n: f64) -> f64 {
-      let n_ = (k / 16.).round();
+    fn recoil(n: u64) -> f64 {
       match n {
-        800.0..=f64::MAX => N,
-        700.0..=800. => n_ * -2.,
-        600.0..=700. => n_ * -4.,
-        500.0..=600. => n_ * -4.,
-        400.0..=500. => n_ * -4.,
-        300.0..=400. => n_ * -5.,
-        200.0..=300. => n_ * -4.,
-        100.0..=200. => n_ * -2.,
-        0.0..=100. => n_ * -1.,
+        52..=u64::MAX => N,
+        44..=48 => -3.,
+        38..=42 => -3.,
+        32..=36 => -3.,
+        26..=30 => -6.,
+        20..=24 => -5.,
+        13..=17 => -5.,
+        7..=11 => -2.,
+        1..=5 => -2.,
         _ => N,
       }
     }
@@ -93,29 +83,28 @@ pub fn main() {
 
     #[inline(always)]
     fn add_y(n: f64) -> f64 {
-      n / 3.
+      n / 4.
     }
 
     #[inline(always)]
     fn add_x(n: f64) -> f64 {
-      n / 9.
+      n / 16.
     }
 
     screen::watch(
       |(a, _n, v, x, y)| match a {
         T => match is_kl() {
           T => {
-            let zy = recoil(FREQ as f64, time::till(at));
+            let zy = recoil(an);
             let zx = (x + add_x(v)) / 3.;
-            an = an + 1.;
+            an = an + 1;
 
             xy(zx, zy);
             T
           },
           _ => {
             let zy = (y - add_y(v)) / 3.;
-            at = time::now();
-            an = N;
+            an = 0;
 
             let (ax, zx) = into(4., x_wide / 4., x + add_x(v));
 
@@ -130,7 +119,6 @@ pub fn main() {
                     match ax {
                       T => {
                         xy(zx, zy);
-                        kr(F);
                         kl(F);
                         T
                       },
@@ -155,14 +143,13 @@ pub fn main() {
         },
         _ => match is_kl() {
           T => {
-            an = an + 1.;
+            an = an + 1;
 
-            xy(N, recoil(FREQ as f64, time::till(at)));
+            xy(N, recoil(an));
             T
           },
           _ => {
-            at = time::now();
-            an = N;
+            an = 0;
 
             F
           },
@@ -209,19 +196,33 @@ pub fn main() {
           ll = on(
             d2::is_l,
             |_| T,
-            |n| {
-              println!("{}", n);
+            |_| {
+              let shift = |n: f64| {
+                time::rest(time::MS * 14);
+                xy(N, n);
+                time::rest(time::MS * 100);
+                T
+              };
+
               d2::i(F, &device);
-              time::rest(time::MS * 108);
-              // xy(N, -10.);
+              shift(-10.);
+              shift(-10.);
+              shift(-25.);
+              shift(-25.);
+              shift(-30.);
+              shift(-15.);
+              shift(-15.);
+              shift(-15.);
+              time::rest(time::MS * 5000);
               d2::i(F, &device);
+
               T
             },
             ll,
           );
 
-          kr(T);
           kl(T);
+
           F
         },
       },
@@ -343,6 +344,7 @@ use {
     thread,
     time::Instant,
     u32,
+    u64,
   },
   xyloid::{
     Device,
