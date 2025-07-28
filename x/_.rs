@@ -22,6 +22,7 @@ pub fn main() {
     let kr = |is: bool| d2::k(is, &device);
     let kl = |is: bool| d2::i(is, &device);
 
+    let mut ll = (F, time::now());
     let mut at = time::now();
     let mut an = N;
 
@@ -200,6 +201,18 @@ pub fn main() {
       || match screen::name().contains("VAL") && d2::is_ml() {
         T => T,
         _ => {
+          ll = on(
+            d2::is_l,
+            |_| T,
+            |n| {
+              println!("{}", n);
+              d2::i(F, &device);
+              d2::i(F, &device);
+              T
+            },
+            ll,
+          );
+
           kr(T);
           kl(T);
           F
@@ -212,13 +225,11 @@ pub fn main() {
   }));
 
   zz.push(thread::spawn(|| {
-    let io = xyloid::device();
+    let device = xyloid::device();
     let mut d = (F, time::now());
     let mut a = (F, time::now());
     let mut w = (F, time::now());
     let mut s = (F, time::now());
-
-    let mut l = (F, time::now());
 
     #[inline(always)]
     fn held<F1: Fn() -> bool, F2: Fn(bool, &Device) -> bool>(f_1: F1, f_2: F2, x: BI, z: &Device) -> BI {
@@ -251,47 +262,13 @@ pub fn main() {
       )
     }
 
-    #[inline(always)]
-    fn on<F1: Fn() -> bool, F2: Fn(f64) -> bool, F3: Fn(f64) -> bool>(f1: F1, f2: F2, f3: F3, z: BI) -> BI {
-      let (is, it) = z;
-
-      match is {
-        T => match f1() {
-          T => z,
-          _ => match f3(time::till(it)) {
-            T => (F, time::now()),
-            _ => (T, time::now()),
-          },
-        },
-        _ => match f1() {
-          T => match f2(time::till(it)) {
-            T => (T, time::now()),
-            _ => (F, time::now()),
-          },
-          _ => z,
-        },
-      }
-    }
-
-    type BI = (bool, Instant);
-
     loop {
-      match screen::name().contains("") {
+      match screen::name().contains("VAL") {
         T => {
-          d = held(d2::is_d, d2::al, d, &io);
-          a = held(d2::is_a, d2::ar, a, &io);
-          w = held(d2::is_w, d2::ad, w, &io);
-          s = held(d2::is_s, d2::au, s, &io);
-
-          l = on(
-            d2::is_l,
-            |_| T,
-            |n| {
-              println!("{}", n);
-              T
-            },
-            l,
-          );
+          d = held(d2::is_d, d2::al, d, &device);
+          a = held(d2::is_a, d2::ar, a, &device);
+          w = held(d2::is_w, d2::ad, w, &device);
+          s = held(d2::is_s, d2::au, s, &device);
 
           time::rest(time::MS);
           T
@@ -320,6 +297,30 @@ pub fn dollar(n1: f64, n2: f64) -> f64 {
 pub fn to_rad(n: f64) -> f64 {
   n.to_radians()
 }
+
+#[inline(always)]
+fn on<F1: Fn() -> bool, F2: Fn(f64) -> bool, F3: Fn(f64) -> bool>(f1: F1, f2: F2, f3: F3, z: BI) -> BI {
+  let (is, it) = z;
+
+  match is {
+    T => match f1() {
+      T => z,
+      _ => match f3(time::till(it)) {
+        T => (F, time::now()),
+        _ => (T, time::now()),
+      },
+    },
+    _ => match f1() {
+      T => match f2(time::till(it)) {
+        T => (T, time::now()),
+        _ => (F, time::now()),
+      },
+      _ => z,
+    },
+  }
+}
+
+type BI = (bool, Instant);
 
 use {
   common::{
