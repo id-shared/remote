@@ -25,7 +25,7 @@ pub fn main() {
     let mut an = N;
 
     const COLOR_N_3: u8 = 255 - 4;
-    const COLOR_N_2: u8 = 191;
+    const COLOR_N_2: u8 = 127;
     const COLOR_N_1: u8 = 4;
 
     const _360: f64 = 6400.;
@@ -82,12 +82,12 @@ pub fn main() {
 
     #[inline(always)]
     fn add_y(n: f64) -> f64 {
-      n / 3.
+      n / 4.
     }
 
     #[inline(always)]
     fn add_x(n: f64) -> f64 {
-      n / 9.
+      n / 16.
     }
 
     screen::watch(
@@ -101,7 +101,7 @@ pub fn main() {
             T
           },
           _ => {
-            let zy = y - add_y(v) / 4.;
+            let zy = (y - add_y(v)) / 4.;
             at = time::now();
             an = N;
 
@@ -206,33 +206,33 @@ pub fn main() {
     let mut s = (F, time::now());
 
     #[inline(always)]
-    fn on_key<F1: Fn() -> bool, F2: Fn(bool, &Device) -> bool>(f1: F1, f2: F2, io: &Device, z1: BI) -> BI {
+    fn on_key<F1: Fn() -> bool, F2: Fn(bool, &Device) -> bool>(f_1: F1, f_2: F2, x: BI, z: &Device) -> BI {
       on(
-        f1,
+        f_1,
         |_| (T, time::now()),
         |x| {
           let n = (time::till(x.1) / 10.).round() as u64;
           match n {
             17..=32 => {
-              f2(F, io);
+              f_2(F, z);
               time::rest(time::MS * ((4 * 16) + ((n - 16) * 2)) as u32);
-              f2(T, io)
+              f_2(T, z)
             },
             6..=16 => {
-              f2(F, io);
+              f_2(F, z);
               time::rest(time::MS * (4 * n) as u32);
-              f2(T, io)
+              f_2(T, z)
             },
             0..=5 => T,
             _ => {
-              f2(F, io);
+              f_2(F, z);
               time::rest(time::MS * 96);
-              f2(T, io)
+              f_2(T, z)
             },
           };
           (F, time::now())
         },
-        z1,
+        x,
       )
     }
 
@@ -255,10 +255,10 @@ pub fn main() {
     loop {
       match screen::name().contains("VAL") {
         T => {
-          d = on_key(d2::is_d, d2::al, &io, d);
-          a = on_key(d2::is_a, d2::ar, &io, a);
-          w = on_key(d2::is_w, d2::ad, &io, w);
-          s = on_key(d2::is_s, d2::au, &io, s);
+          d = on_key(d2::is_d, d2::al, d, &io);
+          a = on_key(d2::is_a, d2::ar, a, &io);
+          w = on_key(d2::is_w, d2::ad, w, &io);
+          s = on_key(d2::is_s, d2::au, s, &io);
           time::rest(time::MS);
           T
         },
