@@ -19,6 +19,7 @@ pub fn main() {
     let xy = |ax: f64, ay: f64| d1::xy(get_x_(ax), get_y_(ay), &device);
 
     let is_kl = || d2::is_i();
+    let kr = |is: bool| d2::k(is, &device);
     let kl = |is: bool| d2::i(is, &device);
 
     let mut at = time::now();
@@ -28,7 +29,7 @@ pub fn main() {
     const COLOR_N_2: u8 = 127;
     const COLOR_N_1: u8 = 4;
 
-    const _360: f64 = 6400.;
+    const _360: f64 = 6396.5885;
     const FREQ: u32 = 18;
 
     #[inline(always)]
@@ -119,6 +120,7 @@ pub fn main() {
                     match ax {
                       T => {
                         xy(zx, zy);
+                        kr(F);
                         kl(F);
                         T
                       },
@@ -189,6 +191,7 @@ pub fn main() {
       || match screen::name().contains("VAL") && d2::is_ml() {
         T => T,
         _ => {
+          kr(T);
           kl(T);
           F
         },
