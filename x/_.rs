@@ -72,14 +72,9 @@ pub fn main() {
 
     #[inline(always)]
     fn into(k: f64, l: f64, n: f64) -> (bool, f64) {
-      let n_ = n.abs();
-
-      match (l / 4.) >= n_ {
+      match l >= n.abs() {
         T => (T, n),
-        _ => match l >= n_ {
-          T => (F, n / (k / 1.)),
-          _ => (F, n / (k / 1.)),
-        },
+        _ => (F, n / k),
       }
     }
 
@@ -97,19 +92,18 @@ pub fn main() {
       |(a, _n, v, x, y)| match a {
         T => match is_kl() {
           T => {
-            let ay = recoil(FREQ as f64, time::till(at));
-
+            let zy = recoil(FREQ as f64, time::till(at));
             an = an + 1.;
 
-            xy((x + add_x(v)) / 2., ay);
+            xy((x + add_x(v)) / 2., zy);
             T
           },
           _ => {
-            let (__, zy) = into(4., y_high / 64., y - add_y(v));
-            let (ax, zx) = into(4., x_wide / 64., x + add_x(v));
-
+            let zy = y - add_y(v) / 2.;
             at = time::now();
             an = N;
+
+            let (ax, zx) = into(2., x_wide / 512., x + add_x(v));
 
             match ax {
               T => {
