@@ -24,7 +24,7 @@ pub fn main() {
     let mut at = time::now();
     let mut an = N;
 
-    const COLOR_N_3: u8 = 255 - 4;
+    const COLOR_N_3: u8 = 175;
     const COLOR_N_2: u8 = 127;
     const COLOR_N_1: u8 = 4;
 
@@ -82,12 +82,12 @@ pub fn main() {
 
     #[inline(always)]
     fn add_y(n: f64) -> f64 {
-      n / 2.
+      n / 3.
     }
 
     #[inline(always)]
     fn add_x(n: f64) -> f64 {
-      n / 6.
+      n / 9.
     }
 
     screen::watch(
@@ -95,13 +95,14 @@ pub fn main() {
         T => match is_kl() {
           T => {
             let zy = recoil(FREQ as f64, time::till(at));
+            let zx = (x + add_x(v)) / 3.;
             an = an + 1.;
 
-            xy((x + add_x(v)) / 4., zy);
+            xy(zx, zy);
             T
           },
           _ => {
-            let zy = (y - add_y(v)) / 4.;
+            let zy = (y - add_y(v)) / 3.;
             at = time::now();
             an = N;
 
@@ -109,7 +110,7 @@ pub fn main() {
 
             match ax {
               T => {
-                let (ax, zx) = into(4., x_wide / 16., x + add_x(v));
+                let (ax, zx) = into(3., x_wide / 16., x + add_x(v));
 
                 match ax {
                   T => {

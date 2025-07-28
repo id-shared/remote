@@ -6,7 +6,7 @@ pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
   let recorder_1 = recorder(n);
 
   let mut supplier_n: HashMap<u64, Supplier> = HashMap::new();
-  let ny = 16.;
+  let ny = 8.;
 
   supplier_n.insert(16, supplier(ltxy((8.0, x), (ny, y)), &recorder_1));
   supplier_n.insert(15, supplier(ltxy((8.0, x), (ny, y)), &recorder_1));
