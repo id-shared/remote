@@ -2,16 +2,30 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, n: u32, x: f64, y: f64) -> bool {
+pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, n: u32, x: f64, y: f64) -> bool {
   let recorder_1 = recorder(n);
 
-  let supplier_4 = supplier(ltxy((16., x), (8., y)), &recorder_1);
-  let supplier_3 = supplier(ltxy((12., x), (8., y)), &recorder_1);
-  let supplier_2 = supplier(ltxy((8., x), (8., y)), &recorder_1);
-  let supplier_1 = supplier(ltxy((4., x), (8., y)), &recorder_1);
-  let supplier = supplier(ltxy((2., x), (8., y)), &recorder_1);
+  let mut supplier_n: HashMap<u64, Supplier> = HashMap::new();
 
-  let mut id: f64 = N;
+  supplier_n.insert(16, supplier(ltxy((16., x), (8., y)), &recorder_1));
+  supplier_n.insert(15, supplier(ltxy((15., x), (8., y)), &recorder_1));
+  supplier_n.insert(14, supplier(ltxy((14., x), (8., y)), &recorder_1));
+  supplier_n.insert(13, supplier(ltxy((13., x), (8., y)), &recorder_1));
+  supplier_n.insert(12, supplier(ltxy((12., x), (8., y)), &recorder_1));
+  supplier_n.insert(11, supplier(ltxy((11., x), (8., y)), &recorder_1));
+  supplier_n.insert(10, supplier(ltxy((10., x), (8., y)), &recorder_1));
+  supplier_n.insert(9, supplier(ltxy((9., x), (8., y)), &recorder_1));
+  supplier_n.insert(8, supplier(ltxy((8., x), (8., y)), &recorder_1));
+  supplier_n.insert(7, supplier(ltxy((7., x), (8., y)), &recorder_1));
+  supplier_n.insert(6, supplier(ltxy((6., x), (8., y)), &recorder_1));
+  supplier_n.insert(5, supplier(ltxy((5., x), (8., y)), &recorder_1));
+  supplier_n.insert(4, supplier(ltxy((4., x), (8., y)), &recorder_1));
+  supplier_n.insert(3, supplier(ltxy((3., x), (8., y)), &recorder_1));
+  supplier_n.insert(2, supplier(ltxy((2., x), (8., y)), &recorder_1));
+  supplier_n.insert(1, supplier(ltxy((1., x), (8., y)), &recorder_1));
+  supplier_n.insert(0, supplier(ltxy((1., x), (8., y)), &recorder_1));
+
+  let mut id: u64 = 0;
   loop {
     let oneach = || {
       let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
@@ -19,13 +33,9 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
       match unsafe { recorder_1.framer.AcquireNextFrame(recorder_1.hz, &mut info, &mut data) } {
         Ok(_) => match is_f() {
           T => {
-            let supplier = match (id + 1.) / 4. {
-              4.0..=f64::MAX => &supplier_4,
-              3.0..=4. => &supplier_3,
-              2.0..=3. => &supplier_2,
-              1.0..=2. => &supplier_1,
-              0.0..=1. => &supplier,
-              _ => &supplier,
+            let supplier = match id {
+              16..=u64::MAX => supplier_n.get(&16).unwrap(),
+              0..=15 => supplier_n.get(&id).unwrap(),
             };
 
             let data = data.unwrap();
@@ -37,19 +47,19 @@ pub fn watch<F: FnMut((bool, f64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
             match is {
               T => {
                 f((is, id, an, ax, ay));
-                id = id + 1.;
+                id = id + 1;
                 T
               },
               _ => {
                 f((is, id, an, ax, ay));
-                id = id + 1.;
+                id = id + 1;
                 T
               },
             }
           },
           _ => {
             unsafe { recorder_1.framer.ReleaseFrame().unwrap() };
-            id = N;
+            id = 0;
             F
           },
         },
@@ -214,11 +224,11 @@ type Record = (*const u8, usize, usize, usize);
 use {
   common::{
     F,
-    N,
     T,
     time,
   },
   std::{
+    collections::HashMap,
     u32,
     usize,
   },

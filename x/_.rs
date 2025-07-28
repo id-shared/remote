@@ -24,8 +24,8 @@ pub fn main() {
     let mut at = time::now();
     let mut an = N;
 
-    const COLOR_N_3: u8 = 255 - 16;
-    const COLOR_N_2: u8 = 159;
+    const COLOR_N_3: u8 = 255 - 4;
+    const COLOR_N_2: u8 = 191;
     const COLOR_N_1: u8 = 4;
 
     const _360: f64 = 6400.;
@@ -37,10 +37,10 @@ pub fn main() {
       let n2 = ((x >> 8) & 0xff) as u8;
       let n3 = (x & 0xff) as u8;
 
-      match n1 >= n_3 && n2 >= n_3 {
-        T => match n_1 >= n1.abs_diff(n2) {
-          T => match n1 > n2 {
-            T => match n2.abs_diff(n3) > n_2 {
+      match n1 >= n_3 {
+        T => match n_1 >= n2.abs_diff(n3) {
+          T => match n2 >= n3 {
+            T => match n1.abs_diff(n2) > n_2 {
               T => T,
               _ => F,
             },
@@ -82,12 +82,12 @@ pub fn main() {
 
     #[inline(always)]
     fn add_y(n: f64) -> f64 {
-      n / 4.
+      n / 3.
     }
 
     #[inline(always)]
     fn add_x(n: f64) -> f64 {
-      n / 16.
+      n / 9.
     }
 
     screen::watch(
@@ -105,15 +105,15 @@ pub fn main() {
             at = time::now();
             an = N;
 
-            let (ax, zx) = into(4., x_wide / 16., x + add_x(v));
+            let (ax, zx) = into(4., x_wide / 4., x + add_x(v));
 
             match ax {
               T => {
-                let (ax, zx) = into(2., x_wide / 64., x + add_x(v));
+                let (ax, zx) = into(4., x_wide / 16., x + add_x(v));
 
                 match ax {
                   T => {
-                    let (ax, zx) = into(4., x_wide / 256., x + add_x(v));
+                    let (ax, zx) = into(4., x_wide / 64., x + add_x(v));
 
                     match ax {
                       T => {
@@ -142,7 +142,6 @@ pub fn main() {
         },
         _ => match is_kl() {
           T => {
-            at = time::now();
             an = an + 1.;
 
             xy(N, recoil(FREQ as f64, time::till(at)));
