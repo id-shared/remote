@@ -35,7 +35,7 @@ pub fn main() {
     const FREQ: u32 = 19;
 
     #[inline(always)]
-    fn finder<F: Fn(u32) -> bool, I: IntoIterator<Item = usize> + Clone>(f: F, n: *const u8, v: usize, x: I, y: I) -> (bool, u64, u64) {
+    fn finder<F: Fn(u32) -> bool, I: IntoIterator<Item = usize> + Clone>(f: F, n: *const u8, v: usize, x: I, y: I) -> (bool, f64, f64) {
       for yn in y {
         let ny = unsafe { n.add(yn * v) } as *const u32;
 
@@ -44,14 +44,14 @@ pub fn main() {
 
           match f(nx) {
             T => {
-              return (T, xn as u64, yn as u64);
+              return (T, xn as f64, yn as f64);
             },
             _ => F,
           };
         }
       }
 
-      (false, 0, 0)
+      (false, 0., 0.)
     }
 
     #[inline(always)]
@@ -79,7 +79,7 @@ pub fn main() {
     }
 
     #[inline(always)]
-    fn pull(n: u64) -> f64 {
+    fn push(n: u64) -> f64 {
       match n {
         48..=u64::MAX => N,
         42..=46 => -3.,
@@ -91,6 +91,14 @@ pub fn main() {
         6..=10 => -2.,
         0..=4 => -2.,
         _ => N,
+      }
+    }
+
+    #[inline(always)]
+    fn pull(a: bool, k: f64, n: f64) -> f64 {
+      match a {
+        T => (k / 64.) * n * (1. / 3.),
+        _ => (k / 64.) * n,
       }
     }
 
@@ -110,24 +118,14 @@ pub fn main() {
       }
     }
 
-    #[inline(always)]
-    fn add_y(n: u64) -> f64 {
-      n as f64 / 8.
-    }
-
-    #[inline(always)]
-    fn add_x(n: u64) -> f64 {
-      n as f64 / 16.
-    }
-
     let mut n_ = 0;
     screen::watch(
       |(a, n, v, x, y)| match a {
         T => match is_kl() {
           T => {
-            let zy = pull(n - n_);
+            let zy = push(n - n_);
 
-            let (ax, zx) = each(n, 4, x + add_x(v));
+            let (ax, zx) = each(n, 4, x + pull(T, x_wide, v));
 
             match ax {
               T => {
@@ -141,16 +139,16 @@ pub fn main() {
             }
           },
           _ => {
-            let zy = (y - add_y(v)) / 4.;
+            println!("{} {} {}", v, pull(T, x_wide, v), pull(F, y_high, v));
+
+            let zy = (y - pull(F, y_high, v)) / 4.;
             n_ = n;
 
-            let (ax, zx) = into(4., x_wide / 32., x + add_x(v));
-
-            println!("{}", v);
+            let (ax, zx) = into(4., x_wide / 32., x + pull(T, x_wide, v));
 
             match ax {
               T => {
-                let (ax, zx) = each(n, 2, x + add_x(v));
+                let (ax, zx) = each(n, 2, x + pull(T, x_wide, v));
 
                 match ax {
                   T => {
@@ -173,7 +171,7 @@ pub fn main() {
         },
         _ => match is_kl() {
           T => {
-            let zy = pull(n - n_);
+            let zy = push(n - n_);
 
             xy(N, zy);
             T
@@ -186,26 +184,23 @@ pub fn main() {
         },
       },
       |(n, v, x, y)| {
-        let (is, xn_1, yn_1) = finder(check, n, v, 0..x, 0..y);
-        let yn = yn_1 as f64;
-        let xn = xn_1 as f64;
+        let (is, xn, yn) = finder(check, n, v, 0..x, 0..y);
 
         match is {
           T => {
-            let (is, _, yn_2) = finder(check, n, v, (0..x).rev(), (0..y).rev());
+            let (is, _, yn_) = finder(check, n, v, (0..x).rev(), (0..y).rev());
+            let yy = y as f64 / 2.;
+            let xx = x as f64 / 2.;
 
-            match is {
-              T => match yn_2 >= yn_1 {
-                T => (is, yn_2 - yn_1, -((x as f64 / 2.) - xn), (y as f64 / 2.) - yn),
-                _ => (is, 0, xn, yn),
-              },
-              _ => (is, 0, xn, yn),
+            match yn_ >= yn {
+              T => (is, (yn_ - yy) / yy, -(xx - xn), yy - yn),
+              _ => (is, 0., xn, yn),
             }
           },
-          _ => (is, 0, xn, yn),
+          _ => (is, 0., xn, yn),
         }
       },
-      || match screen::name().contains("") && d2::is_ml() {
+      || match screen::name().contains("VAL") && d2::is_ml() {
         T => T,
         _ => {
           kl(T);

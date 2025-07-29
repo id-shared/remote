@@ -2,27 +2,27 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F: FnMut((bool, u64, u64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool, u64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, n: u32, x: f64, y: f64) -> bool {
+pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, n: u32, x: f64, y: f64) -> bool {
   let recorder_1 = recorder(n);
 
   let mut supplier_n: HashMap<u64, Supplier> = HashMap::new();
   let ny = 8.;
 
-  supplier_n.insert(16, supplier(ltxy((8., x), (ny, y)), &recorder_1));
-  supplier_n.insert(15, supplier(ltxy((8., x), (ny, y)), &recorder_1));
-  supplier_n.insert(14, supplier(ltxy((7.5, x), (ny, y)), &recorder_1));
-  supplier_n.insert(13, supplier(ltxy((7., x), (ny, y)), &recorder_1));
-  supplier_n.insert(12, supplier(ltxy((6.5, x), (ny, y)), &recorder_1));
-  supplier_n.insert(11, supplier(ltxy((6., x), (ny, y)), &recorder_1));
-  supplier_n.insert(10, supplier(ltxy((5.5, x), (ny, y)), &recorder_1));
-  supplier_n.insert(9, supplier(ltxy((5., x), (ny, y)), &recorder_1));
-  supplier_n.insert(8, supplier(ltxy((4.5, x), (ny, y)), &recorder_1));
-  supplier_n.insert(7, supplier(ltxy((4., x), (ny, y)), &recorder_1));
-  supplier_n.insert(6, supplier(ltxy((3.5, x), (ny, y)), &recorder_1));
-  supplier_n.insert(5, supplier(ltxy((3., x), (ny, y)), &recorder_1));
-  supplier_n.insert(4, supplier(ltxy((2.5, x), (ny, y)), &recorder_1));
-  supplier_n.insert(3, supplier(ltxy((2., x), (ny, y)), &recorder_1));
-  supplier_n.insert(2, supplier(ltxy((1.5, x), (ny, y)), &recorder_1));
+  supplier_n.insert(16, supplier(ltxy((16., x), (ny, y)), &recorder_1));
+  supplier_n.insert(15, supplier(ltxy((15., x), (ny, y)), &recorder_1));
+  supplier_n.insert(14, supplier(ltxy((14., x), (ny, y)), &recorder_1));
+  supplier_n.insert(13, supplier(ltxy((13., x), (ny, y)), &recorder_1));
+  supplier_n.insert(12, supplier(ltxy((12., x), (ny, y)), &recorder_1));
+  supplier_n.insert(11, supplier(ltxy((11., x), (ny, y)), &recorder_1));
+  supplier_n.insert(10, supplier(ltxy((10., x), (ny, y)), &recorder_1));
+  supplier_n.insert(9, supplier(ltxy((9., x), (ny, y)), &recorder_1));
+  supplier_n.insert(8, supplier(ltxy((8., x), (ny, y)), &recorder_1));
+  supplier_n.insert(7, supplier(ltxy((7., x), (ny, y)), &recorder_1));
+  supplier_n.insert(6, supplier(ltxy((6., x), (ny, y)), &recorder_1));
+  supplier_n.insert(5, supplier(ltxy((5., x), (ny, y)), &recorder_1));
+  supplier_n.insert(4, supplier(ltxy((4., x), (ny, y)), &recorder_1));
+  supplier_n.insert(3, supplier(ltxy((3., x), (ny, y)), &recorder_1));
+  supplier_n.insert(2, supplier(ltxy((2., x), (ny, y)), &recorder_1));
   supplier_n.insert(1, supplier(ltxy((1., x), (ny, y)), &recorder_1));
   supplier_n.insert(0, supplier(ltxy((1., x), (ny, y)), &recorder_1));
 
