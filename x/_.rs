@@ -35,19 +35,39 @@ pub fn main() {
     const FREQ: u32 = 19;
 
     #[inline(always)]
-    fn is_pixel(n_1: u8, n_2: u8, n_3: u8, x: u32) -> bool {
+    fn finder<F: Fn(u32) -> bool, I: IntoIterator<Item = usize> + Clone>(f: F, n: *const u8, v: usize, x: I, y: I) -> (bool, u64, u64) {
+      for yn in y {
+        let ny = unsafe { n.add(yn * v) } as *const u32;
+
+        for xn in x.clone() {
+          let nx = unsafe { *ny.add(xn) };
+
+          match f(nx) {
+            T => {
+              return (T, xn as u64, yn as u64);
+            },
+            _ => F,
+          };
+        }
+      }
+
+      (false, 0, 0)
+    }
+
+    #[inline(always)]
+    fn check(x: u32) -> bool {
       let n1 = ((x >> 16) & 0xff) as u8;
       let n2 = ((x >> 8) & 0xff) as u8;
       let n3 = (x & 0xff) as u8;
 
-      match n1 >= n_3 {
-        T => match n_1 >= n2.abs_diff(n3) {
+      match n1 >= COLOR_N_3 {
+        T => match COLOR_N_1 >= n2.abs_diff(n3) {
           T => match n2 >= n3 {
-            T => match n1.abs_diff(n2) > n_2 {
+            T => match n1.abs_diff(n2) > COLOR_N_2 {
               T => T,
               _ => F,
             },
-            _ => match n1.abs_diff(n3) > n_2 {
+            _ => match n1.abs_diff(n3) > COLOR_N_2 {
               T => T,
               _ => F,
             },
@@ -170,13 +190,15 @@ pub fn main() {
         let mut va = 0;
         let mut is = F;
 
+        println!("{:#?} {:#?}", finder(check, n, v, 0..x, 0..y), finder(check, n, v, (0..x).rev(), (0..y).rev()));
+
         for yn in 0..y {
           let ny = unsafe { n.add(yn * v) } as *const u32;
 
           'x: for xn in 0..x {
             let nx = unsafe { *ny.add(xn) };
 
-            match is_pixel(COLOR_N_1, COLOR_N_2, COLOR_N_3, nx) {
+            match check(nx) {
               T => match is {
                 T => {
                   vz = yn as u64;
@@ -200,7 +222,7 @@ pub fn main() {
           _ => (is, 0, -zx, zy),
         }
       },
-      || match screen::name().contains("VAL") && d2::is_ml() {
+      || match screen::name().contains("") && d2::is_ml() {
         T => T,
         _ => {
           kl(T);
@@ -322,7 +344,6 @@ use {
   screen,
   std::{
     f64::consts::PI,
-    i32,
     thread,
     time::Instant,
     u32,
