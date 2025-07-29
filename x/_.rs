@@ -25,8 +25,6 @@ pub fn main() {
       T
     };
 
-    let mut an = 0;
-
     const COLOR_N_3: u8 = 255 - 24;
     const COLOR_N_2: u8 = 96;
     const COLOR_N_1: u8 = 4;
@@ -102,12 +100,12 @@ pub fn main() {
       n as f64 / 24.
     }
 
+    let mut n_ = 0;
     screen::watch(
       |(a, n, v, x, y)| match a {
         T => match is_kl() {
           T => {
-            let zy = pull(an);
-            an = an + 1;
+            let zy = pull(n - n_);
 
             let (ax, zx) = each(n, 5, x + add_x(v));
 
@@ -124,13 +122,13 @@ pub fn main() {
           },
           _ => {
             let zy = y - add_y(v);
-            an = 0;
+            n_ = n;
 
-            let (ax, zx) = into(3., x_wide / 2., x + add_x(v));
+            let (ax, zx) = into(4., x_wide / 4., x + add_x(v));
 
             match ax {
               T => {
-                let (ax, zx) = into(3., x_wide / 8., x + add_x(v));
+                let (ax, zx) = into(3., x_wide / 32., x + add_x(v));
 
                 match ax {
                   T => {
@@ -163,14 +161,13 @@ pub fn main() {
         },
         _ => match is_kl() {
           T => {
-            let zy = pull(an);
-            an = an + 1;
+            let zy = pull(n - n_);
 
             xy(N, zy);
             T
           },
           _ => {
-            an = 0;
+            n_ = n;
 
             F
           },

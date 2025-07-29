@@ -45,18 +45,9 @@ pub fn watch<F: FnMut((bool, u64, u64, f64, f64)) -> bool, F1: FnMut(Record) -> 
             let (is, an, ax, ay) = on_f(each(cast, supplier, &recorder_1));
             unsafe { recorder_1.framer.ReleaseFrame().unwrap() };
 
-            match is {
-              T => {
-                f((is, id, an, ax, ay));
-                id = id + 1;
-                T
-              },
-              _ => {
-                f((is, id, an, ax, ay));
-                id = id + 1;
-                T
-              },
-            }
+            f((is, id, an, ax, ay));
+            id = id + 1;
+            T
           },
           _ => {
             unsafe { recorder_1.framer.ReleaseFrame().unwrap() };
