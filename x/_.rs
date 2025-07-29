@@ -252,12 +252,12 @@ pub fn main() {
           a = held(d2::is_a, d2::ar, a, &device);
           w = held(d2::is_w, d2::ad, w, &device);
           s = held(d2::is_s, d2::au, s, &device);
-
-          time::rest(time::MS);
           T
         },
         _ => F,
       };
+
+      time::rest(time::MS);
     }
   }));
 

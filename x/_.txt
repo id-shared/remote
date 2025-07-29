@@ -1,29 +1,48 @@
-let mut ll = (F, time::now());
+zz.push(thread::spawn(|| {
+  let screen_high = screen::high();
+  let screen_wide = screen::wide();
+  let device = xyloid::device();
+  let y_high = screen_high / 2.;
+  let x_wide = screen_wide / 2.;
 
-let shift = |n: f64| {
-  time::rest(time::MS * 14);
-  xy(N, n);
-  time::rest(time::MS * 100);
-  T
-};
+  let get_y_ = |ay: f64| wealth(to_rad(VFOV / 2.), ay / y_high, _360);
+  let get_x_ = |ax: f64| wealth(to_rad(HFOV / 2.), ax / x_wide, _360);
+  let xy = |ax: f64, ay: f64| d1::xy(get_x_(ax), get_y_(ay), &device);
 
-ll = on(
-  d2::is_l,
-  |_| T,
-  |_| {
-    d2::i(F, &device);
-    shift(-10.);
-    shift(-10.);
-    shift(-25.);
-    shift(-25.);
-    shift(-30.);
-    shift(-15.);
-    shift(-15.);
-    shift(-15.);
-    time::rest(time::MS * 5000);
-    d2::i(F, &device);
+  let mut ll = (F, time::now());
 
+  const _360: f64 = 6396.5885;
+  const VFOV: f64 = 70.53;
+  const HFOV: f64 = 103.;
+
+  let shift = |n: f64| {
+    time::rest(time::MS * 14);
+    xy(N, n);
+    time::rest(time::MS * 100);
     T
-  },
-  ll,
-);
+  };
+
+  loop {
+    ll = on(
+      d2::is_l,
+      |_| T,
+      |_| {
+        d2::i(F, &device);
+        shift(-10.);
+        shift(-10.);
+        shift(-25.);
+        shift(-25.);
+        shift(-30.);
+        shift(-15.);
+        shift(-15.);
+        shift(-15.);
+        time::rest(time::MS * 5000);
+        d2::i(T, &device);
+        T
+      },
+      ll,
+    );
+
+    time::rest(time::MS);
+  }
+}));
