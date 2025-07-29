@@ -86,12 +86,12 @@ pub fn main() {
 
     #[inline(always)]
     fn add_y(n: u64) -> f64 {
-      n as f64 / 4.
+      n as f64 / 8.
     }
 
     #[inline(always)]
     fn add_x(n: u64) -> f64 {
-      n as f64 / 12.
+      n as f64 / 16.
     }
 
     screen::watch(
