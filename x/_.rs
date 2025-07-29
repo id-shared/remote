@@ -77,18 +77,18 @@ pub fn main() {
     }
 
     #[inline(always)]
-    fn into2(k: u64, l: u64, n: f64, z: f64) -> (bool, f64) {
-      match k % l == 0 {
-        T => into(1., n, z),
-        _ => (F, 0.),
+    fn into(k1: f64, k2: f64, n: f64) -> (bool, f64) {
+      match k2 >= n.abs() {
+        T => (T, n),
+        _ => (F, n / k1),
       }
     }
 
     #[inline(always)]
-    fn into(l: f64, n: f64, z: f64) -> (bool, f64) {
-      match z >= n.abs() {
+    fn each(k1: u64, k2: u64, n: f64) -> (bool, f64) {
+      match k1 % k2 == 0 {
         T => (T, n),
-        _ => (F, n / l),
+        _ => (F, 0.),
       }
     }
 
@@ -109,7 +109,7 @@ pub fn main() {
             let zy = pull(an);
             an = an + 1;
 
-            let (ax, zx) = into2(n, 2, x + add_x(v), x_wide / 32.);
+            let (ax, zx) = each(n, 5, x + add_x(v));
 
             match ax {
               T => {
@@ -117,7 +117,7 @@ pub fn main() {
                 T
               },
               _ => {
-                xy(N, zy);
+                xy(zx, zy);
                 F
               },
             }
@@ -126,15 +126,15 @@ pub fn main() {
             let zy = y - add_y(v);
             an = 0;
 
-            let (ax, zx) = into(3., x + add_x(v), x_wide / 2.);
+            let (ax, zx) = into(3., x_wide / 2., x + add_x(v));
 
             match ax {
               T => {
-                let (ax, zx) = into(3., x + add_x(v), x_wide / 8.);
+                let (ax, zx) = into(3., x_wide / 8., x + add_x(v));
 
                 match ax {
                   T => {
-                    let (ax, zx) = into2(n, 2, x + add_x(v), x_wide / 32.);
+                    let (ax, zx) = each(n, 2, x + add_x(v));
 
                     match ax {
                       T => {
