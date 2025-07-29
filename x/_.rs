@@ -26,7 +26,7 @@ pub fn main() {
     };
 
     const COLOR_N_3: u8 = 255 - 4;
-    const COLOR_N_2: u8 = 96;
+    const COLOR_N_2: u8 = 127;
     const COLOR_N_1: u8 = 4;
 
     const _360: f64 = 6396.5885;
@@ -111,71 +111,69 @@ pub fn main() {
     }
 
     #[inline(always)]
-    fn each(k1: u64, k2: u64, n: f64) -> (bool, f64) {
-      match k1 % k2 == 0 {
-        T => (T, n),
-        _ => (F, 0.),
-      }
+    fn each(k: u64, n: u64) -> bool {
+      n % k == 0
     }
 
     let mut n_ = 0;
     screen::watch(
       |(a, n, v, x, y)| match a {
-        T => match is_kl() {
+        T => match (n % 2) == 0 {
           T => {
-            let (k_, x_) = (3., x + pull(T, x_wide, v));
-            let (ax, zx) = each(n, k_ as u64, x_);
+            let (x_, y_) = (x + pull(T, x_wide, v), y - pull(F, y_high, v));
 
-            match ax {
+            match is_kl() {
               T => {
-                xy(zx, push(n - n_));
-                T
-              },
-              _ => {
-                xy(zx, push(n - n_));
-                F
-              },
-            }
-          },
-          _ => {
-            let (k_, x_) = (3., x + pull(T, x_wide, v));
-            let (ax, zx) = into(k_, x_wide / 32., x_);
-
-            n_ = n;
-
-            match ax {
-              T => {
-                let (ax, zx) = each(n, k_ as u64, x_);
+                let (ax, zx) = (each(4, n), N);
 
                 match ax {
                   T => {
-                    xy(zx, y - pull(F, y_high, v));
-                    kl(F);
+                    xy(x_, push(n - n_));
                     T
                   },
                   _ => {
-                    xy(zx, N);
+                    xy(zx, push(n - n_));
                     F
                   },
                 }
               },
               _ => {
-                xy(zx, N);
-                F
+                let (ax, zx) = into(4., x_wide / 16., x_);
+
+                n_ = n;
+
+                match ax {
+                  T => {
+                    xy(x_, y_);
+                    kl(F);
+                    T
+                  },
+                  _ => {
+                    xy(zx, y_);
+                    F
+                  },
+                }
               },
             }
+          },
+          _ => match is_kl() {
+            T => {
+              xy(N, push(n - n_));
+              T
+            },
+            _ => {
+              n_ = n;
+              F
+            },
           },
         },
         _ => match is_kl() {
           T => {
-            let zy = push(n - n_);
-
-            xy(N, zy);
+            xy(N, push(n - n_));
             T
           },
           _ => {
             n_ = n;
-
             F
           },
         },
