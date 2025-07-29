@@ -27,14 +27,14 @@ pub fn main() {
 
     let mut an = 0;
 
-    const COLOR_N_3: u8 = 251;
-    const COLOR_N_2: u8 = 160;
+    const COLOR_N_3: u8 = 255 - 24;
+    const COLOR_N_2: u8 = 96;
     const COLOR_N_1: u8 = 4;
 
     const _360: f64 = 6396.5885;
     const VFOV: f64 = 70.53;
     const HFOV: f64 = 103.;
-    const FREQ: u32 = 18;
+    const FREQ: u32 = 24;
 
     #[inline(always)]
     fn is_pixel(n_1: u8, n_2: u8, n_3: u8, x: u32) -> bool {
@@ -86,12 +86,12 @@ pub fn main() {
 
     #[inline(always)]
     fn add_y(n: f64) -> f64 {
-      n / 3.
+      n
     }
 
     #[inline(always)]
     fn add_x(n: f64) -> f64 {
-      n / 9.
+      n / 2.
     }
 
     screen::watch(
@@ -109,7 +109,9 @@ pub fn main() {
             let zy = (y - add_y(v)) / 3.;
             an = 0;
 
-            let (ax, zx) = into(4., x_wide / 4., x + add_x(v));
+            let (ax, zx) = into(3., x_wide / 4., x + add_x(v));
+
+            println!("{}", v);
 
             match ax {
               T => {
@@ -117,7 +119,7 @@ pub fn main() {
 
                 match ax {
                   T => {
-                    let (ax, zx) = into(4., x_wide / 64., x + add_x(v));
+                    let (ax, zx) = into(3., x_wide / 64., x + add_x(v));
 
                     match ax {
                       T => {
