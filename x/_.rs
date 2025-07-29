@@ -19,12 +19,16 @@ pub fn main() {
     let xy = |ax: f64, ay: f64| d1::xy(get_x_(ax), get_y_(ay), &device);
 
     let is_kl = || d2::is_i();
-    let kl = |is: bool| d2::i(is, &device);
+    let kl = |is: bool| {
+      d2::i(is, &device);
+      d2::j(is, &device);
+      T
+    };
 
     let mut an = 0;
 
-    const COLOR_N_3: u8 = 231;
-    const COLOR_N_2: u8 = 127;
+    const COLOR_N_3: u8 = 251;
+    const COLOR_N_2: u8 = 160;
     const COLOR_N_1: u8 = 4;
 
     const _360: f64 = 6396.5885;
@@ -82,12 +86,12 @@ pub fn main() {
 
     #[inline(always)]
     fn add_y(n: f64) -> f64 {
-      n / 2.
+      n / 3.
     }
 
     #[inline(always)]
     fn add_x(n: f64) -> f64 {
-      n / 8.
+      n / 9.
     }
 
     screen::watch(
