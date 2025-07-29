@@ -46,3 +46,39 @@ zz.push(thread::spawn(|| {
     time::rest(time::MS);
   }
 }));
+
+// let mut zy = N;
+// let mut zx = N;
+// let mut vz = 0;
+// let mut va = 0;
+// let mut is = F;
+
+// for yn in 0..y {
+//   let ny = unsafe { n.add(yn * v) } as *const u32;
+
+//   'x: for xn in 0..x {
+//     let nx = unsafe { *ny.add(xn) };
+
+//     match check(nx) {
+//       T => match is {
+//         T => {
+//           vz = yn as u64;
+//           break 'x;
+//         },
+//         _ => {
+//           zy = (y as f64 / 2.) - yn as f64;
+//           zx = (x as f64 / 2.) - xn as f64;
+//           va = yn as u64;
+//           is = T;
+//           break 'x;
+//         },
+//       },
+//       _ => F,
+//     };
+//   }
+// }
+
+// match vz >= va {
+//   T => (is, vz - va, -zx, zy),
+//   _ => (is, 0, -zx, zy),
+// }

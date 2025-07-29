@@ -146,6 +146,8 @@ pub fn main() {
 
             let (ax, zx) = into(4., x_wide / 32., x + add_x(v));
 
+            println!("{}", v);
+
             match ax {
               T => {
                 let (ax, zx) = each(n, 2, x + add_x(v));
@@ -184,42 +186,21 @@ pub fn main() {
         },
       },
       |(n, v, x, y)| {
-        let mut zy = N;
-        let mut zx = N;
-        let mut vz = 0;
-        let mut va = 0;
-        let mut is = F;
+        let (is, xn_1, yn_1) = finder(check, n, v, 0..x, 0..y);
 
-        println!("{:#?} {:#?}", finder(check, n, v, 0..x, 0..y), finder(check, n, v, (0..x).rev(), (0..y).rev()));
+        match is {
+          T => {
+            let (is, _, yn_2) = finder(check, n, v, (0..x).rev(), (0..y).rev());
 
-        for yn in 0..y {
-          let ny = unsafe { n.add(yn * v) } as *const u32;
-
-          'x: for xn in 0..x {
-            let nx = unsafe { *ny.add(xn) };
-
-            match check(nx) {
-              T => match is {
-                T => {
-                  vz = yn as u64;
-                  break 'x;
-                },
-                _ => {
-                  zy = (y as f64 / 2.) - yn as f64;
-                  zx = (x as f64 / 2.) - xn as f64;
-                  va = yn as u64;
-                  is = T;
-                  break 'x;
-                },
+            match is {
+              T => match yn_2 >= yn_1 {
+                T => (is, yn_2 - yn_1, -((x as f64 / 2.) - xn_1 as f64), (y as f64 / 2.) - yn_1 as f64),
+                _ => (is, 0, xn_1 as f64, yn_1 as f64),
               },
-              _ => F,
-            };
-          }
-        }
-
-        match vz >= va {
-          T => (is, vz - va, -zx, zy),
-          _ => (is, 0, -zx, zy),
+              _ => (is, 0, xn_1 as f64, yn_1 as f64),
+            }
+          },
+          _ => (is, 0, xn_1 as f64, yn_1 as f64),
         }
       },
       || match screen::name().contains("") && d2::is_ml() {
