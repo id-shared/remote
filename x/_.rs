@@ -25,7 +25,7 @@ pub fn main() {
       T
     };
 
-    const COLOR_N_3: u8 = 255 - 24;
+    const COLOR_N_3: u8 = 255 - 4;
     const COLOR_N_2: u8 = 96;
     const COLOR_N_1: u8 = 4;
 
@@ -124,7 +124,7 @@ pub fn main() {
             let zy = (y - add_y(v)) / 4.;
             n_ = n;
 
-            let (ax, zx) = into(4., x_wide / 64., x + add_x(v));
+            let (ax, zx) = into(4., x_wide / 32., x + add_x(v));
 
             match ax {
               T => {
