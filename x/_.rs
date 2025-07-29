@@ -107,7 +107,7 @@ pub fn main() {
           T => {
             let zy = pull(n - n_);
 
-            let (ax, zx) = each(n, 5, x + add_x(v));
+            let (ax, zx) = each(n, 4, x + add_x(v));
 
             match ax {
               T => {
@@ -121,30 +121,20 @@ pub fn main() {
             }
           },
           _ => {
-            let zy = y - add_y(v);
+            let zy = (y - add_y(v)) / 4.;
             n_ = n;
 
-            let (ax, zx) = into(4., x_wide / 4., x + add_x(v));
+            let (ax, zx) = into(4., x_wide / 64., x + add_x(v));
 
             match ax {
               T => {
-                let (ax, zx) = into(3., x_wide / 32., x + add_x(v));
+                let (ax, zx) = each(n, 2, x + add_x(v));
 
                 match ax {
                   T => {
-                    let (ax, zx) = each(n, 2, x + add_x(v));
-
-                    match ax {
-                      T => {
-                        xy(zx, zy);
-                        kl(F);
-                        T
-                      },
-                      _ => {
-                        xy(zx, zy);
-                        F
-                      },
-                    }
+                    xy(zx, zy);
+                    kl(F);
+                    T
                   },
                   _ => {
                     xy(zx, zy);
