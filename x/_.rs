@@ -21,7 +21,7 @@ pub fn main() {
     let is_kl = || d2::is_i();
     let kl = |is: bool| {
       d2::i(is, &device);
-      d2::j(is, &device);
+      // d2::j(is, &device);
       T
     };
 
@@ -85,13 +85,13 @@ pub fn main() {
     }
 
     #[inline(always)]
-    fn add_y(n: f64) -> f64 {
-      n
+    fn add_y(n: u64) -> f64 {
+      n as f64 / 4.
     }
 
     #[inline(always)]
-    fn add_x(n: f64) -> f64 {
-      n / 2.
+    fn add_x(n: u64) -> f64 {
+      n as f64 / 12.
     }
 
     screen::watch(
@@ -109,9 +109,7 @@ pub fn main() {
             let zy = (y - add_y(v)) / 3.;
             an = 0;
 
-            let (ax, zx) = into(3., x_wide / 4., x + add_x(v));
-
-            println!("{}", v);
+            let (ax, zx) = into(4., x_wide / 4., x + add_x(v));
 
             match ax {
               T => {
@@ -119,7 +117,7 @@ pub fn main() {
 
                 match ax {
                   T => {
-                    let (ax, zx) = into(3., x_wide / 64., x + add_x(v));
+                    let (ax, zx) = into(4., x_wide / 64., x + add_x(v));
 
                     match ax {
                       T => {
@@ -161,9 +159,10 @@ pub fn main() {
         },
       },
       |(n, v, x, y)| {
-        let mut y_ = N;
-        let mut x_ = N;
-        let mut v_ = N;
+        let mut zy = N;
+        let mut zx = N;
+        let mut vz = 0;
+        let mut va = 0;
         let mut is = F;
 
         for yn in 0..y {
@@ -177,13 +176,13 @@ pub fn main() {
             match is_pixel(COLOR_N_1, COLOR_N_2, COLOR_N_3, nx) {
               T => match is {
                 T => {
-                  v_ = v_ + 1.;
+                  vz = yn as u64;
                   break 'x;
                 },
                 _ => {
-                  y_ = ay as f64;
-                  x_ = ax as f64;
-                  v_ = v_ + 1.;
+                  zy = ay as f64;
+                  zx = ax as f64;
+                  va = yn as u64;
                   is = T;
                   break 'x;
                 },
@@ -193,7 +192,10 @@ pub fn main() {
           }
         }
 
-        (is, v_, -x_, y_)
+        match vz >= va {
+          T => (is, vz - va, -zx, zy),
+          _ => (is, 0, -zx, zy),
+        }
       },
       || match screen::name().contains("VAL") && d2::is_ml() {
         T => T,
