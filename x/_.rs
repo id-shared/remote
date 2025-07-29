@@ -112,12 +112,12 @@ pub fn main() {
 
     #[inline(always)]
     fn add_y(n: u64) -> f64 {
-      n as f64 / 4.
+      n as f64 / 8.
     }
 
     #[inline(always)]
     fn add_x(n: u64) -> f64 {
-      n as f64 / 8.
+      n as f64 / 16.
     }
 
     let mut n_ = 0;
@@ -187,6 +187,8 @@ pub fn main() {
       },
       |(n, v, x, y)| {
         let (is, xn_1, yn_1) = finder(check, n, v, 0..x, 0..y);
+        let yn = yn_1 as f64;
+        let xn = xn_1 as f64;
 
         match is {
           T => {
@@ -194,13 +196,13 @@ pub fn main() {
 
             match is {
               T => match yn_2 >= yn_1 {
-                T => (is, yn_2 - yn_1, -((x as f64 / 2.) - xn_1 as f64), (y as f64 / 2.) - yn_1 as f64),
-                _ => (is, 0, xn_1 as f64, yn_1 as f64),
+                T => (is, yn_2 - yn_1, -((x as f64 / 2.) - xn), (y as f64 / 2.) - yn),
+                _ => (is, 0, xn, yn),
               },
-              _ => (is, 0, xn_1 as f64, yn_1 as f64),
+              _ => (is, 0, xn, yn),
             }
           },
-          _ => (is, 0, xn_1 as f64, yn_1 as f64),
+          _ => (is, 0, xn, yn),
         }
       },
       || match screen::name().contains("") && d2::is_ml() {
