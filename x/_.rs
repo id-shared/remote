@@ -118,18 +118,14 @@ pub fn main() {
       }
     }
 
-    let mut y_ = 0.;
-    let mut x_ = 0.;
     let mut n_ = 0;
     screen::watch(
       |(a, n, v, x, y)| match a {
         T => match is_kl() {
           T => {
-            let (ax, zx) = each(n, 4, x + x_);
             let zy = push(n - n_);
 
-            println!("{} {} {}", n_, x_, y_);
-
+            let (ax, zx) = each(n, 4, x + pull(T, x_wide, v));
             match ax {
               T => {
                 xy(zx, zy);
@@ -142,16 +138,15 @@ pub fn main() {
             }
           },
           _ => {
-            y_ = pull(F, y_high, v);
-            x_ = pull(T, x_wide, v);
+            let zy = y - pull(F, y_high, v);
+            let x_ = x + pull(T, x_wide, v);
+
             n_ = n;
 
-            let (ax, zx) = into(3., x_wide / 32., x + x_);
-            let zy = y - y_;
-
+            let (ax, zx) = into(4., x_wide / 32., x_);
             match ax {
               T => {
-                let (ax, zx) = each(n, 2, x + x_);
+                let (ax, zx) = each(n, 4, x_);
 
                 match ax {
                   T => {
