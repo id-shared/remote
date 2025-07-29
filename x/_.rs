@@ -34,7 +34,7 @@ pub fn main() {
     const _360: f64 = 6396.5885;
     const VFOV: f64 = 70.53;
     const HFOV: f64 = 103.;
-    const FREQ: u32 = 18;
+    const FREQ: u32 = 19;
 
     #[inline(always)]
     fn is_pixel(n_1: u8, n_2: u8, n_3: u8, x: u32) -> bool {
@@ -63,15 +63,24 @@ pub fn main() {
     #[inline(always)]
     fn pull(n: u64) -> f64 {
       match n {
-        52..=u64::MAX => N,
-        44..=48 => -3.,
-        38..=42 => -3.,
-        32..=36 => -3.,
-        26..=30 => -6.,
-        20..=24 => -5.,
-        13..=17 => -5.,
-        7..=11 => -2.,
-        1..=5 => -2.,
+        48..=u64::MAX => N,
+
+        42..=46 => -3.,
+
+        36..=40 => -3.,
+
+        30..=34 => -3.,
+
+        24..=28 => -6.,
+
+        18..=22 => -5.,
+
+        12..=16 => -5.,
+
+        6..=10 => -2.,
+
+        0..=4 => -2.,
+
         _ => N,
       }
     }
@@ -109,15 +118,15 @@ pub fn main() {
             let zy = (y - add_y(v)) / 3.;
             an = 0;
 
-            let (ax, zx) = into(4., x_wide / 4., x + add_x(v));
+            let (ax, zx) = into(3., x_wide / 2., x + add_x(v));
 
             match ax {
               T => {
-                let (ax, zx) = into(3., x_wide / 16., x + add_x(v));
+                let (ax, zx) = into(3., x_wide / 8., x + add_x(v));
 
                 match ax {
                   T => {
-                    let (ax, zx) = into(4., x_wide / 64., x + add_x(v));
+                    let (ax, zx) = into(3., x_wide / 32., x + add_x(v));
 
                     match ax {
                       T => {
