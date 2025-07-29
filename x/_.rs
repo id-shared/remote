@@ -97,8 +97,8 @@ pub fn main() {
     #[inline(always)]
     fn pull(a: bool, k: f64, n: f64) -> f64 {
       match a {
-        T => (k / 16.) * n * (1. / 6.),
-        _ => (k / 16.) * n,
+        T => (k / 24.) * n * (1. / 6.),
+        _ => (k / 24.) * n,
       }
     }
 
@@ -118,7 +118,8 @@ pub fn main() {
       }
     }
 
-    let mut t_ = time::now();
+    let mut y_ = 0.;
+    let mut x_ = 0.;
     let mut n_ = 0;
     screen::watch(
       |(a, n, v, x, y)| match a {
@@ -126,7 +127,7 @@ pub fn main() {
           T => {
             let zy = push(n - n_);
 
-            let (ax, zx) = each(n, 4, x + pull(T, x_wide, v));
+            let (ax, zx) = each(n, 2, x + x_);
 
             match ax {
               T => {
@@ -140,16 +141,17 @@ pub fn main() {
             }
           },
           _ => {
-            // println!("{} {} {}", v, pull(T, x_wide, v), pull(F, y_high, v));
-
-            let zy = (y - pull(F, y_high, v)) / 4.;
+            y_ = pull(F, y_high, v);
+            x_ = pull(T, x_wide, v);
             n_ = n;
 
-            let (ax, zx) = into(4., x_wide / 32., x + pull(T, x_wide, v));
+            let zy = (y - y_) / 3.;
+
+            let (ax, zx) = into(3., x_wide / 32., x + x_);
 
             match ax {
               T => {
-                let (ax, zx) = each(n, 2, x + pull(T, x_wide, v));
+                let (ax, zx) = each(n, 2, x + x_);
 
                 match ax {
                   T => {
@@ -201,12 +203,8 @@ pub fn main() {
           _ => (is, 0., xn, yn),
         }
       },
-      || match screen::name().contains("") && d2::is_ml() {
-        T => {
-          // println!("{}", time::till(t_));
-          t_ = time::now();
-          T
-        },
+      || match screen::name().contains("VAL") && d2::is_ml() {
+        T => T,
         _ => {
           kl(T);
 
