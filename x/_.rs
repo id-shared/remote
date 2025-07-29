@@ -91,7 +91,7 @@ pub fn main() {
 
     #[inline(always)]
     fn add_x(n: u64) -> f64 {
-      n as f64 / 16.
+      n as f64 / 24.
     }
 
     screen::watch(
