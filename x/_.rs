@@ -23,7 +23,7 @@ pub fn main() {
 
     let mut an = 0;
 
-    const COLOR_N_3: u8 = 175;
+    const COLOR_N_3: u8 = 231;
     const COLOR_N_2: u8 = 127;
     const COLOR_N_1: u8 = 4;
 
@@ -82,12 +82,12 @@ pub fn main() {
 
     #[inline(always)]
     fn add_y(n: f64) -> f64 {
-      n / 4.
+      n / 2.
     }
 
     #[inline(always)]
     fn add_x(n: f64) -> f64 {
-      n / 16.
+      n / 8.
     }
 
     screen::watch(
