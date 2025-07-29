@@ -97,8 +97,8 @@ pub fn main() {
     #[inline(always)]
     fn pull(a: bool, k: f64, n: f64) -> f64 {
       match a {
-        T => (k / 32.) * n * (1. / 6.),
-        _ => (k / 32.) * n,
+        T => (k / 16.) * n * (1. / 6.),
+        _ => (k / 16.) * n,
       }
     }
 
@@ -123,45 +123,46 @@ pub fn main() {
       |(a, n, v, x, y)| match a {
         T => match is_kl() {
           T => {
-            let zy = push(n - n_);
+            let x_ = x + pull(T, x_wide, v);
+            let (ax, zx) = each(n, 4, x_);
 
-            let (ax, zx) = each(n, 4, x + pull(T, x_wide, v));
             match ax {
               T => {
-                xy(zx, zy);
+                xy(zx, push(n - n_));
                 T
               },
               _ => {
-                xy(zx, zy);
+                xy(zx, push(n - n_));
                 F
               },
             }
           },
           _ => {
-            let zy = y - pull(F, y_high, v);
             let x_ = x + pull(T, x_wide, v);
+            let (ax, zx) = into(4., x_wide / 32., x_);
+
+            println!("{}", pull(F, y_high, v));
 
             n_ = n;
 
-            let (ax, zx) = into(4., x_wide / 32., x_);
             match ax {
               T => {
                 let (ax, zx) = each(n, 4, x_);
 
                 match ax {
                   T => {
-                    xy(zx, zy);
+                    xy(zx, y - pull(F, y_high, v));
                     kl(F);
                     T
                   },
                   _ => {
-                    xy(zx, zy);
+                    xy(zx, N);
                     F
                   },
                 }
               },
               _ => {
-                xy(zx, zy);
+                xy(zx, N);
                 F
               },
             }
