@@ -97,8 +97,8 @@ pub fn main() {
     #[inline(always)]
     fn pull(a: bool, k: f64, n: f64) -> f64 {
       match a {
-        T => (k / 64.) * n * (1. / 3.),
-        _ => (k / 64.) * n,
+        T => (k / 16.) * n * (1. / 5.),
+        _ => (k / 16.) * n,
       }
     }
 
@@ -139,12 +139,12 @@ pub fn main() {
             }
           },
           _ => {
-            println!("{} {} {}", v, pull(T, x_wide, v), pull(F, y_high, v));
-
             let zy = (y - pull(F, y_high, v)) / 4.;
             n_ = n;
 
             let (ax, zx) = into(4., x_wide / 32., x + pull(T, x_wide, v));
+
+            // println!("{} {} {}", v, pull(T, x_wide, v), pull(F, y_high, v));
 
             match ax {
               T => {
