@@ -92,12 +92,12 @@ pub fn main() {
 
     #[inline(always)]
     fn add_y(n: u64) -> f64 {
-      n as f64 / 8.
+      n as f64 / 4.
     }
 
     #[inline(always)]
     fn add_x(n: u64) -> f64 {
-      n as f64 / 24.
+      n as f64 / 8.
     }
 
     let mut n_ = 0;
@@ -172,11 +172,9 @@ pub fn main() {
 
         for yn in 0..y {
           let ny = unsafe { n.add(yn * v) } as *const u32;
-          let ay = (y as i32 / 2) - yn as i32;
 
           'x: for xn in 0..x {
             let nx = unsafe { *ny.add(xn) };
-            let ax = (x as i32 / 2) - xn as i32;
 
             match is_pixel(COLOR_N_1, COLOR_N_2, COLOR_N_3, nx) {
               T => match is {
@@ -185,8 +183,8 @@ pub fn main() {
                   break 'x;
                 },
                 _ => {
-                  zy = ay as f64;
-                  zx = ax as f64;
+                  zy = (y as f64 / 2.) - yn as f64;
+                  zx = (x as f64 / 2.) - xn as f64;
                   va = yn as u64;
                   is = T;
                   break 'x;
