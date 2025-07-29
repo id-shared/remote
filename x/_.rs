@@ -77,10 +77,18 @@ pub fn main() {
     }
 
     #[inline(always)]
-    fn into(k: f64, l: f64, n: f64) -> (bool, f64) {
-      match l >= n.abs() {
+    fn into2(k: u64, l: u64, n: f64, z: f64) -> (bool, f64) {
+      match k % l == 0 {
+        T => into(1., n, z),
+        _ => (F, 0.),
+      }
+    }
+
+    #[inline(always)]
+    fn into(l: f64, n: f64, z: f64) -> (bool, f64) {
+      match z >= n.abs() {
         T => (T, n),
-        _ => (F, n / k),
+        _ => (F, n / l),
       }
     }
 
@@ -95,29 +103,38 @@ pub fn main() {
     }
 
     screen::watch(
-      |(a, _n, v, x, y)| match a {
+      |(a, n, v, x, y)| match a {
         T => match is_kl() {
           T => {
             let zy = pull(an);
-            let zx = (x + add_x(v)) / 3.;
             an = an + 1;
 
-            xy(zx, zy);
-            T
-          },
-          _ => {
-            let zy = (y - add_y(v)) / 3.;
-            an = 0;
-
-            let (ax, zx) = into(3., x_wide / 2., x + add_x(v));
+            let (ax, zx) = into2(n, 2, x + add_x(v), x_wide / 32.);
 
             match ax {
               T => {
-                let (ax, zx) = into(3., x_wide / 8., x + add_x(v));
+                xy(zx, zy);
+                T
+              },
+              _ => {
+                xy(N, zy);
+                F
+              },
+            }
+          },
+          _ => {
+            let zy = y - add_y(v);
+            an = 0;
+
+            let (ax, zx) = into(3., x + add_x(v), x_wide / 2.);
+
+            match ax {
+              T => {
+                let (ax, zx) = into(3., x + add_x(v), x_wide / 8.);
 
                 match ax {
                   T => {
-                    let (ax, zx) = into(3., x_wide / 32., x + add_x(v));
+                    let (ax, zx) = into2(n, 2, x + add_x(v), x_wide / 32.);
 
                     match ax {
                       T => {
@@ -146,9 +163,10 @@ pub fn main() {
         },
         _ => match is_kl() {
           T => {
+            let zy = pull(an);
             an = an + 1;
 
-            xy(N, pull(an));
+            xy(N, zy);
             T
           },
           _ => {
