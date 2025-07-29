@@ -34,7 +34,7 @@ pub fn main() {
     const _360: f64 = 6396.5885;
     const VFOV: f64 = 70.53;
     const HFOV: f64 = 103.;
-    const FREQ: u32 = 24;
+    const FREQ: u32 = 18;
 
     #[inline(always)]
     fn is_pixel(n_1: u8, n_2: u8, n_3: u8, x: u32) -> bool {
