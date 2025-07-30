@@ -1,11 +1,10 @@
 [dependencies]
-xyloid = { path = "./../_/xyloid" }
-screen = { path = "./../_/screen" }
 common = { path = "./../_/common" }
+image = { version = "0.25.6" }
 
 [[bin]]
 doctest = false
-name = "x"
+name = "test"
 path = "_.rs"
 
 [package]
@@ -15,6 +14,6 @@ description = "A Chrome DevTools Protocol client"
 edition = "2021"
 keywords = ["chrome", "client", "devtools", "protocol"]
 license = "MIT OR Apache-2.0"
-name = "x"
-repository = "https://github.com/hq-zyrosk/x"
+name = "test"
+repository = "https://github.com/hq-zyrosk/test"
 version = "0.0.1"

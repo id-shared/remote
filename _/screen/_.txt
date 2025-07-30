@@ -1,41 +1,3 @@
-pub fn test() {
-  let img = image::open("test.png").expect("Failed to open image");
-
-  const TINT: u8 = 255 - 24;
-  const DIFF: u8 = 24;
-
-  for pixel in img.pixels() {
-    let rgba = pixel.2.to_rgba();
-    let n1 = rgba[0];
-    let n2 = rgba[1];
-    let n3 = rgba[2];
-
-    let result = match n1 > TINT && TINT > n2 && n3 > TINT {
-      T => match n1 > n3 {
-        T => match n3.abs_diff(n2) > DIFF {
-          T => T,
-          _ => F,
-        },
-        _ => match n1.abs_diff(n2) > DIFF {
-          T => T,
-          _ => F,
-        },
-      },
-      _ => F,
-    };
-
-    match result {
-      T => (),
-      _ => println!("FA: {}, {}, {}", n1, n2, n3),
-    }
-  }
-}
-
-image::{
-  GenericImageView,
-  Pixel,
-},
-
 // let row_pitch = mapped.RowPitch as usize;
 // let ptr = mapped.pData as *const u8;
 
@@ -63,59 +25,6 @@ image::{
 // }
 
 // img.save("subregion.png").unwrap();
-
-// let (i1, o1): (Sender<(i32, i32, i32, Vec<u8>)>, Receiver<(i32, i32, i32, Vec<u8>)>) = bounded(64);
-// handle.push(thread::spawn(
-//   #[inline(always)]
-//   move || {
-//     let px = #[inline(always)]
-//     |x: &[u32], z: i32| unsafe { *x.get_unchecked(z as usize) };
-
-//     while let Ok((an, nx, ny, buffer)) = o1.recv() {
-//       let pixel = unsafe { std::slice::from_raw_parts(buffer.as_ptr() as *const u32, buffer.len() / 4) };
-
-//       let mut zz = 0;
-//       let mut az = 0;
-//       let mut ay = 0;
-//       let mut ax = 0;
-//       let mut aa = F;
-
-//       for y in 0..ny {
-//         let ay_ = (ny / 2) - y;
-
-//         'x: for x in 0..nx {
-//           az = match f2(px(pixel, az)) {
-//             T => {
-//               let ax_ = (nx / 2) - x;
-
-//               match aa {
-//                 T => {
-//                   zz = zz + 1;
-//                   az = az + (nx - x);
-//                   break 'x;
-//                 },
-//                 _ => {
-//                   zz = zz + 1;
-//                   az = az + (nx - x);
-//                   ay = ay_;
-//                   ax = ax_;
-//                   aa = T;
-//                   break 'x;
-//                 },
-//               }
-//             },
-//             _ => az + 1,
-//           }
-//         }
-//       }
-
-//       match aa {
-//         T => f3((an, -ax, ay, zz - 1)),
-//         _ => F,
-//       };
-//     }
-//   },
-// ));
 
 // handle.push(thread::spawn(
 //   #[inline(always)]

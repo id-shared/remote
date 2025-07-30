@@ -4,6 +4,9 @@ x-z:
 x:
   clear && RUST_BACKTRACE=1 cargo run --bin x
 
+test:
+  clear && RUST_BACKTRACE=1 cargo run --bin test
+
 use:
   cargo run --bin use
 
@@ -22,10 +25,6 @@ connect:
 update:
   rustup update
   cargo update
-
-test:
-  cd "/c/Program Files/mitmproxy/bin/_internal/mitmproxy_windows/"
-  ./windows-redirector.exe
 
 build:
   powershell -ExecutionPolicy Bypass -File details.ps1

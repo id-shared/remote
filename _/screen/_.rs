@@ -20,10 +20,10 @@ pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
         Ok(_) => match is_f() {
           T => {
             let supplier = match id {
-              33..=u64::MAX => supplier_n.get(&((id % 4) + 13)).unwrap(),
+              33..=u64::MAX => supplier_n.get(&((id % 4) + 12)).unwrap(),
               0..=32 => match id % 2 == 0 {
                 T => supplier_n.get(&(id / 2)).unwrap(),
-                _ => supplier_n.get(&((id % 4) + 252)).unwrap(),
+                _ => supplier_n.get(&((id % 4) + 251)).unwrap(),
               },
             };
 
