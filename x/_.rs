@@ -115,13 +115,13 @@ pub fn main() {
     let mut n_ = 0;
     screen::watch(
       |(a, n, v, x, y)| match a {
-        T => match (n % 2) == 0 {
+        T => match each(2, n) {
           T => {
             let (x_, y_) = (x + pull(256., x_wide, v), y - pull(128., y_high, v));
 
             match is_kl() {
               T => {
-                let (ax, zx) = (each(4, n), N);
+                let (ax, zx) = (each(4, n), x_ / 2.);
 
                 match ax {
                   T => {
