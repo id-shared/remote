@@ -135,7 +135,7 @@ pub fn main() {
                 }
               },
               _ => {
-                let (ax, zx) = into(4., x_wide / 16., x_);
+                let (ax, zx) = into(2., x_wide / 16., x_);
 
                 n_ = n;
 
