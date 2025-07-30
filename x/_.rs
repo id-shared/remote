@@ -25,8 +25,8 @@ pub fn main() {
       T
     };
 
-    const COLOR_N_3: u8 = 255 - 4;
-    const COLOR_N_2: u8 = 127;
+    const COLOR_N_3: u8 = 254;
+    const COLOR_N_2: u8 = 192;
     const COLOR_N_1: u8 = 4;
 
     const _360: f64 = 6396.5885;
