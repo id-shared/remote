@@ -6,11 +6,9 @@ pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
   let recorder_1 = recorder(n);
 
   let mut supplier_n: HashMap<u64, Supplier> = HashMap::new();
-  let ny: f64 = 8.;
-  let nx: f64 = 1.;
 
   for n in 0..=255 {
-    make(n, x, y, nx, ny, &recorder_1, &mut supplier_n);
+    make(n, x, y, 1., 8., &recorder_1, &mut supplier_n);
   }
 
   let mut id: u64 = 0;
