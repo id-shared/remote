@@ -51,15 +51,21 @@ pub fn main() {
     }
 
     #[inline(always)]
-    fn check(n: u32) -> bool {
-      let (n1, n2, n3, _) = color(n);
+    fn check(z: u32) -> bool {
+      let (n1, n2, n3, _) = color(z);
 
-      match n1 >= 254 {
-        T => match n3 >= 254 {
-          T => match 16 >= n1.abs_diff(n3) {
+      match n1 >= 191 {
+        T => match n3 >= 191 {
+          T => match 32 >= n1.abs_diff(n3) {
             T => match n1 >= n3 {
-              T => n1.abs_diff(n2) >= 48,
-              _ => n3.abs_diff(n2) >= 48,
+              T => match n3 >= n2 {
+                T => n3.abs_diff(n2) >= 32,
+                _ => F,
+              },
+              _ => match n1 >= n2 {
+                T => n1.abs_diff(n2) >= 32,
+                _ => F,
+              },
             },
             _ => F,
           },

@@ -17,15 +17,18 @@ fn check(z: Rgba<u8>) -> bool {
 
   match n1 >= 191 {
     T => match n3 >= 191 {
-      T => match n1 >= n3 {
-        T => match n3 >= n2 {
-          T => n3.abs_diff(n2) >= 16,
-          _ => T,
+      T => match 32 >= n1.abs_diff(n3) {
+        T => match n1 >= n3 {
+          T => match n3 >= n2 {
+            T => n3.abs_diff(n2) >= 32,
+            _ => T,
+          },
+          _ => match n1 >= n2 {
+            T => n1.abs_diff(n2) >= 32,
+            _ => T,
+          },
         },
-        _ => match n1 >= n2 {
-          T => n1.abs_diff(n2) >= 16,
-          _ => T,
-        },
+        _ => T,
       },
       _ => T,
     },
