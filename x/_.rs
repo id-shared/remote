@@ -51,10 +51,8 @@ pub fn main() {
     }
 
     #[inline(always)]
-    fn check(x: u32) -> bool {
-      let n1 = ((x >> 16) & 0xff) as u8;
-      let n2 = ((x >> 8) & 0xff) as u8;
-      let n3 = (x & 0xff) as u8;
+    fn check(n: u32) -> bool {
+      let (n1, n2, n3, _) = color(n);
 
       match n1 >= 254 {
         T => match n3 >= 254 {
@@ -69,6 +67,16 @@ pub fn main() {
         },
         _ => F,
       }
+    }
+
+    #[inline(always)]
+    fn color(n: u32) -> (u8, u8, u8, u8) {
+      let n4 = ((n >> 24) & 0xff) as u8;
+      let n1 = ((n >> 16) & 0xff) as u8;
+      let n2 = ((n >> 8) & 0xff) as u8;
+      let n3 = (n & 0xff) as u8;
+
+      (n1, n2, n3, n4)
     }
 
     #[inline(always)]
