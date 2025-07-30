@@ -47,38 +47,22 @@ zz.push(thread::spawn(|| {
   }
 }));
 
-// let mut zy = N;
-// let mut zx = N;
-// let mut vz = 0;
-// let mut va = 0;
-// let mut is = F;
-
-// for yn in 0..y {
-//   let ny = unsafe { n.add(yn * v) } as *const u32;
-
-//   'x: for xn in 0..x {
-//     let nx = unsafe { *ny.add(xn) };
-
-//     match check(nx) {
-//       T => match is {
-//         T => {
-//           vz = yn as u64;
-//           break 'x;
+// #[inline(always)]
+// fn check_p(x: u32) -> bool {
+//   let n1 = ((x >> 16) & 0xff) as u8;
+//   let n2 = ((x >> 8) & 0xff) as u8;
+//   let n3 = (x & 0xff) as u8;
+//   match n1 >= 231 {
+//     T => match n3 >= 231 {
+//       T => match 16 >= n1.abs_diff(n3) {
+//         T => match n1 >= n3 {
+//           T => n1.abs_diff(n2) >= 24,
+//           _ => n3.abs_diff(n2) >= 24,
 //         },
-//         _ => {
-//           zy = (y as f64 / 2.) - yn as f64;
-//           zx = (x as f64 / 2.) - xn as f64;
-//           va = yn as u64;
-//           is = T;
-//           break 'x;
-//         },
+//         _ => F,
 //       },
 //       _ => F,
-//     };
+//     },
+//     _ => F,
 //   }
-// }
-
-// match vz >= va {
-//   T => (is, vz - va, -zx, zy),
-//   _ => (is, 0, -zx, zy),
 // }

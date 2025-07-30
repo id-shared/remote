@@ -25,10 +25,6 @@ pub fn main() {
       T
     };
 
-    const COLOR_N_3: u8 = 254;
-    const COLOR_N_2: u8 = 192;
-    const COLOR_N_1: u8 = 4;
-
     const _360: f64 = 6396.5885;
     const VFOV: f64 = 70.53;
     const HFOV: f64 = 103.;
@@ -55,22 +51,16 @@ pub fn main() {
     }
 
     #[inline(always)]
-    fn check(x: u32) -> bool {
+    fn check_r(x: u32) -> bool {
       let n1 = ((x >> 16) & 0xff) as u8;
       let n2 = ((x >> 8) & 0xff) as u8;
       let n3 = (x & 0xff) as u8;
 
-      match n1 >= COLOR_N_3 {
-        T => match COLOR_N_1 >= n2.abs_diff(n3) {
+      match n1 >= 254 {
+        T => match 8 >= n2.abs_diff(n3) {
           T => match n2 >= n3 {
-            T => match n1.abs_diff(n2) > COLOR_N_2 {
-              T => T,
-              _ => F,
-            },
-            _ => match n1.abs_diff(n3) > COLOR_N_2 {
-              T => T,
-              _ => F,
-            },
+            T => n1.abs_diff(n2) >= 64,
+            _ => n1.abs_diff(n3) >= 64,
           },
           _ => F,
         },
@@ -86,8 +76,8 @@ pub fn main() {
         36..=40 => -3.,
         30..=34 => -3.,
         24..=28 => -6.,
-        18..=22 => -5.,
-        12..=16 => -5.,
+        18..=22 => -6.,
+        12..=16 => -6.,
         6..=10 => -2.,
         0..=4 => -2.,
         _ => N,
@@ -170,11 +160,11 @@ pub fn main() {
         },
       },
       |(n, v, x, y)| {
-        let (is, xn, yn) = finder(check, n, v, 0..x, 0..y);
+        let (is, xn, yn) = finder(check_r, n, v, 0..x, 0..y);
 
         match is {
           T => {
-            let (is, _, yn_) = finder(check, n, v, (0..x).rev(), (0..y).rev());
+            let (is, _, yn_) = finder(check_r, n, v, (0..x).rev(), (0..y).rev());
             let yy = y as f64 / 2.;
             let xx = x as f64 / 2.;
 
