@@ -6,32 +6,12 @@ pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
   let recorder_1 = recorder(n);
 
   let mut supplier_n: HashMap<u64, Supplier> = HashMap::new();
-  let ny = 8.;
-  let nx = 4.;
-  let nn = 1.;
+  let ny: f64 = 8.;
+  let nx: f64 = 1.;
 
-  supplier_n.insert(255, supplier(ltxy((256., x), (256., y)), &recorder_1));
-  supplier_n.insert(254, supplier(ltxy((256., x), (256., y)), &recorder_1));
-  supplier_n.insert(253, supplier(ltxy((256., x), (256., y)), &recorder_1));
-  supplier_n.insert(252, supplier(ltxy((256., x), (256., y)), &recorder_1));
-
-  supplier_n.insert(16, supplier(ltxy((nn * nx, x), (ny, y)), &recorder_1));
-  supplier_n.insert(15, supplier(ltxy((nn * nx, x), (ny, y)), &recorder_1));
-  supplier_n.insert(14, supplier(ltxy((nn * nx, x), (ny, y)), &recorder_1));
-  supplier_n.insert(13, supplier(ltxy((nn * nx, x), (ny, y)), &recorder_1));
-  supplier_n.insert(12, supplier(ltxy((nn * 3., x), (ny, y)), &recorder_1));
-  supplier_n.insert(11, supplier(ltxy((nn * 3., x), (ny, y)), &recorder_1));
-  supplier_n.insert(10, supplier(ltxy((nn * 3., x), (ny, y)), &recorder_1));
-  supplier_n.insert(9, supplier(ltxy((nn * 3., x), (ny, y)), &recorder_1));
-  supplier_n.insert(8, supplier(ltxy((nn * 2., x), (ny, y)), &recorder_1));
-  supplier_n.insert(7, supplier(ltxy((nn * 2., x), (ny, y)), &recorder_1));
-  supplier_n.insert(6, supplier(ltxy((nn * 2., x), (ny, y)), &recorder_1));
-  supplier_n.insert(5, supplier(ltxy((nn * 2., x), (ny, y)), &recorder_1));
-  supplier_n.insert(4, supplier(ltxy((nn * 1., x), (ny, y)), &recorder_1));
-  supplier_n.insert(3, supplier(ltxy((nn * 1., x), (ny, y)), &recorder_1));
-  supplier_n.insert(2, supplier(ltxy((nn * 1., x), (ny, y)), &recorder_1));
-  supplier_n.insert(1, supplier(ltxy((nn * 1., x), (ny, y)), &recorder_1));
-  supplier_n.insert(0, supplier(ltxy((nn * 1., x), (ny, y)), &recorder_1));
+  for n in 0..=255 {
+    make(n, x, y, nx, ny, &recorder_1, &mut supplier_n);
+  }
 
   let mut id: u64 = 0;
   loop {
@@ -74,6 +54,10 @@ pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
 
     time::sure(oneach, time::MS * recorder_1.hz);
   }
+}
+
+fn make(k: u64, l1: f64, l2: f64, n1: f64, n2: f64, x: &Recorder, z: &mut HashMap<u64, Supplier>) {
+  z.insert(k, supplier(ltxy((1. + (k as f64 * n1), l1), (n2, l2)), x));
 }
 
 fn each(d: ID3D11Texture2D, v: &Supplier, z: &Recorder) -> Record {

@@ -51,16 +51,19 @@ pub fn main() {
     }
 
     #[inline(always)]
-    fn check_r(x: u32) -> bool {
+    fn check(x: u32) -> bool {
       let n1 = ((x >> 16) & 0xff) as u8;
       let n2 = ((x >> 8) & 0xff) as u8;
       let n3 = (x & 0xff) as u8;
 
       match n1 >= 254 {
-        T => match 8 >= n2.abs_diff(n3) {
-          T => match n2 >= n3 {
-            T => n1.abs_diff(n2) >= 64,
-            _ => n1.abs_diff(n3) >= 64,
+        T => match n3 >= 254 {
+          T => match 16 >= n1.abs_diff(n3) {
+            T => match n1 >= n3 {
+              T => n1.abs_diff(n2) >= 48,
+              _ => n3.abs_diff(n2) >= 48,
+            },
+            _ => F,
           },
           _ => F,
         },
@@ -111,7 +114,7 @@ pub fn main() {
 
             match is_kl() {
               T => {
-                let (ax, zx) = (each(4, n), x_ / 2.);
+                let (ax, zx) = (each(4, n), x_ / 4.);
 
                 match ax {
                   T => {
@@ -125,7 +128,7 @@ pub fn main() {
                 }
               },
               _ => {
-                let (ax, zx) = into(2., x_wide / 16., x_);
+                let (ax, zx) = into(4., x_wide / 16., x_);
 
                 n_ = n;
 
@@ -160,16 +163,16 @@ pub fn main() {
         },
       },
       |(n, v, x, y)| {
-        let (is, xn, yn) = finder(check_r, n, v, 0..x, 0..y);
+        let (is, xn, yn) = finder(check, n, v, 0..x, 0..y);
 
         match is {
           T => {
-            let (is, _, yn_) = finder(check_r, n, v, (0..x).rev(), (0..y).rev());
-            let yy = y as f64 / 2.;
-            let xx = x as f64 / 2.;
+            let (is, _, yn_) = finder(check, n, v, (0..x).rev(), (0..y).rev());
+            let y_ = y as f64 / 2.;
+            let x_ = x as f64 / 2.;
 
             match yn_ >= yn {
-              T => (is, (yn_ - yy) / yy, -(xx - xn), yy - yn),
+              T => (is, (yn_ - y_) / y_, -(x_ - xn), y_ - yn),
               _ => (is, 0., xn, yn),
             }
           },
