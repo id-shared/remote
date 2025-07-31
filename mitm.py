@@ -5,6 +5,10 @@ wait = time.time()
 safe = 3921
 curr = 0
 
+async def response(flow: http.HTTPFlow) -> None:
+  if flow.metadata.get("intercept_response"):
+    await flow.intercept()
+
 async def request(flow: http.HTTPFlow) -> None:
   reqs = flow.request
   kind = reqs.method
@@ -37,7 +41,7 @@ async def request(flow: http.HTTPFlow) -> None:
         if curr == 0:
           if safe >= (i_int - 256):
             if (time.time() - wait) > 60:
-              flow.intercept()
+              flow.metadata["intercept_response"] = True
               return
             else:
               return
