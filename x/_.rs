@@ -129,7 +129,10 @@ pub fn main() {
       |(a, n, v, x, y)| match a {
         T => match each(2, n) {
           T => match is_kl() {
-            T => xy(x + x_, push(n - n_)),
+            T => {
+              xy(x + x_, push(n - n_));
+              n + 1
+            },
             _ => {
               y_ = pull(64., y_high, v);
               x_ = pull(256., x_wide, v);
@@ -140,11 +143,12 @@ pub fn main() {
               match ax {
                 T => {
                   xy(x + x_, y - y_);
-                  kl(F)
+                  kl(F);
+                  n + 1
                 },
                 _ => {
                   xy(zx, y - y_);
-                  F
+                  n + 1
                 },
               }
             },
@@ -152,17 +156,17 @@ pub fn main() {
           _ => match is_kl() {
             T => {
               xy(N, push(n - n_));
-              T
+              n + 1
             },
-            _ => F,
+            _ => n + 1,
           },
         },
         _ => match is_kl() {
           T => {
             xy(N, push(n - n_));
-            T
+            n + 1
           },
-          _ => F,
+          _ => n + 1,
         },
       },
       |(n, v, x, y)| {
