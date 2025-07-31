@@ -138,17 +138,26 @@ pub fn main() {
               x_ = pull(256., x_wide, v);
               n_ = n;
 
-              let (ax, zx) = into(4., x_wide / 16., x + x_);
-
-              match ax {
+              match n >= 16 {
                 T => {
                   xy(x + x_, y - y_);
                   kl(F);
                   n + 1
                 },
                 _ => {
-                  xy(zx, y - y_);
-                  n + 1
+                  let (ax, zx) = into(2., x_wide / 64., x + x_);
+
+                  match ax {
+                    T => {
+                      xy(x + x_, y - y_);
+                      kl(F);
+                      n + 1
+                    },
+                    _ => {
+                      xy(zx, y - y_);
+                      n + 1
+                    },
+                  }
                 },
               }
             },
