@@ -193,7 +193,7 @@ pub fn main() {
           _ => (is, 0., xn, yn),
         }
       },
-      || match screen::name().contains("VAL") && d2::is_ml() {
+      || match screen::name().contains("VAL") && d2::is_ml() && !(d2::is_d() || d2::is_a() || d2::is_w() || d2::is_s()) {
         T => T,
         _ => {
           kl(T);
@@ -215,28 +215,34 @@ pub fn main() {
     let mut s = (F, time::now());
 
     #[inline(always)]
-    fn held<F1: Fn() -> bool, F2: Fn(bool, &Device) -> bool>(f_1: F1, f_2: F2, x: BI, z: &Device) -> BI {
+    fn held<F1: Fn() -> bool, F2: Fn(bool, &Device) -> bool, F3: Fn(&Device) -> bool>(f1: F1, f2: F2, f3: F3, x: BI, z: &Device) -> BI {
       on(
-        f_1,
+        f1,
         |_| T,
         |n| {
-          let n_ = (n / 10.).round() as u64;
+          let n_ = (n / 10.).round() as u32;
           match n_ {
             17..=32 => {
-              f_2(F, z);
-              time::rest(time::MS * ((4 * 16) + ((n_ - 16) * 2)) as u32);
-              f_2(T, z)
+              f2(F, z);
+              time::rest(time::MS * ((4 * 16) + ((n_ - 16) * 2)));
+              f2(T, z);
+
+              f3(z)
             },
             6..=16 => {
-              f_2(F, z);
-              time::rest(time::MS * (4 * n_) as u32);
-              f_2(T, z)
+              f2(F, z);
+              time::rest(time::MS * (4 * n_));
+              f2(T, z);
+
+              f3(z)
             },
             0..=5 => T,
             _ => {
-              f_2(F, z);
+              f2(F, z);
               time::rest(time::MS * 96);
-              f_2(T, z)
+              f2(T, z);
+
+              f3(z)
             },
           };
           T
@@ -245,13 +251,21 @@ pub fn main() {
       )
     }
 
+    fn does(z: &Device) -> bool {
+      d1::z01(F, z);
+      time::rest(time::MS * 1000);
+      d1::z01(T, z);
+
+      T
+    }
+
     loop {
       match screen::name().contains("VAL") {
         T => {
-          d = held(d2::is_d, d2::al, d, &device);
-          a = held(d2::is_a, d2::ar, a, &device);
-          w = held(d2::is_w, d2::ad, w, &device);
-          s = held(d2::is_s, d2::au, s, &device);
+          d = held(d2::is_d, d2::al, does, d, &device);
+          a = held(d2::is_a, d2::ar, does, a, &device);
+          w = held(d2::is_w, d2::ad, |_| T, w, &device);
+          s = held(d2::is_s, d2::au, |_| T, s, &device);
           T
         },
         _ => F,

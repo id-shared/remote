@@ -1,11 +1,9 @@
 #[inline(always)]
 pub fn z02(a: bool, z: &Device) -> bool {
   io(
-    if !a {
-      MOUSE_BUTTON_2_DOWN
-    }
-    else {
-      MOUSE_BUTTON_2_UP
+    match a {
+      T => MOUSE_BUTTON_2_UP,
+      _ => MOUSE_BUTTON_2_DOWN,
     },
     z,
   )
@@ -14,11 +12,9 @@ pub fn z02(a: bool, z: &Device) -> bool {
 #[inline(always)]
 pub fn z01(a: bool, z: &Device) -> bool {
   io(
-    if !a {
-      MOUSE_BUTTON_1_DOWN
-    }
-    else {
-      MOUSE_BUTTON_1_UP
+    match a {
+      T => MOUSE_BUTTON_1_UP,
+      _ => MOUSE_BUTTON_1_DOWN,
     },
     z,
   )
@@ -62,6 +58,7 @@ use {
     Device,
     d1,
   },
+  common::T,
   windows::Win32::Devices::HumanInterfaceDevice::{
     MOUSE_BUTTON_1_DOWN,
     MOUSE_BUTTON_1_UP,
