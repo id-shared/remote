@@ -79,6 +79,26 @@ pub fn is_ml() -> bool {
 }
 
 #[inline(always)]
+pub fn is_au() -> bool {
+  is(VK_UP)
+}
+
+#[inline(always)]
+pub fn is_ad() -> bool {
+  is(VK_DOWN)
+}
+
+#[inline(always)]
+pub fn is_ar() -> bool {
+  is(VK_RIGHT)
+}
+
+#[inline(always)]
+pub fn is_al() -> bool {
+  is(VK_LEFT)
+}
+
+#[inline(always)]
 pub fn is_l() -> bool {
   is(VK_L)
 }
@@ -99,13 +119,13 @@ pub fn is_i() -> bool {
 }
 
 #[inline(always)]
-pub fn is_d() -> bool {
-  is(VK_D)
+pub fn is_s() -> bool {
+  is(VK_S)
 }
 
 #[inline(always)]
-pub fn is_s() -> bool {
-  is(VK_S)
+pub fn is_w() -> bool {
+  is(VK_W)
 }
 
 #[inline(always)]
@@ -114,8 +134,8 @@ pub fn is_a() -> bool {
 }
 
 #[inline(always)]
-pub fn is_w() -> bool {
-  is(VK_W)
+pub fn is_d() -> bool {
+  is(VK_D)
 }
 
 #[inline(always)]

@@ -193,13 +193,19 @@ pub fn main() {
           _ => (is, 0., xn, yn),
         }
       },
-      || match screen::name().contains("VAL") && d2::is_ml() && !(d2::is_d() || d2::is_a() || d2::is_w() || d2::is_s()) {
-        T => T,
-        _ => {
-          kl(T);
+      || match screen::name().contains("VAL") {
+        T => match d2::is_ml() {
+          T => match d2::is_d() || d2::is_a() || d2::is_w() || d2::is_s() || d2::is_al() || d2::is_ar() || d2::is_ad() || d2::is_au() {
+            T => F,
+            _ => T,
+          },
+          _ => {
+            kl(T);
 
-          F
+            F
+          },
         },
+        _ => F,
       },
       FREQ,
       screen_wide,
@@ -251,19 +257,11 @@ pub fn main() {
       )
     }
 
-    fn does(z: &Device) -> bool {
-      d1::z01(F, z);
-      time::rest(time::MS * 1000);
-      d1::z01(T, z);
-
-      T
-    }
-
     loop {
       match screen::name().contains("VAL") {
         T => {
-          d = held(d2::is_d, d2::al, does, d, &device);
-          a = held(d2::is_a, d2::ar, does, a, &device);
+          d = held(d2::is_d, d2::al, |_| T, d, &device);
+          a = held(d2::is_a, d2::ar, |_| T, a, &device);
           w = held(d2::is_w, d2::ad, |_| T, w, &device);
           s = held(d2::is_s, d2::au, |_| T, s, &device);
           T

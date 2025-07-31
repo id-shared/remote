@@ -8,7 +8,7 @@ pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
   let mut supplier_n: HashMap<u64, Supplier> = HashMap::new();
 
   for n in 0..=255 {
-    make(n, x, y, 1., 8., &recorder_1, &mut supplier_n);
+    make(n, 4., x, y, 1., 8., &recorder_1, &mut supplier_n);
   }
 
   let mut id: u64 = 0;
@@ -20,10 +20,10 @@ pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
         Ok(_) => match is_f() {
           T => {
             let supplier = match id {
-              33..=u64::MAX => supplier_n.get(&((id % 4) + 12)).unwrap(),
-              0..=32 => match id % 2 == 0 {
-                T => supplier_n.get(&(id / 2)).unwrap(),
-                _ => supplier_n.get(&((id % 4) + 251)).unwrap(),
+              64..=u64::MAX => supplier_n.get(&16).unwrap(),
+              0..=63 => match id % 2 == 0 {
+                T => supplier_n.get(&(id / 4)).unwrap(),
+                _ => supplier_n.get(&255).unwrap(),
               },
             };
 
@@ -54,8 +54,8 @@ pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> bool, F1: FnMut(Record) -> 
   }
 }
 
-fn make(k: u64, l1: f64, l2: f64, n1: f64, n2: f64, x: &Recorder, z: &mut HashMap<u64, Supplier>) {
-  z.insert(k, supplier(ltxy((1. + (k as f64 * n1), l1), (n2, l2)), x));
+fn make(k1: u64, k2: f64, l1: f64, l2: f64, n1: f64, n2: f64, x: &Recorder, z: &mut HashMap<u64, Supplier>) {
+  z.insert(k1, supplier(ltxy((k2 + (k1 as f64 * n1), l1), (n2, l2)), x));
 }
 
 fn each(d: ID3D11Texture2D, v: &Supplier, z: &Recorder) -> Record {
