@@ -127,20 +127,7 @@ pub fn main() {
             let (x_, y_) = (x + pull(256., x_wide, v), y - pull(128., y_high, v));
 
             match is_kl() {
-              T => {
-                let (ax, zx) = (each(4, n), x_ / 4.);
-
-                match ax {
-                  T => {
-                    xy(x_, push(n - n_));
-                    T
-                  },
-                  _ => {
-                    xy(zx, push(n - n_));
-                    F
-                  },
-                }
-              },
+              T => xy(x_, push(n - n_)),
               _ => {
                 let (ax, zx) = into(4., x_wide / 16., x_);
 
@@ -149,8 +136,7 @@ pub fn main() {
                 match ax {
                   T => {
                     xy(x_, y_);
-                    kl(F);
-                    T
+                    kl(F)
                   },
                   _ => {
                     xy(zx, y_);
