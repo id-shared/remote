@@ -14,9 +14,7 @@ pub fn main() {
     let y_high = screen_high / 2.;
     let x_wide = screen_wide / 2.;
 
-    let get_y_ = |ay: f64| wealth(to_rad(VFOV / 2.), ay / y_high, _360);
-    let get_x_ = |ax: f64| wealth(to_rad(HFOV / 2.), ax / x_wide, _360);
-    let xy = |ax: f64, ay: f64| d1::xy(get_x_(ax), get_y_(ay), &device);
+    let xy = |ax: f64, ay: f64| d1::xy(axis(HFOV, _360, x_wide, ax), axis(VFOV, _360, y_high, ay), &device);
 
     let is_kl = || d2::is_i();
     let kl = |is: bool| {
@@ -29,6 +27,11 @@ pub fn main() {
     const VFOV: f64 = 70.53;
     const HFOV: f64 = 103.;
     const FREQ: u32 = 18;
+
+    #[inline(always)]
+    fn axis(k1: f64, k2: f64, n1: f64, n2: f64) -> f64 {
+      wealth(to_rad(k1 / 2.), n2 / n1, k2)
+    }
 
     #[inline(always)]
     fn finder<F: Fn(u32) -> bool, I: IntoIterator<Item = usize> + Clone>(f: F, n: *const u8, v: usize, x: I, y: I) -> (bool, f64, f64) {
@@ -89,13 +92,13 @@ pub fn main() {
     fn push(n: u64) -> f64 {
       match n {
         48..=u64::MAX => N,
-        42..=46 => -3.,
+        42..=46 => -2.,
         36..=40 => -3.,
-        30..=34 => -3.,
-        24..=28 => -6.,
+        30..=34 => -4.,
+        24..=28 => -5.,
         18..=22 => -6.,
-        12..=16 => -6.,
-        6..=10 => -2.,
+        12..=16 => -5.,
+        6..=10 => -3.,
         0..=4 => -2.,
         _ => N,
       }
@@ -119,32 +122,32 @@ pub fn main() {
       n % k == 0
     }
 
+    let mut y_ = 0.;
+    let mut x_ = 0.;
     let mut n_ = 0;
     screen::watch(
       |(a, n, v, x, y)| match a {
         T => match each(2, n) {
-          T => {
-            let (x_, y_) = (x + pull(256., x_wide, v), y - pull(128., y_high, v));
+          T => match is_kl() {
+            T => xy(x + x_, push(n - n_)),
+            _ => {
+              y_ = pull(128., y_high, v);
+              x_ = pull(256., x_wide, v);
+              n_ = n;
 
-            match is_kl() {
-              T => xy(x_, push(n - n_)),
-              _ => {
-                let (ax, zx) = into(4., x_wide / 16., x_);
+              let (ax, zx) = into(4., x_wide / 16., x + x_);
 
-                n_ = n;
-
-                match ax {
-                  T => {
-                    xy(x_, y_);
-                    kl(F)
-                  },
-                  _ => {
-                    xy(zx, y_);
-                    F
-                  },
-                }
-              },
-            }
+              match ax {
+                T => {
+                  xy(x + x_, y - y_);
+                  kl(F)
+                },
+                _ => {
+                  xy(zx, y - y_);
+                  F
+                },
+              }
+            },
           },
           _ => match is_kl() {
             T => {
@@ -182,7 +185,11 @@ pub fn main() {
       || match screen::name().contains("VAL") {
         T => match d2::is_ml() {
           T => match d2::is_d() || d2::is_a() || d2::is_w() || d2::is_s() || d2::is_al() || d2::is_ar() || d2::is_ad() || d2::is_au() {
-            T => F,
+            T => {
+              kl(T);
+
+              F
+            },
             _ => T,
           },
           _ => {
