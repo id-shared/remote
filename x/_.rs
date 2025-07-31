@@ -131,7 +131,7 @@ pub fn main() {
           T => match is_kl() {
             T => xy(x + x_, push(n - n_)),
             _ => {
-              y_ = pull(128., y_high, v);
+              y_ = pull(64., y_high, v);
               x_ = pull(256., x_wide, v);
               n_ = n;
 
