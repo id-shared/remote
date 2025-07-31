@@ -1,3 +1,12 @@
+vgc-t:
+  netsh advfirewall firewall set rule name="vgc" new enable=yes
+
+vgc-f:
+  netsh advfirewall firewall set rule name="vgc" new enable=no
+
+vgc-n:
+  taskkill //IM vgc.exe //F
+
 x-z:
   clear && RUST_BACKTRACE=1 cargo run --bin x --release
 

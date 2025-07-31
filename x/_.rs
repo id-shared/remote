@@ -54,9 +54,9 @@ pub fn main() {
     fn check(z: u32) -> bool {
       let (n1, n2, n3, _) = color(z);
 
-      match n1 >= 191 {
-        T => match n3 >= 191 {
-          T => match 32 >= n1.abs_diff(n3) {
+      match n1 >= 239 {
+        T => match n3 >= 239 {
+          T => match 8 >= n1.abs_diff(n3) {
             T => match n1 >= n3 {
               T => match n3 >= n2 {
                 T => n3.abs_diff(n2) >= 32,

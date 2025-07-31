@@ -9,6 +9,11 @@ pub fn main() {
       _ => println!("{:#?}", color(pixel.2.to_rgba())),
     }
   }
+
+  loop {
+    println!("OK");
+    time::rest(time::MS * 1000);
+  }
 }
 
 #[inline(always)]
@@ -43,8 +48,8 @@ fn color(z: Rgba<u8>) -> (u8, u8, u8, u8) {
 
 use {
   common::{
-    F,
     T,
+    time,
   },
   image::{
     GenericImageView,
