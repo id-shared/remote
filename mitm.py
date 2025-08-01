@@ -2,13 +2,17 @@ from mitmproxy import http
 import time
 
 wait = time.time()
-till = 60 * 10
-safe = 3921
+upto = 60 * 60
+
+size = 3921
 curr = 0
+anew = 0
 
 async def response(flow: http.HTTPFlow) -> None:
+  global upto
+
   if flow.metadata.get("intercept"):
-    if till >= (time.time() - wait):
+    if upto >= (time.time() - wait):
       flow.intercept()
     else:
       return
@@ -25,8 +29,9 @@ async def request(flow: http.HTTPFlow) -> None:
   url = reqs.url
 
   global wait
-  global safe
+  global size
   global curr
+  global anew
 
   print(f"| {kind} | {host} | {port} | {urn} | {url} |")
 
@@ -40,22 +45,27 @@ async def request(flow: http.HTTPFlow) -> None:
 
       print(f"| {i_int} |")
 
-      if safe >= i_int:
-        curr = 1
+      if size >= i_int:
+        anew = 1
         return
       else:
-        if curr == 0:
-          if safe >= (i_int - 256):
+        if anew == 0:
+          if size >= (i_int - 256):
             if (time.time() - wait) >= 60:
-              flow.metadata["intercept"] = True
-              return
+              curr = curr + 1;
+
+              if curr == 5:
+                return
+              else:
+                flow.metadata["intercept"] = True
+                return
             else:
               return
           else:
             return
         else:
-          curr = min(0, curr - 1)
-          if curr == 0:
+          anew = min(0, anew - 1)
+          if anew == 0:
             wait = time.time()
             return
           else:
