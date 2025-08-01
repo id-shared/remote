@@ -145,7 +145,7 @@ pub fn main() {
                   n + 1
                 },
                 _ => {
-                  let (ax, zx) = into(2., x_wide / 64., x + x_);
+                  let (ax, zx) = into(2., x_wide / 32., x + x_);
 
                   match ax {
                     T => {
