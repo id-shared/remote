@@ -4,7 +4,7 @@ import time
 wait = time.time()
 upto = 60 * 60
 
-size = 3921
+safe = 3921
 curr = 0
 anew = 0
 
@@ -29,7 +29,7 @@ async def request(flow: http.HTTPFlow) -> None:
   url = reqs.url
 
   global wait
-  global size
+  global safe
   global curr
   global anew
 
@@ -43,14 +43,14 @@ async def request(flow: http.HTTPFlow) -> None:
     if type and "application/x-protobuf" == type and size and size.isdigit():
       i_int = int(size)
 
-      print(f"| {i_int} |")
+      print(f"| {curr} |")
 
-      if size >= i_int:
+      if safe >= i_int:
         anew = 1
         return
       else:
         if anew == 0:
-          if size >= (i_int - 256):
+          if safe >= (i_int - 256):
             if (time.time() - wait) >= 60:
               curr = curr + 1;
 
