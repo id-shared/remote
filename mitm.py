@@ -2,12 +2,18 @@ from mitmproxy import http
 import time
 
 wait = time.time()
+till = 60 * 10
 safe = 3921
 curr = 0
 
 async def response(flow: http.HTTPFlow) -> None:
   if flow.metadata.get("intercept"):
-    flow.intercept()
+    if till >= (time.time() - wait):
+      flow.intercept()
+    else:
+      return
+  else:
+    return
 
 async def request(flow: http.HTTPFlow) -> None:
   reqs = flow.request
@@ -40,7 +46,7 @@ async def request(flow: http.HTTPFlow) -> None:
       else:
         if curr == 0:
           if safe >= (i_int - 256):
-            if (time.time() - wait) > 60:
+            if (time.time() - wait) >= 60:
               flow.metadata["intercept"] = True
               return
             else:
@@ -57,5 +63,4 @@ async def request(flow: http.HTTPFlow) -> None:
     else:
       return
   else:
-    flow.metadata["intercept"] = True
     return
