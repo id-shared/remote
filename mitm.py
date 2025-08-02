@@ -53,7 +53,7 @@ async def request(flow: http.HTTPFlow) -> None:
           wait = time.time()
           safe = False
         else:
-          if into >= (i_int - 256):
+          if (into + 256) >= i_int:
             if (time.time() - wait) >= 60:
               curr = curr + 1
 
