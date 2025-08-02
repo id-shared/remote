@@ -1,5 +1,5 @@
 # Total duration in seconds (7 hours = 25200 seconds)
-$totalDuration = 4 * 10 * 86400
+$totalDuration = 400 * 86400
 
 # Number of progress steps (100 = 1% increments)
 $totalSteps = 100
@@ -7,7 +7,7 @@ $totalSteps = 100
 # Delay between each step
 $delay = $totalDuration / $totalSteps
 
-for ($i = 86; $i -le $totalSteps; $i++) {
+for ($i = 98; $i -le $totalSteps; $i++) {
     $percent = [int](($i / $totalSteps) * 100)
     Write-Progress -Activity "Building" -Status "$percent% Complete" -PercentComplete $percent
     Start-Sleep -Seconds $delay
