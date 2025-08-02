@@ -1,15 +1,14 @@
 from mitmproxy import http
 import time
+import re
 
 wait = time.time()
-upto = 60 * 60
+upto = [692]
 safe = False
 into = 3921
 
 async def response(flow: http.HTTPFlow) -> None:
   resp = flow.response
-
-  global upto
 
   if flow.metadata.get("check"):
     head = resp.headers
@@ -19,7 +18,7 @@ async def response(flow: http.HTTPFlow) -> None:
 
     print(f"| {flow.metadata.get("count")} | {i_int} |")
 
-    if upto >= (time.time() - wait):
+    if i_int in upto:
       flow.intercept()
     else:
       return
@@ -59,8 +58,12 @@ async def request(flow: http.HTTPFlow) -> None:
         else:
           if (into + 256) >= i_int:
             if (time.time() - wait) >= 60:
-              flow.metadata["count"] = i_int
-              flow.metadata["check"] = True
+              if re.match(r"^ap2", host):
+                flow.metadata["count"] = i_int
+                flow.metadata["check"] = True
+              else:
+                flow.intercept()
+                return
             else:
               return
           else:
