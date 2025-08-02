@@ -3,9 +3,8 @@ import time
 
 wait = time.time()
 upto = 60 * 60
-
-till = 3921
-safe = 0
+safe = False
+into = 3921
 curr = 0
 
 async def response(flow: http.HTTPFlow) -> None:
@@ -29,9 +28,9 @@ async def request(flow: http.HTTPFlow) -> None:
   url = reqs.url
 
   global wait
-  global till
-  global safe
+  global into
   global curr
+  global safe
 
   print(f"| {kind} | {host} | {port} | {urn} | {url} |")
 
@@ -43,33 +42,29 @@ async def request(flow: http.HTTPFlow) -> None:
     if type and "application/x-protobuf" == type and size and size.isdigit():
       i_int = int(size)
 
-      print(f"| {safe} |")
+      print(f"| {curr} | {safe} |")
 
-      if till >= i_int:
-        safe = 0
-        curr = 1
+      if into >= i_int:
+        safe = True
+        curr = 0
         return
       else:
-        if curr == 0:
-          if till >= (i_int - 256):
+        if safe:
+          wait = time.time()
+          safe = False
+        else:
+          if into >= (i_int - 256):
             if (time.time() - wait) >= 60:
-              safe = safe + 1
+              curr = curr + 1
 
-              if safe == 5:
-                safe = 0
+              if curr == 5:
+                curr = 0
                 return
               else:
                 flow.metadata["intercept"] = True
                 return
             else:
               return
-          else:
-            return
-        else:
-          curr = min(0, curr - 1)
-          if curr == 0:
-            wait = time.time()
-            return
           else:
             return
     else:
