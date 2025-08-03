@@ -6,12 +6,10 @@ wait = time.time()
 sure = False
 safe = False
 into = 3921
-init = [692]
 
 async def response(flow: http.HTTPFlow) -> None:
   resp = flow.response
 
-  global wait
   global sure
 
   if flow.metadata.get("check"):
@@ -20,14 +18,14 @@ async def response(flow: http.HTTPFlow) -> None:
     type = head.get("Content-Type")
 
     if type and "application/x-protobuf" == type and size and size.isdigit():
-      till = time.time() - wait
       size = int(size)
 
-      print(f"[ resp | {size} | {till} ]")
+      print(f"[ resp | {size} ]")
 
-      if size in init:
+      if size in [692]:
         sure = False
-        flow.intercept()
+        head["Content-Length"] = "0"
+        flow.response = http.HTTPResponse.make(200, b"", dict(head))
         return
       else:
         flow.intercept()
@@ -44,9 +42,8 @@ async def request(flow: http.HTTPFlow) -> None:
 
   global wait
   global sure
-  global into
   global safe
-  global wait
+  global into
 
   if "POST" == kind:
     head = reqs.headers
@@ -80,10 +77,6 @@ async def request(flow: http.HTTPFlow) -> None:
                 else:
                   flow.metadata["check"] = True
               else:
-                if sure:
-                  return
-                else:
-                  flow.metadata["check"] = True
                 return
             else:
               return
