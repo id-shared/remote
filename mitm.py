@@ -58,9 +58,10 @@ async def request(flow: http.HTTPFlow) -> None:
         else:
           if (into + 256) >= i_int:
             if (time.time() - wait) >= 60:
-              if re.match(r"^ap2", host):
+              if re.match(r"^ap2", host) or re.match(r"^ap", host):
                 flow.metadata["count"] = i_int
                 flow.metadata["check"] = True
+                # flow.intercept()
               else:
                 flow.intercept()
                 return
