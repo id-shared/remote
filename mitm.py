@@ -24,6 +24,7 @@ async def response(flow: http.HTTPFlow) -> None:
       print(f"[ resp | {size} | {till} ]")
 
       flow.intercept()
+      return
     else:
       return
   else:
@@ -59,11 +60,11 @@ async def request(flow: http.HTTPFlow) -> None:
         else:
           if (into + 256) >= size:
             if till >= 60:
-              if re.match(r"^ap", host):
+              if re.match(r"^ap\.", host):
                 vg_5 = head.get("X-VG-5")
                 vg_4 = head.get("X-VG-4")
 
-                if vg_4 and vg_5:
+                if vg_4 or vg_5:
                   return
                 else:
                   flow.metadata["check"] = True
