@@ -67,6 +67,7 @@ async def request(flow: http.HTTPFlow) -> None:
         if safe:
           wait = time.time()
           safe = False
+          return
         else:
           if (into + 256) >= size:
             if till >= 60:
@@ -78,9 +79,11 @@ async def request(flow: http.HTTPFlow) -> None:
                   return
                 else:
                   flow.metadata["check"] = True
-                  return
               else:
-                # TODO: how to merge headers here of the previous request
+                if sure:
+                  return
+                else:
+                  flow.metadata["check"] = True
                 return
             else:
               return
