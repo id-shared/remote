@@ -9,16 +9,29 @@ into = 3921
 
 async def response(flow: http.HTTPFlow) -> None:
   resp = flow.response
+  reqs = flow.request
+  kind = reqs.method
 
-  if flow.metadata.get("check"):
+  global wait
+
+  if "POST" == kind:
     head = resp.headers
     size = head.get("Content-Length")
-    size = int(size)
+    type = head.get("Content-Type")
 
-    print(f"[ resp | {size} ]")
+    if type and "application/x-protobuf" == type and size and size.isdigit():
+      till = time.time() - wait
+      size = int(size)
 
-    if size in upto:
-      flow.intercept()
+      print(f"[ resp | {size} | {till} ]")
+
+      if flow.metadata.get("check"):
+        if size in upto:
+          flow.intercept()
+        else:
+          return
+      else:
+        return
     else:
       return
   else:
@@ -39,7 +52,10 @@ async def request(flow: http.HTTPFlow) -> None:
     type = head.get("Content-Type")
 
     if type and "application/x-protobuf" == type and size and size.isdigit():
+      till = time.time() - wait
       size = int(size)
+
+      print(f"[ reqs | {size} | {till} ]")
 
       if into >= size:
         safe = True
@@ -50,12 +66,8 @@ async def request(flow: http.HTTPFlow) -> None:
           safe = False
         else:
           if (into + 256) >= size:
-            till = time.time() - wait
             if till >= 60:
-              print(f"[ reqs | {till} | {size} ]")
-
               if re.match(r"^ap2", host) or re.match(r"^ap", host):
-                flow.metadata["count"] = size
                 flow.metadata["check"] = True
                 # flow.intercept()
               else:
