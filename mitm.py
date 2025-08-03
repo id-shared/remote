@@ -3,14 +3,16 @@ import time
 import re
 
 wait = time.time()
-upto = [692]
+sure = False
 safe = False
 into = 3921
+init = [692]
 
 async def response(flow: http.HTTPFlow) -> None:
   resp = flow.response
 
   global wait
+  global sure
 
   if flow.metadata.get("check"):
     head = resp.headers
@@ -23,8 +25,13 @@ async def response(flow: http.HTTPFlow) -> None:
 
       print(f"[ resp | {size} | {till} ]")
 
-      flow.intercept()
-      return
+      if size in init:
+        sure = False
+        flow.intercept()
+        return
+      else:
+        flow.intercept()
+        return
     else:
       return
   else:
@@ -36,8 +43,10 @@ async def request(flow: http.HTTPFlow) -> None:
   host = reqs.pretty_host
 
   global wait
+  global sure
   global into
   global safe
+  global wait
 
   if "POST" == kind:
     head = reqs.headers
@@ -48,9 +57,10 @@ async def request(flow: http.HTTPFlow) -> None:
       till = time.time() - wait
       size = int(size)
 
-      print(f"[ reqs | {size} | {till} ]")
+      print(f"[ reqs | {size} | {till} | {head.get("Cookie")} ]")
 
       if into >= size:
+        sure = True
         safe = True
         return
       else:
@@ -70,6 +80,7 @@ async def request(flow: http.HTTPFlow) -> None:
                   flow.metadata["check"] = True
                   return
               else:
+                # TODO: how to merge headers here of the previous request
                 return
             else:
               return
