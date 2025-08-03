@@ -9,12 +9,10 @@ into = 3921
 
 async def response(flow: http.HTTPFlow) -> None:
   resp = flow.response
-  reqs = flow.request
-  kind = reqs.method
 
   global wait
 
-  if "POST" == kind:
+  if flow.metadata.get("check"):
     head = resp.headers
     size = head.get("Content-Length")
     type = head.get("Content-Type")
@@ -25,11 +23,7 @@ async def response(flow: http.HTTPFlow) -> None:
 
       print(f"[ resp | {size} | {till} ]")
 
-      if flow.metadata.get("check"):
-        flow.intercept()
-        return
-      else:
-        return
+      flow.intercept()
     else:
       return
   else:
