@@ -7,10 +7,16 @@ vgc-f:
 vgc-n:
   taskkill //IM vgc.exe //F
 
+scp-release:
+  clear && RUST_BACKTRACE=1 cargo run --bin scp --release
+
+scp:
+  clear && RUST_BACKTRACE=1 cargo run --bin scp
+
 cdp:
   clear && RUST_BACKTRACE=1 cargo run --bin cdp
 
-x-z:
+x-release:
   clear && RUST_BACKTRACE=1 cargo run --bin x --release
 
 x:
