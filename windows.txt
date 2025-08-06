@@ -1,0 +1,11 @@
+https://github.com/naruepanart/win10-enterprise-ltsc-activation
+
+scoop bucket add versions
+scoop install versions/firefox-developer
+scoop install versions/googlechrome-dev
+scoop install versions/vscode-insiders
+
+scoop install main/nodejs-lts
+scoop install main/just
+scoop install main/git
+scoop install main/bun
