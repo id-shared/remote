@@ -1,35 +1,12 @@
-vgc-t:
-  netsh advfirewall firewall set rule name="vgc" new enable=yes
+make x:
+  clear && RUST_BACKTRACE=1 cargo run --bin {{x}} --release
 
-vgc-f:
-  netsh advfirewall firewall set rule name="vgc" new enable=no
+run x:
+  clear && RUST_BACKTRACE=1 cargo run --bin {{x}}
 
-vgc-n:
-  taskkill //IM vgc.exe //F
-
-scp-release:
-  clear && RUST_BACKTRACE=1 cargo run --bin scp --release --target x86_64-pc-windows-msvc
-
-scp:
-  clear && RUST_BACKTRACE=1 cargo run --bin scp
-
-cdp:
-  clear && RUST_BACKTRACE=1 cargo run --bin cdp
-
-x-release:
-  clear && RUST_BACKTRACE=1 cargo run --bin x --release
-
-x:
-  clear && RUST_BACKTRACE=1 cargo run --bin x
-
-test:
-  clear && RUST_BACKTRACE=1 cargo run --bin test
-
-use:
-  cargo run --bin use
-
-live:
-  cargo run --bin live
+update:
+  rustup update
+  cargo update
 
 proxy:
   mitmweb --mode local:vgc.exe --script mitm.py
@@ -37,12 +14,8 @@ proxy:
 devices:
   ./devices.bat
 
-connect:
-  echo "Couldn't connect."
-
-update:
-  rustup update
-  cargo update
+clean:
+  rm -rf ./target
 
 build:
   powershell -ExecutionPolicy Bypass -File details.ps1
