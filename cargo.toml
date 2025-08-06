@@ -1,8 +1,8 @@
 [workspace.metadata.clippy]
-all = true
-cargo = true
-nursery = true
 pedantic = true
+nursery = true
+cargo = true
+all = true
 
 [workspace]
 members = [
@@ -18,30 +18,45 @@ members = [
 resolver = "3"
 
 [profile.release.package."*"]
-codegen-units = 1
-debug = false
-debug-assertions = false
-incremental = false
-opt-level = 3
+strip = "symbols"
+split-debuginfo = "none"
 overflow-checks = false
-strip = true
+opt-level = 3
+incremental = true
+debug-assertions = false
+debug = false
+codegen-units = 1
 
 [profile.release]
-codegen-units = 1
-debug = false
-debug-assertions = false
-incremental = false
-lto = "fat"
-opt-level = "z"
-overflow-checks = false
-panic = "abort"
+strip = "symbols"
+split-debuginfo = "none"
 rpath = false
-strip = true
+panic = "abort"
+overflow-checks = false
+opt-level = 3
+lto = "fat"
+incremental = true
+debug-assertions = false
+debug = false
+codegen-units = 1
 
 [profile.dev.package."*"]
+strip = "none"
+overflow-checks = true
+opt-level = 0
 incremental = true
-opt-level = 1
+debug-assertions = true
+debug = true
+codegen-units = 256
 
 [profile.dev]
+strip = "none"
+rpath = true
+panic = "unwind"
+overflow-checks = true
+opt-level = 0
+lto = false
+incremental = true
+debug-assertions = true
 debug = true
-opt-level = 1
+codegen-units = 256
