@@ -7,6 +7,9 @@ vgc-f:
 vgc-n:
   taskkill //IM vgc.exe //F
 
+cdp:
+  clear && RUST_BACKTRACE=1 cargo run --bin cdp
+
 x-z:
   clear && RUST_BACKTRACE=1 cargo run --bin x --release
 

@@ -1,0 +1,20 @@
+[dependencies]
+common = { path = "./../_/common" }
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = { version = "1.0.142" }
+
+[[bin]]
+doctest = false
+name = "cdp"
+path = "_.rs"
+
+[package]
+authors = ["Zyrosk <hq.zyrosk@gmail.com>"]
+categories = ["development-tools::debugging"]
+description = "A Chrome DevTools Protocol client"
+edition = "2021"
+keywords = ["chrome", "client", "devtools", "protocol"]
+license = "MIT OR Apache-2.0"
+name = "cdp"
+repository = "https://github.com/hq-zyrosk/cdp"
+version = "0.0.1"

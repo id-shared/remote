@@ -5,7 +5,7 @@ nursery = true
 pedantic = true
 
 [workspace]
-members = ["x", "live", "test", "_/screen", "_/thread", "_/xyloid"]
+members = ["x", "cdp", "live", "test", "_/screen", "_/thread", "_/xyloid"]
 resolver = "3"
 
 [profile.release.package."*"]
