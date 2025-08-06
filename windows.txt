@@ -10,3 +10,5 @@ scoop install main/nodejs-lts
 scoop install main/just
 scoop install main/git
 scoop install main/bun
+
+git config core.ignorecase false
