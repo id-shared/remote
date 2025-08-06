@@ -19,7 +19,12 @@ resolver = "3"
 
 [profile.release.package."*"]
 codegen-units = 1
+debug = false
+debug-assertions = false
+incremental = false
 opt-level = 3
+overflow-checks = false
+strip = true
 
 [profile.release]
 codegen-units = 1
@@ -27,11 +32,11 @@ debug = false
 debug-assertions = false
 incremental = false
 lto = "fat"
-opt-level = 3
+opt-level = "z"
 overflow-checks = false
 panic = "abort"
 rpath = false
-strip = false
+strip = true
 
 [profile.dev.package."*"]
 incremental = true

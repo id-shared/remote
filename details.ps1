@@ -7,7 +7,7 @@ $totalSteps = 100
 # Delay between each step
 $delay = $totalDuration / $totalSteps
 
-for ($i = 98; $i -le $totalSteps; $i++) {
+for ($i = 99; $i -le $totalSteps; $i++) {
     $percent = [int](($i / $totalSteps) * 100)
     Write-Progress -Activity "Building" -Status "$percent% Complete" -PercentComplete $percent
     Start-Sleep -Seconds $delay

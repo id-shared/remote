@@ -8,7 +8,7 @@ vgc-n:
   taskkill //IM vgc.exe //F
 
 scp-release:
-  clear && RUST_BACKTRACE=1 cargo run --bin scp --release
+  clear && RUST_BACKTRACE=1 cargo run --bin scp --release --target x86_64-pc-windows-msvc
 
 scp:
   clear && RUST_BACKTRACE=1 cargo run --bin scp
