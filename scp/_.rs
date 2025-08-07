@@ -1,14 +1,12 @@
 fn main() {
   let job = create_job_object();
 
-  let child = Command::new(r"C:\Program Files\Google\Chrome\Application\chrome.exe").args(["--remote-debugging-port=9222", "--new-window", "https://example.com"]).spawn().expect("Failed to start Chrome");
-
-  assign_child_to_job(job, &child);
+  #[allow(clippy::zombie_processes)]
+  let child = Command::new(r"C:\Program Files\Google\Chrome\Application\chrome.exe").args(["--new-window", "https://example.com"]).spawn().expect("Failed to start Chrome");
 
   // child.wait().expect("failed to wait on child");
 
-  // Wait a bit and then hide the window (not reliable across all systems)
-  // std::thread::sleep(std::time::Duration::from_secs(2));
+  assign_child_to_job(job, &child);
 
   let mut hwnd = HWND(std::ptr::null_mut());
   let abc = time::now();
