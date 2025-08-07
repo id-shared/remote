@@ -2,13 +2,8 @@
 common = { path = "./../_/common" }
 windows = { version = "0.61.3", features = [
   "Win32_UI_WindowsAndMessaging",
-  "Win32_System_WinRT_Graphics_Capture",
-  "Win32_System_SystemServices",
-  "Win32_Graphics_Gdi",
-  "Win32_Graphics_Dxgi",
-  "Win32_Graphics_Dxgi_Common",
-  "Win32_Graphics_Direct3D11",
-  "Win32_Graphics_Direct3D",
+  "Win32_System_JobObjects",
+  "Win32_System_Threading",
   "Win32_Foundation",
 ] }
 

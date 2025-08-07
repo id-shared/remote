@@ -1,5 +1,11 @@
 fn main() {
-  let _ = Command::new(r"C:\Program Files\Google\Chrome\Application\chrome.exe").args(["--remote-debugging-port=9222", "--new-window", "https://example.com"]).spawn().expect("Failed to start Chrome");
+  let job = create_job_object();
+
+  let mut child = Command::new(r"C:\Program Files\Google\Chrome\Application\chrome.exe").args(["--remote-debugging-port=9222", "--new-window", "https://example.com"]).spawn().expect("Failed to start Chrome");
+
+  let ecode = child.wait().expect("failed to wait on child");
+
+  assign_child_to_job(job, &child);
 
   // Wait a bit and then hide the window (not reliable across all systems)
   std::thread::sleep(std::time::Duration::from_secs(2));
@@ -59,17 +65,47 @@ unsafe extern "system" fn enum_windows_proc(hwnd: HWND, _: LPARAM) -> BOOL {
   true.into()
 }
 
+fn create_job_object() -> HANDLE {
+  unsafe {
+    let job = CreateJobObjectW(None, PCWSTR::null()).expect("Failed to create job object");
+
+    let mut info = JOBOBJECT_EXTENDED_LIMIT_INFORMATION::default();
+    info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+
+    let success = SetInformationJobObject(job, JobObjectExtendedLimitInformation, &info as *const _ as *const _, std::mem::size_of::<JOBOBJECT_EXTENDED_LIMIT_INFORMATION>() as u32).expect("Failed to set job object info");
+
+    job
+  }
+}
+
+fn assign_child_to_job(job: HANDLE, child: &Child) {
+  unsafe { AssignProcessToJobObject(job, HANDLE(child.as_raw_handle() as *mut _)).expect("Failed to assign child to job") }
+}
+
 use {
   common::time,
   std::{
     ffi::CStr,
-    process::Command,
+    os::windows::io::AsRawHandle,
+    process::{
+      Child,
+      Command,
+    },
   },
   windows::{
     Win32::{
       Foundation::{
+        HANDLE,
         HWND,
         LPARAM,
+      },
+      System::JobObjects::{
+        AssignProcessToJobObject,
+        CreateJobObjectW,
+        JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION,
+        JobObjectExtendedLimitInformation,
+        SetInformationJobObject,
       },
       UI::WindowsAndMessaging::{
         EnumWindows,
@@ -77,13 +113,13 @@ use {
         GetWindowTextA,
         IsWindowVisible,
         SW_HIDE,
-        SW_MINIMIZE,
         SW_SHOW,
         ShowWindow,
       },
     },
     core::{
       BOOL,
+      PCWSTR,
       s,
     },
   },
