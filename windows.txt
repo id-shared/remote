@@ -13,3 +13,5 @@ scoop install main/git
 scoop install main/bun
 
 git config core.ignorecase false
+
+TODO: in screen software when it's gonna take time to aim, then move a bit in that duration.
