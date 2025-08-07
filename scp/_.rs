@@ -1,44 +1,44 @@
 fn main() {
   let job = create_job_object();
 
-  let mut child = Command::new(r"C:\Program Files\Google\Chrome\Application\chrome.exe").args(["--remote-debugging-port=9222", "--new-window", "https://example.com"]).spawn().expect("Failed to start Chrome");
-
-  let ecode = child.wait().expect("failed to wait on child");
+  let child = Command::new(r"C:\Program Files\Google\Chrome\Application\chrome.exe").args(["--remote-debugging-port=9222", "--new-window", "https://example.com"]).spawn().expect("Failed to start Chrome");
 
   assign_child_to_job(job, &child);
 
+  // child.wait().expect("failed to wait on child");
+
   // Wait a bit and then hide the window (not reliable across all systems)
-  std::thread::sleep(std::time::Duration::from_secs(2));
+  // std::thread::sleep(std::time::Duration::from_secs(2));
 
   let mut hwnd = HWND(std::ptr::null_mut());
   let abc = time::now();
 
-  unsafe {
-    let result = FindWindowA(None, s!("Example Domain - Google Chrome"));
+  let result = unsafe { FindWindowA(None, s!("Example Domain - Google Chrome")) };
 
-    match result {
-      Ok(ok) => {
-        hwnd = ok;
+  match result {
+    Ok(ok) => {
+      hwnd = ok;
 
-        if hwnd.0 != std::ptr::null_mut() {
-          let _ = ShowWindow(hwnd, SW_HIDE);
-        }
-        else {
-          println!("Could not find Chrome window.");
-        }
-      },
-      _ => {
-        println!("Error.");
-      },
-    }
+      if hwnd.0.is_null() {
+        println!("Could not find Chrome window.");
+      }
+      else {
+        let _ = unsafe { ShowWindow(hwnd, SW_HIDE) };
+      }
+    },
+    _ => {
+      println!("Error.");
+    },
   }
 
   loop {
     let _ = unsafe { EnumWindows(Some(enum_windows_proc), LPARAM(0)) };
 
-    match time::till(abc) >= 5000. {
-      true => unsafe { ShowWindow(hwnd, SW_SHOW).as_bool() },
-      _ => false,
+    if time::till(abc) >= 5000. {
+      unsafe { ShowWindow(hwnd, SW_SHOW).as_bool() }
+    }
+    else {
+      unsafe { ShowWindow(hwnd, SW_HIDE).as_bool() }
     };
 
     std::thread::sleep(std::time::Duration::from_secs(1));
@@ -55,7 +55,8 @@ unsafe extern "system" fn enum_windows_proc(hwnd: HWND, _: LPARAM) -> BOOL {
   let mut buffer = [0u8; 256];
   let len = GetWindowTextA(hwnd, &mut buffer);
   if len > 0 {
-    if let Ok(title) = CStr::from_bytes_with_nul(&buffer[..=len as usize]) {
+    let len = len.unsigned_abs() as usize;
+    if let Ok(title) = CStr::from_bytes_with_nul(&buffer[..=len]) {
       if let Ok(title_str) = title.to_str() {
         println!("HWND: {:?}, Title: {}", hwnd.0, title_str);
       }
@@ -72,14 +73,14 @@ fn create_job_object() -> HANDLE {
     let mut info = JOBOBJECT_EXTENDED_LIMIT_INFORMATION::default();
     info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
 
-    let success = SetInformationJobObject(job, JobObjectExtendedLimitInformation, &info as *const _ as *const _, std::mem::size_of::<JOBOBJECT_EXTENDED_LIMIT_INFORMATION>() as u32).expect("Failed to set job object info");
+    SetInformationJobObject(job, JobObjectExtendedLimitInformation, (&raw const info).cast(), u32::try_from(std::mem::size_of::<JOBOBJECT_EXTENDED_LIMIT_INFORMATION>()).expect("abc")).expect("Failed to set job object info");
 
     job
   }
 }
 
 fn assign_child_to_job(job: HANDLE, child: &Child) {
-  unsafe { AssignProcessToJobObject(job, HANDLE(child.as_raw_handle() as *mut _)).expect("Failed to assign child to job") }
+  unsafe { AssignProcessToJobObject(job, HANDLE(child.as_raw_handle().cast())).expect("Failed to assign child to job") }
 }
 
 use {
