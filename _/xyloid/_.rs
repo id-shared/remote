@@ -31,23 +31,23 @@ pub fn device() -> Device {
                 match OsString::from_wide(device_path_slice).to_str() {
                   Some(path_str) => {
                     let _ = unsafe { SetupDiDestroyDeviceInfoList(handle) };
-                    return Some(path_str.to_string());
+                    Some(path_str.to_string())
                   },
                   _ => {
                     let _ = unsafe { SetupDiDestroyDeviceInfoList(handle) };
-                    return None;
+                    None
                   },
                 }
               },
               _ => {
                 let _ = unsafe { SetupDiDestroyDeviceInfoList(handle) };
-                return None;
+                None
               },
             }
           },
           _ => {
             let _ = unsafe { SetupDiDestroyDeviceInfoList(handle) };
-            return None;
+            None
           },
         }
       },

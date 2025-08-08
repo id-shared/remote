@@ -1,9 +1,3 @@
-[workspace.metadata.clippy]
-pedantic = true
-nursery = true
-cargo = true
-all = true
-
 [workspace]
 members = [
   "x",

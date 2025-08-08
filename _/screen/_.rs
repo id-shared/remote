@@ -107,8 +107,8 @@ fn supplier(v: (f64, f64, f64, f64), z: &Recorder) -> Supplier {
   Supplier {
     texture,
     region,
-    y: y,
-    x: x,
+    y,
+    x,
   }
 }
 
