@@ -30,7 +30,7 @@ pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> u64, F1: FnMut(Record) -> (
             let data = data.unwrap();
             let cast = data.cast().unwrap();
 
-            let (is, an, ax, ay) = on_f(each(cast, supplier, &recorder_1));
+            let (is, an, ax, ay) = on_f(each(&cast, supplier, &recorder_1));
             unsafe { recorder_1.framer.ReleaseFrame().unwrap() };
 
             id = f((is, id, an, ax, ay));
@@ -54,14 +54,14 @@ pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> u64, F1: FnMut(Record) -> (
 }
 
 fn make(k1: u64, k2: f64, l1: f64, l2: f64, n1: f64, n2: f64, x: &Recorder, z: &mut HashMap<u64, Supplier>) {
-  z.insert(k1, supplier(ltxy((k2 + (k1 as f64 * n1), l1), (n2, l2)), x));
+  z.insert(k1, supplier(ltxy(((k1 as f64).mul_add(n1, k2), l1), (n2, l2)), x));
 }
 
-fn each(d: ID3D11Texture2D, v: &Supplier, z: &Recorder) -> Record {
+fn each(d: &ID3D11Texture2D, v: &Supplier, z: &Recorder) -> Record {
   let texture = &v.texture;
   let region = v.region;
 
-  unsafe { z.context.CopySubresourceRegion(texture.as_ref().unwrap(), 0, 0, 0, 0, &d, 0, Some(&region)) };
+  unsafe { z.context.CopySubresourceRegion(texture.as_ref().unwrap(), 0, 0, 0, 0, d, 0, Some(&region)) };
 
   let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
   unsafe { z.context.Map(texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
