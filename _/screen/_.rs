@@ -253,6 +253,6 @@ use {
         SM_CYSCREEN,
       },
     },
-    core::*,
+    core::Interface,
   },
 };

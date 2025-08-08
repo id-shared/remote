@@ -6,6 +6,7 @@ pub fn main() {
   println!("Angle for chord length 1 is {:.64} pixels", wealth(to_rad(103_f64 / 2.), 1. / 1280., 6400.));
 
   let mut zz = vec![];
+  const ON: &str = "";
 
   zz.push(thread::spawn(move || {
     let screen_high = screen::high();
@@ -187,7 +188,7 @@ pub fn main() {
           _ => (is, 0., xn, yn),
         }
       },
-      || match screen::name().contains("VAL") {
+      || match screen::name().contains(ON) {
         T => match d2::is_ml() {
           T => match d2::is_d() || d2::is_a() || d2::is_w() || d2::is_s() || d2::is_al() || d2::is_ar() || d2::is_ad() || d2::is_au() {
             T => {
@@ -255,7 +256,7 @@ pub fn main() {
     }
 
     loop {
-      match screen::name().contains("VAL") {
+      match screen::name().contains(ON) {
         T => {
           d = held(d2::is_d, d2::al, |_| T, d, &device);
           a = held(d2::is_a, d2::ar, |_| T, a, &device);
