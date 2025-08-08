@@ -218,7 +218,7 @@ pub fn main() {
     let mut w = (F, time::now());
     let mut s = (F, time::now());
 
-    fn held<F1: Fn() -> bool, F2: Fn(bool, &Device) -> bool, F3: Fn(&Device) -> bool>(f1: F1, f2: F2, f3: F3, x: BI, z: &Device) -> BI {
+    fn held<F1: Fn() -> bool, F2: Fn(bool, &xyloid::Device) -> bool, F3: Fn(&xyloid::Device) -> bool>(f1: F1, f2: F2, f3: F3, x: BI, z: &xyloid::Device) -> BI {
       on(
         f1,
         |_| T,
@@ -283,7 +283,7 @@ pub fn dollar(n1: f64, n2: f64) -> f64 {
   (n1.tan() * n2).atan()
 }
 
-pub fn to_rad(n: f64) -> f64 {
+pub const fn to_rad(n: f64) -> f64 {
   n.to_radians()
 }
 
@@ -317,14 +317,12 @@ use {
     T,
     time,
   },
-  screen,
   std::{
     f64::consts::PI,
     thread,
     time::Instant,
   },
   xyloid::{
-    Device,
     d1,
     d2,
   },

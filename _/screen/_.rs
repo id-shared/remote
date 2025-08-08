@@ -192,11 +192,11 @@ pub fn name() -> String {
 }
 
 pub fn wide() -> f64 {
-  unsafe { GetSystemMetrics(SM_CXSCREEN) as f64 }
+  unsafe { f64::from(GetSystemMetrics(SM_CXSCREEN)) }
 }
 
 pub fn high() -> f64 {
-  unsafe { GetSystemMetrics(SM_CYSCREEN) as f64 }
+  unsafe { f64::from(GetSystemMetrics(SM_CYSCREEN)) }
 }
 
 type Record = (*const u8, usize, usize, usize);
