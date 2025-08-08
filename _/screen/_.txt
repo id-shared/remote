@@ -27,8 +27,7 @@
 // img.save("subregion.png").unwrap();
 
 // handle.push(thread::spawn(
-//   #[must_use]
-//   move || {
+//   //   move || {
 //     let data_2 = data(x / 8, y / 16, x, y);
 //     let data_1 = data(x / 4, y / 16, x, y);
 //     let freq_1 = MS * HZ;
@@ -46,8 +45,7 @@
 //   },
 // ));
 
-// #[must_use]
-// pub fn screen(detail_1: &Data) -> Vec<u8> {
+// // pub fn screen(detail_1: &Data) -> Vec<u8> {
 //   let mut buffer = vec![0u8; detail_1.az];
 
 //   unsafe { BitBlt(detail_1.memory, 0, 0, detail_1.nx, detail_1.ny, detail_1.screen, detail_1.ax, detail_1.ay, SRCCOPY).unwrap() };
@@ -57,8 +55,7 @@
 //   buffer
 // }
 
-// #[must_use]
-// pub fn data(nx: i32, ny: i32, zx: i32, zy: i32) -> Data {
+// // pub fn data(nx: i32, ny: i32, zx: i32, zy: i32) -> Data {
 //   let screen = Some(unsafe { GetDC(Some(HWND::default())) });
 //   let memory = unsafe { CreateCompatibleDC(screen) };
 
@@ -92,8 +89,7 @@
 //   ax: i32,
 // }
 
-// #[must_use]
-// pub fn send<T>(i: &Sender<T>, o: T) -> bool {
+// // pub fn send<T>(i: &Sender<T>, o: T) -> bool {
 //   i.try_send(o).is_ok()
 // }
 

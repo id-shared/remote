@@ -1,4 +1,3 @@
-#[must_use]
 pub fn pool(size: usize) -> Pool {
   let job_queue = Arc::new(SegQueue::new(1024));
 

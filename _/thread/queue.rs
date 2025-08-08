@@ -31,7 +31,6 @@ unsafe impl<T: Send> Sync for SegQueue<T> {
 
 impl<T> SegQueue<T> {
   #[inline]
-  #[must_use]
   pub fn new(_capacity: usize) -> Self {
     // Create a dummy node that serves as the initial sentinel
     let dummy = Box::into_raw(Box::new(Node {
@@ -61,16 +60,7 @@ impl<T> SegQueue<T> {
 
     // Ultra-fast path: direct tail update with relaxed ordering
     let tail = self.tail.load(Ordering::Relaxed);
-    if unsafe {
-      (*tail).next.compare_exchange_weak(
-        ptr::null_mut(),
-        new,
-        Ordering::Release,
-        Ordering::Relaxed,
-      )
-    }
-    .is_ok()
-    {
+    if unsafe { (*tail).next.compare_exchange_weak(ptr::null_mut(), new, Ordering::Release, Ordering::Relaxed) }.is_ok() {
       // Successfully linked, update tail with relaxed ordering
       self.tail.store(new, Ordering::Release);
       return;
@@ -86,16 +76,7 @@ impl<T> SegQueue<T> {
 
       if tail_next.is_null() {
         // Tail is valid, try to append
-        if unsafe {
-          (*tail).next.compare_exchange_weak(
-            ptr::null_mut(),
-            new,
-            Ordering::Release,
-            Ordering::Relaxed,
-          )
-        }
-        .is_ok()
-        {
+        if unsafe { (*tail).next.compare_exchange_weak(ptr::null_mut(), new, Ordering::Release, Ordering::Relaxed) }.is_ok() {
           // Move the tail pointer forward
           self.tail.store(new, Ordering::Release);
 
@@ -117,10 +98,7 @@ impl<T> SegQueue<T> {
       }
       else {
         // Tail is lagging, help advance it
-        self
-          .tail
-          .compare_exchange_weak(tail, tail_next, Ordering::Release, Ordering::Relaxed)
-          .ok();
+        self.tail.compare_exchange_weak(tail, tail_next, Ordering::Release, Ordering::Relaxed).ok();
         // Reset backoff after helping
         backoff = 1;
       }
@@ -139,8 +117,7 @@ impl<T> SegQueue<T> {
       return None;
     }
 
-    if self.head.compare_exchange_weak(head, next, Ordering::Acquire, Ordering::Relaxed).is_ok()
-    {
+    if self.head.compare_exchange_weak(head, next, Ordering::Acquire, Ordering::Relaxed).is_ok() {
       // SAFETY: We have unique access to `head` now.
       let ret = unsafe { (*next).data.take() };
       unsafe {
@@ -162,11 +139,7 @@ impl<T> SegQueue<T> {
         return None;
       }
 
-      if self
-        .head
-        .compare_exchange_weak(head, next, Ordering::Release, Ordering::Relaxed)
-        .is_ok()
-      {
+      if self.head.compare_exchange_weak(head, next, Ordering::Release, Ordering::Relaxed).is_ok() {
         // SAFETY: We have unique access to `head` now.
         let ret = unsafe { (*next).data.take() };
         unsafe {
@@ -203,8 +176,7 @@ impl<T> SegQueue<T> {
   #[inline]
   pub fn len(&self) -> usize {
     let mut count = 0;
-    let mut current =
-      unsafe { (*self.head.load(Ordering::Relaxed)).next.load(Ordering::Relaxed) };
+    let mut current = unsafe { (*self.head.load(Ordering::Relaxed)).next.load(Ordering::Relaxed) };
 
     while !current.is_null() {
       count += 1;
@@ -232,8 +204,7 @@ impl<T> SegQueue<T> {
     // Use Release ordering for success case to ensure proper synchronization
     // with subsequent operations, while keeping Relaxed for the failure case
     // since we're not retrying
-    if self.head.compare_exchange_weak(head, next, Ordering::Acquire, Ordering::Relaxed).is_ok()
-    {
+    if self.head.compare_exchange_weak(head, next, Ordering::Acquire, Ordering::Relaxed).is_ok() {
       // SAFETY: We have unique access to `head` now.
       let ret = unsafe { (*next).data.take() };
       unsafe {

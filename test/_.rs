@@ -16,7 +16,6 @@ pub fn main() {
   }
 }
 
-#[must_use]
 fn check(z: Rgba<u8>) -> bool {
   let (n1, n2, n3, _) = color(z);
 
@@ -41,7 +40,6 @@ fn check(z: Rgba<u8>) -> bool {
   }
 }
 
-#[must_use]
 fn color(z: Rgba<u8>) -> (u8, u8, u8, u8) {
   (z[0], z[1], z[2], z[3])
 }

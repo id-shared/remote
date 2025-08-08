@@ -170,7 +170,6 @@ fn ltxy(x: (f64, f64), y: (f64, f64)) -> (f64, f64, f64, f64) {
   ((x2 / 2.) - (x3 / 2.), (y2 / 2.) - (y3 / 2.), x3, y3)
 }
 
-#[must_use]
 pub fn name() -> String {
   match unsafe { GetForegroundWindow() } {
     HWND(ptr) => match ptr.is_null() as usize {
@@ -192,12 +191,10 @@ pub fn name() -> String {
   }
 }
 
-#[must_use]
 pub fn wide() -> f64 {
   unsafe { GetSystemMetrics(SM_CXSCREEN) as f64 }
 }
 
-#[must_use]
 pub fn high() -> f64 {
   unsafe { GetSystemMetrics(SM_CYSCREEN) as f64 }
 }
