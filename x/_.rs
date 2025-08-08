@@ -322,8 +322,6 @@ use {
     f64::consts::PI,
     thread,
     time::Instant,
-    u32,
-    u64,
   },
   xyloid::{
     Device,

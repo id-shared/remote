@@ -207,11 +207,7 @@ use {
     T,
     time,
   },
-  std::{
-    collections::HashMap,
-    u32,
-    usize,
-  },
+  std::collections::HashMap,
   windows::{
     Win32::{
       Foundation::{
