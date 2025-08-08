@@ -111,7 +111,7 @@ pub fn main() {
     }
 
     fn each(k: u64, n: u64) -> bool {
-      n % k == 0
+      n.is_multiple_of(k)
     }
 
     let mut y_ = 0.;

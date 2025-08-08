@@ -21,7 +21,7 @@ pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> u64, F1: FnMut(Record) -> (
           T => {
             let supplier = match id {
               64..=u64::MAX => supplier_n.get(&16).unwrap(),
-              0..=63 => match id % 2 == 0 {
+              0..=63 => match id.is_multiple_of(2) {
                 T => supplier_n.get(&(id / 4)).unwrap(),
                 _ => supplier_n.get(&255).unwrap(),
               },
@@ -180,10 +180,7 @@ pub fn name() -> String {
           let mut buffer = vec![0u16; (n + 1) as usize];
           match unsafe { GetWindowTextW(HWND(ptr), &mut buffer) } {
             0 => String::new(),
-            copied => match String::from_utf16(&buffer[..copied as usize]) {
-              Ok(s) => s,
-              Err(_) => String::new(),
-            },
+            copied => String::from_utf16(&buffer[..copied as usize]).unwrap_or_default(),
           }
         },
       },

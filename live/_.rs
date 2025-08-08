@@ -4,9 +4,9 @@ pub fn main() -> windows::core::Result<()> {
   let pixel_count = (width * height) as usize;
   let buffer_size = pixel_count * size_of::<u32>();
 
-  let screen_dc = Some(unsafe { GetDC(Some(HWND::default())) });
-  let mem_dc = unsafe { CreateCompatibleDC(screen_dc) };
-  let bitmap = unsafe { CreateCompatibleBitmap(screen_dc.unwrap(), width, height) };
+  let screen_dc = unsafe { GetDC(Some(HWND::default())) };
+  let mem_dc = unsafe { CreateCompatibleDC(Some(screen_dc)) };
+  let bitmap = unsafe { CreateCompatibleBitmap(screen_dc, width, height) };
   let old_obj = unsafe { SelectObject(mem_dc, bitmap.into()) };
 
   let start_time = Instant::now();
@@ -45,7 +45,7 @@ pub fn main() -> windows::core::Result<()> {
   });
 
   loop {
-    let success = unsafe { BitBlt(mem_dc, 0, 0, width, height, screen_dc, 0, 0, SRCCOPY) };
+    let success = unsafe { BitBlt(mem_dc, 0, 0, width, height, Some(screen_dc), 0, 0, SRCCOPY) };
 
     if success.is_err() {
       break;
@@ -72,7 +72,7 @@ pub fn main() -> windows::core::Result<()> {
 
   let _ = process_thread.join();
 
-  unsafe { ReleaseDC(Some(HWND::default()), screen_dc.unwrap()) };
+  unsafe { ReleaseDC(Some(HWND::default()), screen_dc) };
   unsafe { SelectObject(mem_dc, old_obj) };
 
   let _ = unsafe { DeleteObject(bitmap.into()) };
