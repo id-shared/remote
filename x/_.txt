@@ -47,7 +47,7 @@ zz.push(thread::spawn(|| {
   }
 }));
 
-#[inline(always)]
+#[must_use]
 fn check(x: u32) -> bool {
   let n1 = ((x >> 16) & 0xff) as u8;
   let n2 = ((x >> 8) & 0xff) as u8;

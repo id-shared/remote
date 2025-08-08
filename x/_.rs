@@ -28,12 +28,12 @@ pub fn main() {
     const HFOV: f64 = 103.;
     const FREQ: u32 = 18;
 
-    #[inline(always)]
+    #[must_use]
     fn axis(k1: f64, k2: f64, n1: f64, n2: f64) -> f64 {
       wealth(to_rad(k1 / 2.), n2 / n1, k2)
     }
 
-    #[inline(always)]
+    #[must_use]
     fn finder<F: Fn(u32) -> bool, I: IntoIterator<Item = usize> + Clone>(f: F, n: *const u8, v: usize, x: I, y: I) -> (bool, f64, f64) {
       for yn in y {
         let ny = unsafe { n.add(yn * v) } as *const u32;
@@ -53,7 +53,7 @@ pub fn main() {
       (false, 0., 0.)
     }
 
-    #[inline(always)]
+    #[must_use]
     fn check(z: u32) -> bool {
       let (n1, n2, n3, _) = color(z);
 
@@ -78,7 +78,7 @@ pub fn main() {
       }
     }
 
-    #[inline(always)]
+    #[must_use]
     fn color(n: u32) -> (u8, u8, u8, u8) {
       let n4 = ((n >> 24) & 0xff) as u8;
       let n1 = ((n >> 16) & 0xff) as u8;
@@ -88,7 +88,7 @@ pub fn main() {
       (n1, n2, n3, n4)
     }
 
-    #[inline(always)]
+    #[must_use]
     fn push(n: u64) -> f64 {
       match n {
         48..=u64::MAX => N,
@@ -104,12 +104,12 @@ pub fn main() {
       }
     }
 
-    #[inline(always)]
+    #[must_use]
     fn pull(k: f64, l: f64, n: f64) -> f64 {
       (l / k) * n
     }
 
-    #[inline(always)]
+    #[must_use]
     fn into(k1: f64, k2: f64, n: f64) -> (bool, f64) {
       match k2 >= n.abs() {
         T => (T, n),
@@ -117,7 +117,7 @@ pub fn main() {
       }
     }
 
-    #[inline(always)]
+    #[must_use]
     fn each(k: u64, n: u64) -> bool {
       n % k == 0
     }
@@ -226,7 +226,7 @@ pub fn main() {
     let mut w = (F, time::now());
     let mut s = (F, time::now());
 
-    #[inline(always)]
+    #[must_use]
     fn held<F1: Fn() -> bool, F2: Fn(bool, &Device) -> bool, F3: Fn(&Device) -> bool>(f1: F1, f2: F2, f3: F3, x: BI, z: &Device) -> BI {
       on(
         f1,
@@ -284,22 +284,22 @@ pub fn main() {
   }
 }
 
-#[inline(always)]
+#[must_use]
 pub fn wealth(radian: f64, factor: f64, size: f64) -> f64 {
   (dollar(radian, factor) / (2. * PI)) * size
 }
 
-#[inline(always)]
+#[must_use]
 pub fn dollar(n1: f64, n2: f64) -> f64 {
   (n1.tan() * n2).atan()
 }
 
-#[inline(always)]
+#[must_use]
 pub fn to_rad(n: f64) -> f64 {
   n.to_radians()
 }
 
-#[inline(always)]
+#[must_use]
 fn on<F1: Fn() -> bool, F2: Fn(f64) -> bool, F3: Fn(f64) -> bool>(f1: F1, f2: F2, f3: F3, z: BI) -> BI {
   let (is, it) = z;
 

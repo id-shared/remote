@@ -27,7 +27,7 @@
 // img.save("subregion.png").unwrap();
 
 // handle.push(thread::spawn(
-//   #[inline(always)]
+//   #[must_use]
 //   move || {
 //     let data_2 = data(x / 8, y / 16, x, y);
 //     let data_1 = data(x / 4, y / 16, x, y);
@@ -46,7 +46,7 @@
 //   },
 // ));
 
-// #[inline(always)]
+// #[must_use]
 // pub fn screen(detail_1: &Data) -> Vec<u8> {
 //   let mut buffer = vec![0u8; detail_1.az];
 
@@ -57,7 +57,7 @@
 //   buffer
 // }
 
-// #[inline(always)]
+// #[must_use]
 // pub fn data(nx: i32, ny: i32, zx: i32, zy: i32) -> Data {
 //   let screen = Some(unsafe { GetDC(Some(HWND::default())) });
 //   let memory = unsafe { CreateCompatibleDC(screen) };
@@ -92,7 +92,7 @@
 //   ax: i32,
 // }
 
-// #[inline(always)]
+// #[must_use]
 // pub fn send<T>(i: &Sender<T>, o: T) -> bool {
 //   i.try_send(o).is_ok()
 // }

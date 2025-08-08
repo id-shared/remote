@@ -74,7 +74,7 @@ pub fn device() -> Device {
   }
 }
 
-#[inline(always)]
+#[must_use]
 pub fn d2(x: KEYBOARD_INPUT_DATA, z: &Device) -> bool {
   io(
     Xyloid {
@@ -88,7 +88,7 @@ pub fn d2(x: KEYBOARD_INPUT_DATA, z: &Device) -> bool {
   )
 }
 
-#[inline(always)]
+#[must_use]
 pub fn d1(x: MOUSE_INPUT_DATA, z: &Device) -> bool {
   io(
     Xyloid {
@@ -102,7 +102,7 @@ pub fn d1(x: MOUSE_INPUT_DATA, z: &Device) -> bool {
   )
 }
 
-#[inline(always)]
+#[must_use]
 pub fn io(mut x: Xyloid, z: &Device) -> bool {
   let mut bytes_returned: u32 = 0;
 

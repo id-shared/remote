@@ -1,4 +1,4 @@
-#[inline(always)]
+#[must_use]
 pub fn z02(a: bool, z: &Device) -> bool {
   io(
     match a {
@@ -9,7 +9,7 @@ pub fn z02(a: bool, z: &Device) -> bool {
   )
 }
 
-#[inline(always)]
+#[must_use]
 pub fn z01(a: bool, z: &Device) -> bool {
   io(
     match a {
@@ -20,7 +20,7 @@ pub fn z01(a: bool, z: &Device) -> bool {
   )
 }
 
-#[inline(always)]
+#[must_use]
 pub fn xy(x: f64, y: f64, z: &Device) -> bool {
   d1(
     MOUSE_INPUT_DATA {
@@ -36,7 +36,7 @@ pub fn xy(x: f64, y: f64, z: &Device) -> bool {
   )
 }
 
-#[inline(always)]
+#[must_use]
 pub fn io(n: u32, z: &Device) -> bool {
   let mut mi = MOUSE_INPUT_DATA {
     UnitId: 0,

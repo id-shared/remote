@@ -1,144 +1,144 @@
-#[inline(always)]
+#[must_use]
 pub fn rmenu(a: bool, z: &Device) -> bool {
   key(a, VK_RMENU, z)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn lmenu(a: bool, z: &Device) -> bool {
   key(a, VK_LMENU, z)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn ctrl(a: bool, z: &Device) -> bool {
   key(a, VK_CONTROL, z)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn ar(a: bool, z: &Device) -> bool {
   key(a, VK_RIGHT, z)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn al(a: bool, z: &Device) -> bool {
   key(a, VK_LEFT, z)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn ad(a: bool, z: &Device) -> bool {
   key(a, VK_DOWN, z)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn au(a: bool, z: &Device) -> bool {
   key(a, VK_UP, z)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn l(a: bool, z: &Device) -> bool {
   key(a, VK_L, z)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn k(a: bool, z: &Device) -> bool {
   key(a, VK_K, z)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn j(a: bool, z: &Device) -> bool {
   key(a, VK_J, z)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn i(a: bool, z: &Device) -> bool {
   key(a, VK_I, z)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is_rmenu() -> bool {
   is(VK_RMENU)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is_lmenu() -> bool {
   is(VK_LMENU)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is_ctrl() -> bool {
   is(VK_CONTROL)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is_mr() -> bool {
   is(VK_RBUTTON)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is_ml() -> bool {
   is(VK_LBUTTON)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is_au() -> bool {
   is(VK_UP)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is_ad() -> bool {
   is(VK_DOWN)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is_ar() -> bool {
   is(VK_RIGHT)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is_al() -> bool {
   is(VK_LEFT)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is_l() -> bool {
   is(VK_L)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is_k() -> bool {
   is(VK_K)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is_j() -> bool {
   is(VK_J)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is_i() -> bool {
   is(VK_I)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is_s() -> bool {
   is(VK_S)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is_w() -> bool {
   is(VK_W)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is_a() -> bool {
   is(VK_A)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is_d() -> bool {
   is(VK_D)
 }
 
-#[inline(always)]
+#[must_use]
 pub fn key(a: bool, k: VIRTUAL_KEY, z: &Device) -> bool {
   match a {
     T => match is(k) {
@@ -152,7 +152,7 @@ pub fn key(a: bool, k: VIRTUAL_KEY, z: &Device) -> bool {
   }
 }
 
-#[inline(always)]
+#[must_use]
 pub fn io(k: VIRTUAL_KEY, n: u16, z: &Device) -> bool {
   d2(
     KEYBOARD_INPUT_DATA {
@@ -166,12 +166,12 @@ pub fn io(k: VIRTUAL_KEY, n: u16, z: &Device) -> bool {
   )
 }
 
-#[inline(always)]
+#[must_use]
 pub fn mkcode(key: VIRTUAL_KEY) -> u16 {
   unsafe { MapVirtualKeyW(key.0 as u32, windows::Win32::UI::Input::KeyboardAndMouse::MAP_VIRTUAL_KEY_TYPE(0)) as u16 }
 }
 
-#[inline(always)]
+#[must_use]
 pub fn is(key: VIRTUAL_KEY) -> bool {
   unsafe { (GetAsyncKeyState(key.0 as i32) as u32 & 0x8000u32) != 0 }
 }

@@ -1,4 +1,4 @@
-#[inline(always)]
+#[must_use]
 pub fn sure<F: FnMut() -> bool>(mut f1: F, n1: Duration) -> bool {
   let init = Instant::now();
   let back = f1();
@@ -12,18 +12,18 @@ pub fn sure<F: FnMut() -> bool>(mut f1: F, n1: Duration) -> bool {
   }
 }
 
-#[inline(always)]
+#[must_use]
 pub fn till(n: Instant) -> f64 {
   n.elapsed().as_millis_f64()
 }
 
-#[inline(always)]
+#[must_use]
 pub fn rest(n: Duration) -> bool {
   sleep(n);
   T
 }
 
-#[inline(always)]
+#[must_use]
 pub fn now() -> Instant {
   Instant::now()
 }
