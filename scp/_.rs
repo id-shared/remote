@@ -45,13 +45,13 @@ fn main() {
 
 unsafe extern "system" fn enum_windows_proc(hwnd: HWND, _: LPARAM) -> BOOL {
   // Only get visible windows
-  if !IsWindowVisible(hwnd).as_bool() {
+  if unsafe { !IsWindowVisible(hwnd) }.as_bool() {
     return true.into();
   }
 
   // Get window title
   let mut buffer = [0u8; 256];
-  let len = GetWindowTextA(hwnd, &mut buffer);
+  let len = unsafe { GetWindowTextA(hwnd, &mut buffer) };
   if len > 0 {
     let len = len.unsigned_abs() as usize;
     if let Ok(title) = CStr::from_bytes_with_nul(&buffer[..=len]) {
