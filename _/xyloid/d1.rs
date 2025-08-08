@@ -26,7 +26,7 @@ pub fn xy(x: f64, y: f64, z: &Device) -> bool {
       Anonymous: Default::default(),
       RawButtons: 0,
       LastX: (x.round()) as i32,
-      LastY: (-1. * y.round()) as i32,
+      LastY: (-y.round()) as i32,
       ExtraInformation: 0,
     },
     z,

@@ -55,9 +55,9 @@ pub fn device() -> Device {
     }
   }
 
-  fn io(path: String) -> Option<HANDLE> {
+  fn io(path: &str) -> Option<HANDLE> {
     // HINT: r"\\?\rzcontrol#vid_1532&pid_007b&mi_00#8&14018023&0#{e3be005d-d130-4910-88ff-09ae02f680e9}";
-    let wide: Vec<u16> = OsStr::new(path.as_str()).encode_wide().chain(Some(0)).collect();
+    let wide: Vec<u16> = OsStr::new(path).encode_wide().chain(Some(0)).collect();
 
     let contact = unsafe { CreateFileW(PCWSTR(wide.as_ptr()), GENERIC_WRITE.0, FILE_SHARE_READ | FILE_SHARE_WRITE, None, OPEN_EXISTING, FILE_FLAGS_AND_ATTRIBUTES(0), None) };
 
@@ -68,7 +68,7 @@ pub fn device() -> Device {
   }
 
   let device = path(0xe3be005d_d130_4910_88ff_09ae02f680e9).unwrap();
-  let handle = io(device).unwrap();
+  let handle = io(&device).unwrap();
   Device {
     handle,
   }
