@@ -2,13 +2,13 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> u64, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, n: u32, x: f64, y: f64) -> bool {
+pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> u64, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, n: u32, x: u64, y: u64) -> bool {
   let recorder_1 = recorder(n);
 
   let mut supplier_n: HashMap<u64, Supplier> = HashMap::new();
 
   for n in 0..=255 {
-    make(n, 4., x, y, 1., 8., &recorder_1, &mut supplier_n);
+    make(n, 4, x, y, 1, 8, &recorder_1, &mut supplier_n);
   }
 
   let mut id: u64 = 0;
@@ -53,8 +53,8 @@ pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> u64, F1: FnMut(Record) -> (
   }
 }
 
-fn make(k1: u64, k2: f64, l1: f64, l2: f64, n1: f64, n2: f64, x: &Recorder, z: &mut HashMap<u64, Supplier>) {
-  z.insert(k1, supplier(ltxy(((k1 as f64).mul_add(n1, k2), l1), (n2, l2)), x));
+fn make(k1: u64, k2: u64, l1: u64, l2: u64, n1: u64, n2: u64, x: &Recorder, z: &mut HashMap<u64, Supplier>) {
+  z.insert(k1, supplier(ltxy(((k1 * n1) + k2, l1), (n2, l2)), x));
 }
 
 fn each(d: &ID3D11Texture2D, v: &Supplier, z: &Recorder) -> Record {
@@ -74,11 +74,11 @@ fn each(d: &ID3D11Texture2D, v: &Supplier, z: &Recorder) -> Record {
   (data_ptr, pitch, v.x as usize, v.y as usize)
 }
 
-fn supplier(v: (f64, f64, f64, f64), z: &Recorder) -> Supplier {
+fn supplier(v: (u64, u64, u64, u64), z: &Recorder) -> Supplier {
   let (l, t, x, y) = v;
   let desc = D3D11_TEXTURE2D_DESC {
-    Width: x as u32,
-    Height: y as u32,
+    Width: u32::try_from(x).unwrap(),
+    Height: u32::try_from(y).unwrap(),
     MipLevels: 1,
     ArraySize: 1,
     Format: DXGI_FORMAT_B8G8R8A8_UNORM,
@@ -115,8 +115,8 @@ fn supplier(v: (f64, f64, f64, f64), z: &Recorder) -> Supplier {
 struct Supplier {
   texture: Option<ID3D11Texture2D>,
   region: D3D11_BOX,
-  y: f64,
-  x: f64,
+  y: u64,
+  x: u64,
 }
 
 fn recorder(n: u32) -> Recorder {
@@ -162,12 +162,12 @@ struct Recorder {
   hz: u32,
 }
 
-fn ltxy(x: (f64, f64), y: (f64, f64)) -> (f64, f64, f64, f64) {
+fn ltxy(x: (u64, u64), y: (u64, u64)) -> (u64, u64, u64, u64) {
   let (y1, y2) = y;
   let (x1, x2) = x;
   let y3 = y2 / y1;
   let x3 = x2 / x1;
-  ((x2 / 2.) - (x3 / 2.), (y2 / 2.) - (y3 / 2.), x3, y3)
+  ((x2 / 2) - (x3 / 2), (y2 / 2) - (y3 / 2), x3, y3)
 }
 
 pub fn name() -> String {
@@ -188,12 +188,12 @@ pub fn name() -> String {
   }
 }
 
-pub fn wide() -> f64 {
-  unsafe { f64::from(GetSystemMetrics(SM_CXSCREEN)) }
+pub fn wide() -> u64 {
+  (unsafe { GetSystemMetrics(SM_CXSCREEN) }) as u64
 }
 
-pub fn high() -> f64 {
-  unsafe { f64::from(GetSystemMetrics(SM_CYSCREEN)) }
+pub fn high() -> u64 {
+  (unsafe { GetSystemMetrics(SM_CYSCREEN) }) as u64
 }
 
 type Record = (*const u8, usize, usize, usize);

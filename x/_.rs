@@ -103,9 +103,10 @@ pub fn main() {
 
     let screen_high = screen::high();
     let screen_wide = screen::wide();
+    let y_high = screen_high as f64 / 2.;
+    let x_wide = screen_wide as f64 / 2.;
+
     let device = xyloid::device();
-    let y_high = screen_high / 2.;
-    let x_wide = screen_wide / 2.;
 
     let xy = |ax: f64, ay: f64| d1::xy(axis(HFOV, _360, x_wide, ax), axis(VFOV, _360, y_high, ay), &device);
 
@@ -139,7 +140,7 @@ pub fn main() {
                   n + 1
                 },
                 _ => {
-                  let (ax, zx) = into(2., x_wide / 32., x + x_);
+                  let (ax, zx) = into(2., x_wide as f64 / 32., x + x_);
 
                   match ax {
                     T => {
