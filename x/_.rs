@@ -87,8 +87,8 @@ pub fn main() {
       }
     }
 
-    const fn pull(k: u64, l: u64, n: u64) -> i64 {
-      ((l / k) * n) as i64
+    fn pull(k: u64, l: u64, n: u64) -> i64 {
+      ((l / k) * n).try_into().unwrap()
     }
 
     const fn into(k1: u64, k2: i64, n: i64) -> (bool, i64) {
