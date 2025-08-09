@@ -71,30 +71,30 @@ pub fn main() {
       (n1, n2, n3, n4)
     }
 
-    const fn push(n: u64) -> f64 {
+    const fn push(n: u64) -> i64 {
       #[allow(clippy::match_same_arms)]
       match n {
-        48..=u64::MAX => N,
-        42..=46 => -3.,
-        36..=40 => -3.,
-        30..=34 => -5.,
-        24..=28 => -5.,
-        18..=22 => -5.,
-        12..=16 => -5.,
-        6..=10 => -2.,
-        0..=4 => -2.,
-        _ => N,
+        48..=u64::MAX => 0,
+        42..=46 => -3,
+        36..=40 => -3,
+        30..=34 => -5,
+        24..=28 => -5,
+        18..=22 => -5,
+        12..=16 => -5,
+        6..=10 => -2,
+        0..=4 => -2,
+        _ => 0,
       }
     }
 
-    fn pull(k: u64, l: u64, n: u64) -> f64 {
-      ((l / k) * n) as f64
+    const fn pull(k: u64, l: u64, n: u64) -> i64 {
+      ((l / k) * n) as i64
     }
 
-    fn into(k1: f64, k2: f64, n: f64) -> (bool, f64) {
-      match k2 >= n.abs() {
+    const fn into(k1: u64, k2: i64, n: i64) -> (bool, i64) {
+      match k1 >= n.unsigned_abs() {
         T => (T, n),
-        _ => (F, n / k1),
+        _ => (F, n / k2),
       }
     }
 
@@ -109,7 +109,7 @@ pub fn main() {
 
     let device = xyloid::device();
 
-    let xy = |ax: f64, ay: f64| d1::xy(axis(HFOV, _360, x_wide as f64, ax), axis(VFOV, _360, y_high as f64, ay), &device);
+    let xy = |ax: i64, ay: i64| d1::xy(axis(HFOV, _360, x_wide as f64, ax as f64), axis(VFOV, _360, y_high as f64, ay as f64), &device);
 
     let is_kl = || d2::is_i();
     let kl = |is: bool| {
@@ -118,8 +118,8 @@ pub fn main() {
       T
     };
 
-    let mut y_ = 0.;
-    let mut x_ = 0.;
+    let mut y_ = 0;
+    let mut x_ = 0;
     let mut n_ = 0;
     screen::watch(
       |(a, n, v, x, y)| match a {
@@ -141,7 +141,7 @@ pub fn main() {
                   n + 1
                 },
                 _ => {
-                  let (ax, zx) = into(2., x_wide as f64 / 32., x + x_);
+                  let (ax, zx) = into(x_wide / 32, 2, x + x_);
 
                   match ax {
                     T => {
@@ -160,7 +160,7 @@ pub fn main() {
           },
           _ => match is_kl() {
             T => {
-              xy(N, push(n - n_));
+              xy(0, push(n - n_));
               n + 1
             },
             _ => n + 1,
@@ -168,7 +168,7 @@ pub fn main() {
         },
         _ => match is_kl() {
           T => {
-            xy(N, push(n - n_));
+            xy(0, push(n - n_));
             n + 1
           },
           _ => n + 1,
@@ -323,7 +323,6 @@ const ON: &str = "";
 use {
   common::{
     F,
-    N,
     T,
     time,
   },
