@@ -23,7 +23,7 @@ pub fn xy(x: f64, y: f64, z: &Device) -> bool {
     MOUSE_INPUT_DATA {
       UnitId: 0,
       Flags: 0,
-      Anonymous: Default::default(),
+      Anonymous: MOUSE_INPUT_DATA_0::default(),
       RawButtons: 0,
       LastX: (x.round()) as i32,
       LastY: (-y.round()) as i32,
@@ -37,7 +37,7 @@ pub fn io(n: u32, z: &Device) -> bool {
   let mut mi = MOUSE_INPUT_DATA {
     UnitId: 0,
     Flags: 0,
-    Anonymous: Default::default(),
+    Anonymous: MOUSE_INPUT_DATA_0::default(),
     RawButtons: 0,
     LastX: 0,
     LastY: 0,
@@ -61,5 +61,6 @@ use {
     MOUSE_BUTTON_2_DOWN,
     MOUSE_BUTTON_2_UP,
     MOUSE_INPUT_DATA,
+    MOUSE_INPUT_DATA_0,
   },
 };

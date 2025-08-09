@@ -17,7 +17,7 @@ pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> u64, F1: FnMut(Record) -> (
       let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
       let mut data: Option<IDXGIResource> = None;
       match unsafe { recorder_1.framer.AcquireNextFrame(u32::try_from(recorder_1.hz).unwrap(), &raw mut info, &raw mut data) } {
-        Ok(_) => match is_f() {
+        Ok(()) => match is_f() {
           T => {
             let supplier = match id {
               64..=u64::MAX => supplier_n.get(&16).unwrap(),
@@ -192,10 +192,12 @@ pub fn name() -> String {
   }
 }
 
+#[allow(clippy::cast_sign_loss)]
 pub fn wide() -> u64 {
   (unsafe { GetSystemMetrics(SM_CXSCREEN) }) as u64
 }
 
+#[allow(clippy::cast_sign_loss)]
 pub fn high() -> u64 {
   (unsafe { GetSystemMetrics(SM_CYSCREEN) }) as u64
 }
