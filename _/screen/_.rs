@@ -2,7 +2,7 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> u64, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, n: u64, x: u64, y: u64) -> bool {
+pub fn watch<F: FnMut((bool, u64, u64, f64, f64)) -> u64, F1: FnMut(Record) -> (bool, u64, i64, i64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, n: u64, x: u64, y: u64) -> bool {
   let recorder_1 = recorder(n);
 
   let mut supplier_n: HashMap<u64, Supplier> = HashMap::new();
@@ -33,7 +33,7 @@ pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> u64, F1: FnMut(Record) -> (
             let (is, an, ax, ay) = on_f(each(&cast, supplier, &recorder_1));
             unsafe { recorder_1.framer.ReleaseFrame().unwrap() };
 
-            id = f((is, id, an, ax, ay));
+            id = f((is, id, an, ax as f64, ay as f64));
             T
           },
           _ => {

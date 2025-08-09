@@ -19,7 +19,7 @@ pub fn main() {
       wealth(to_rad(k1 / 2.), n2 / n1, k2).round() as i64
     }
 
-    fn finder<F: Fn(u32) -> bool, I: IntoIterator<Item = usize> + Clone>(f: F, n: *const u8, v: usize, x: &I, y: &I) -> (bool, f64, f64) {
+    fn finder<F: Fn(u32) -> bool, I: IntoIterator<Item = usize> + Clone>(f: F, n: *const u8, v: usize, x: &I, y: &I) -> (bool, i64, i64) {
       for yn in y.clone() {
         let ny = unsafe { n.add(yn * v) } as *const u32;
 
@@ -28,14 +28,14 @@ pub fn main() {
 
           match f(nx) {
             T => {
-              return (T, xn as f64, yn as f64);
+              return (T, xn.try_into().unwrap(), yn.try_into().unwrap());
             },
             _ => F,
           };
         }
       }
 
-      (false, 0., 0.)
+      (false, 0, 0)
     }
 
     const fn check(z: u32) -> bool {
@@ -87,8 +87,8 @@ pub fn main() {
       }
     }
 
-    fn pull(k: f64, l: f64, n: f64) -> f64 {
-      (l / k) * n
+    fn pull(k: u64, l: u64, n: u64) -> f64 {
+      ((l / k) * n) as f64
     }
 
     fn into(k1: f64, k2: f64, n: f64) -> (bool, f64) {
@@ -104,12 +104,12 @@ pub fn main() {
 
     let screen_high = screen::high();
     let screen_wide = screen::wide();
-    let y_high = screen_high as f64 / 2.;
-    let x_wide = screen_wide as f64 / 2.;
+    let y_high = screen_high / 2;
+    let x_wide = screen_wide / 2;
 
     let device = xyloid::device();
 
-    let xy = |ax: f64, ay: f64| d1::xy(axis(HFOV, _360, x_wide, ax), axis(VFOV, _360, y_high, ay), &device);
+    let xy = |ax: f64, ay: f64| d1::xy(axis(HFOV, _360, x_wide as f64, ax), axis(VFOV, _360, y_high as f64, ay), &device);
 
     let is_kl = || d2::is_i();
     let kl = |is: bool| {
@@ -130,8 +130,8 @@ pub fn main() {
               n + 1
             },
             _ => {
-              y_ = pull(64., y_high, v);
-              x_ = pull(256., x_wide, v);
+              y_ = pull(64, y_high, v);
+              x_ = pull(256, x_wide, v);
               n_ = n;
 
               match n >= 16 {
@@ -179,16 +179,20 @@ pub fn main() {
 
         match is {
           T => {
-            let (is, _, yn_) = finder(check, n, v, &((0..x).rev()), &((0..y).rev()));
-            let y_ = y as f64 / 2.;
-            let x_ = x as f64 / 2.;
+            // let (is, _, yn_) = finder(check, n, v, &((0..x).rev()), &((0..y).rev()));
+            // let y_ = y as i64 / 2;
+            // let x_ = x as i64 / 2;
 
-            match yn_ >= yn {
-              T => (is, (yn_ - y_) / y_, -(x_ - xn), y_ - yn),
-              _ => (is, 0., xn, yn),
-            }
+            // println!("{} {} {}", yn_, yn, y_);
+
+            // match yn_ >= yn {
+            //   T => (is, (yn_ - y_) / y_, -(x_ - xn), y_ - yn),
+            //   _ => (is, 0, xn, yn),
+            // }
+
+            (is, 0, xn, yn)
           },
-          _ => (is, 0., xn, yn),
+          _ => (is, 0, xn, yn),
         }
       },
       || match screen::name().contains(ON) {
