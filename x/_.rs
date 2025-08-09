@@ -21,7 +21,7 @@ pub fn main() {
 
     fn finder<F: Fn(u32) -> bool, I: IntoIterator<Item = usize> + Clone>(f: F, n: *const u8, v: usize, x: &I, y: &I) -> (bool, i64, i64) {
       for yn in y.clone() {
-        let ny = unsafe { n.add(yn * v) }.cast::<u32>();
+        let ny = unsafe { n.add(yn * v) } as *const u32;
 
         for xn in x.clone() {
           let nx = unsafe { *ny.add(xn) };
