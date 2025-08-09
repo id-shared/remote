@@ -15,8 +15,8 @@ pub fn main() {
     const FREQ: u64 = 18;
 
     #[allow(clippy::cast_possible_truncation)]
-    fn axis(k1: f64, k2: f64, n1: f64, n2: f64) -> i64 {
-      wealth(to_rad(k1 / 2.), n2 / n1, k2).round() as i64
+    fn axis(k1: f64, k2: f64, n1: f64, n2: f64) -> f64 {
+      wealth(to_rad(k1 / 2.), n2 / n1, k2)
     }
 
     fn finder<F: Fn(u32) -> bool, I: IntoIterator<Item = usize> + Clone>(f: F, n: *const u8, v: usize, x: &I, y: &I) -> (bool, i64, i64) {
@@ -109,7 +109,7 @@ pub fn main() {
 
     let device = xyloid::device();
 
-    let xy = |ax: i64, ay: i64| d1::xy(axis(HFOV, _360, x_wide as f64, ax as f64), axis(VFOV, _360, y_high as f64, ay as f64), &device);
+    let xy = |ax: i64, ay: i64| d1::xy(axis(HFOV, _360, x_wide as f64, ax as f64).round() as i64, axis(VFOV, _360, y_high as f64, ay as f64).round() as i64, &device);
 
     let is_kl = || d2::is_i();
     let kl = |is: bool| {
