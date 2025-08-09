@@ -75,10 +75,14 @@ fn each(d: &ID3D11Texture2D, v: &Supplier, z: &Recorder) -> Record {
 }
 
 fn supplier(v: (u64, u64, u64, u64), z: &Recorder) -> Supplier {
-  let (l, t, x, y) = v;
+  let l = u32::try_from(v.0).unwrap();
+  let t = u32::try_from(v.1).unwrap();
+  let x = u32::try_from(v.2).unwrap();
+  let y = u32::try_from(v.3).unwrap();
+
   let desc = D3D11_TEXTURE2D_DESC {
-    Width: u32::try_from(x).unwrap(),
-    Height: u32::try_from(y).unwrap(),
+    Width: x,
+    Height: y,
     MipLevels: 1,
     ArraySize: 1,
     Format: DXGI_FORMAT_B8G8R8A8_UNORM,
@@ -96,19 +100,19 @@ fn supplier(v: (u64, u64, u64, u64), z: &Recorder) -> Supplier {
   unsafe { z.device.CreateTexture2D(&raw const desc, None, Some(&raw mut texture)).unwrap() };
 
   let region = D3D11_BOX {
-    left: l as u32,
-    top: t as u32,
+    left: l,
+    top: t,
     front: 0,
-    right: (l + x) as u32,
-    bottom: (t + y) as u32,
+    right: l + x,
+    bottom: t + y,
     back: 1,
   };
 
   Supplier {
     texture,
     region,
-    y,
-    x,
+    y: v.3,
+    x: v.2,
   }
 }
 
