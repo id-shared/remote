@@ -18,15 +18,15 @@ pub fn z01(a: bool, z: &Device) -> bool {
   )
 }
 
-pub fn xy(x: f64, y: f64, z: &Device) -> bool {
+pub fn xy(x: i64, y: i64, z: &Device) -> bool {
   d1(
     MOUSE_INPUT_DATA {
       UnitId: 0,
       Flags: 0,
       Anonymous: MOUSE_INPUT_DATA_0::default(),
       RawButtons: 0,
-      LastX: (x.round()) as i32,
-      LastY: (-y.round()) as i32,
+      LastX: i32::try_from(x).unwrap(),
+      LastY: -i32::try_from(y).unwrap(),
       ExtraInformation: 0,
     },
     z,

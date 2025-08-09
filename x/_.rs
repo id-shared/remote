@@ -14,8 +14,9 @@ pub fn main() {
     const HFOV: f64 = 103.;
     const FREQ: u64 = 18;
 
-    fn axis(k1: f64, k2: f64, n1: f64, n2: f64) -> f64 {
-      wealth(to_rad(k1 / 2.), n2 / n1, k2)
+    #[allow(clippy::cast_possible_truncation)]
+    fn axis(k1: f64, k2: f64, n1: f64, n2: f64) -> i64 {
+      wealth(to_rad(k1 / 2.), n2 / n1, k2).round() as i64
     }
 
     fn finder<F: Fn(u32) -> bool, I: IntoIterator<Item = usize> + Clone>(f: F, n: *const u8, v: usize, x: &I, y: &I) -> (bool, f64, f64) {
