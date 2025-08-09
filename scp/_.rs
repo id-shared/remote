@@ -54,10 +54,10 @@ unsafe extern "system" fn enum_windows_proc(hwnd: HWND, _: LPARAM) -> BOOL {
   let len = unsafe { GetWindowTextA(hwnd, &mut buffer) };
   if len > 0 {
     let len = len.unsigned_abs() as usize;
-    if let Ok(title) = CStr::from_bytes_with_nul(&buffer[..=len]) {
-      if let Ok(title_str) = title.to_str() {
-        println!("HWND: {:?}, Title: {}", hwnd.0, title_str);
-      }
+    if let Ok(title) = CStr::from_bytes_with_nul(&buffer[..=len]) &&
+      let Ok(title_str) = title.to_str()
+    {
+      println!("HWND: {:?}, Title: {}", hwnd.0, title_str);
     }
   }
 

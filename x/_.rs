@@ -2,28 +2,13 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
+#[allow(clippy::too_many_lines)]
 pub fn main() {
   println!("Angle for chord length 1 is {:.64} pixels", wealth(to_rad(103_f64 / 2.), 1. / 1280., 6400.));
 
   let mut zz = vec![];
-  const ON: &str = "";
 
   zz.push(thread::spawn(move || {
-    let screen_high = screen::high();
-    let screen_wide = screen::wide();
-    let device = xyloid::device();
-    let y_high = screen_high / 2.;
-    let x_wide = screen_wide / 2.;
-
-    let xy = |ax: f64, ay: f64| d1::xy(axis(HFOV, _360, x_wide, ax), axis(VFOV, _360, y_high, ay), &device);
-
-    let is_kl = || d2::is_i();
-    let kl = |is: bool| {
-      d2::i(is, &device);
-      // d2::j(is, &device);
-      T
-    };
-
     const _360: f64 = 6396.5885;
     const VFOV: f64 = 70.53;
     const HFOV: f64 = 103.;
@@ -52,7 +37,7 @@ pub fn main() {
       (false, 0., 0.)
     }
 
-    fn check(z: u32) -> bool {
+    const fn check(z: u32) -> bool {
       let (n1, n2, n3, _) = color(z);
 
       match n1 >= 191 {
@@ -76,7 +61,7 @@ pub fn main() {
       }
     }
 
-    fn color(n: u32) -> (u8, u8, u8, u8) {
+    const fn color(n: u32) -> (u8, u8, u8, u8) {
       let n4 = ((n >> 24) & 0xff) as u8;
       let n1 = ((n >> 16) & 0xff) as u8;
       let n2 = ((n >> 8) & 0xff) as u8;
@@ -85,7 +70,8 @@ pub fn main() {
       (n1, n2, n3, n4)
     }
 
-    fn push(n: u64) -> f64 {
+    const fn push(n: u64) -> f64 {
+      #[allow(clippy::match_same_arms)]
       match n {
         48..=u64::MAX => N,
         42..=46 => -3.,
@@ -111,9 +97,24 @@ pub fn main() {
       }
     }
 
-    fn each(k: u64, n: u64) -> bool {
+    const fn each(k: u64, n: u64) -> bool {
       n.is_multiple_of(k)
     }
+
+    let screen_high = screen::high();
+    let screen_wide = screen::wide();
+    let device = xyloid::device();
+    let y_high = screen_high / 2.;
+    let x_wide = screen_wide / 2.;
+
+    let xy = |ax: f64, ay: f64| d1::xy(axis(HFOV, _360, x_wide, ax), axis(VFOV, _360, y_high, ay), &device);
+
+    let is_kl = || d2::is_i();
+    let kl = |is: bool| {
+      d2::i(is, &device);
+      // d2::j(is, &device);
+      T
+    };
 
     let mut y_ = 0.;
     let mut x_ = 0.;
@@ -310,6 +311,8 @@ fn on<F1: Fn() -> bool, F2: Fn(f64) -> bool, F3: Fn(f64) -> bool>(f1: F1, f2: F2
 }
 
 type BI = (bool, Instant);
+
+const ON: &str = "";
 
 use {
   common::{
