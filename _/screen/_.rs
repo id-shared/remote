@@ -166,7 +166,7 @@ struct Recorder {
   hz: u64,
 }
 
-fn ltxy(x: (u64, u64), y: (u64, u64)) -> (u64, u64, u64, u64) {
+const fn ltxy(x: (u64, u64), y: (u64, u64)) -> (u64, u64, u64, u64) {
   let (y1, y2) = y;
   let (x1, x2) = x;
   let y3 = y2 / y1;

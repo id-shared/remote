@@ -220,7 +220,7 @@ pub fn main() {
         f1,
         |_| T,
         |n| {
-          let n_ = u64::try_from(n / 10).unwrap();
+          let n_ = n / 10;
           match n_ {
             17..=32 => {
               f2(F, z);
