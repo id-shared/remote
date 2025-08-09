@@ -71,7 +71,7 @@ fn each(d: &ID3D11Texture2D, v: &Supplier, z: &Recorder) -> Record {
 
   unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
 
-  (data_ptr, pitch, v.x as usize, v.y as usize)
+  (data_ptr, pitch, usize::try_from(v.x).unwrap(), usize::try_from(v.y).unwrap())
 }
 
 fn supplier(v: (u64, u64, u64, u64), z: &Recorder) -> Supplier {
@@ -176,15 +176,15 @@ const fn ltxy(x: (u64, u64), y: (u64, u64)) -> (u64, u64, u64, u64) {
 
 pub fn name() -> String {
   match unsafe { GetForegroundWindow() } {
-    HWND(ptr) => match ptr.is_null() as usize {
-      1 => String::new(),
+    HWND(ptr) => match ptr.is_null() {
+      T => String::new(),
       _ => match unsafe { GetWindowTextLengthW(HWND(ptr)) } {
         0 => String::new(),
         n => {
-          let mut buffer = vec![0u16; (n + 1) as usize];
+          let mut buffer = vec![0u16; (n + 1).unsigned_abs() as usize];
           match unsafe { GetWindowTextW(HWND(ptr), &mut buffer) } {
             0 => String::new(),
-            copied => String::from_utf16(&buffer[..copied as usize]).unwrap_or_default(),
+            copied => String::from_utf16(&buffer[..copied.unsigned_abs() as usize]).unwrap_or_default(),
           }
         },
       },

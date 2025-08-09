@@ -109,7 +109,11 @@ pub fn main() {
 
     let device = xyloid::device();
 
-    let xy = |ax: i64, ay: i64| d1::xy(axis(HFOV, _360, x_wide as f64, ax as f64).round() as i64, axis(VFOV, _360, y_high as f64, ay as f64).round() as i64, &device);
+    #[allow(clippy::cast_possible_truncation)]
+    let xy = |ax: i64, ay: i64| {
+      #[allow(clippy::cast_precision_loss)]
+      d1::xy(axis(HFOV, _360, x_wide as f64, ax as f64).round() as i64, axis(VFOV, _360, y_high as f64, ay as f64).round() as i64, &device)
+    };
 
     let is_kl = || d2::is_i();
     let kl = |is: bool| {
