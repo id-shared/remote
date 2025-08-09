@@ -55,15 +55,15 @@ struct CdpCommand<'a> {
   method: &'a str,
 }
 
-#[derive(Deserialize, Debug)]
-struct CdpResponse {
-  id: u32,
-  result: serde_json::Value,
-}
+// #[derive(Deserialize, Debug)]
+// struct CdpResponse {
+//   id: u32,
+//   result: serde_json::Value,
+// }
 
 use {
   serde::{
-    Deserialize,
+    // Deserialize,
     Serialize,
   },
   std::{
