@@ -6,7 +6,7 @@ pub fn device() -> Device {
       let mut device_interface_data = SP_DEVICE_INTERFACE_DATA::default();
       let idx = 0;
 
-      device_interface_data.cbSize = std::mem::size_of::<SP_DEVICE_INTERFACE_DATA>() as u32;
+      device_interface_data.cbSize = u32::try_from(std::mem::size_of::<SP_DEVICE_INTERFACE_DATA>()).unwrap();
 
       if unsafe { SetupDiEnumDeviceInterfaces(handle, None, &raw const device_guid, idx, &raw mut device_interface_data) }.is_ok() {
         let mut required_size = 0u32;
@@ -14,7 +14,7 @@ pub fn device() -> Device {
 
         let mut detail_data = vec![0u8; required_size as usize];
         let detail_ptr = detail_data.as_mut_ptr().cast::<SP_DEVICE_INTERFACE_DETAIL_DATA_W>();
-        unsafe { (*detail_ptr).cbSize = std::mem::size_of::<SP_DEVICE_INTERFACE_DETAIL_DATA_W>() as u32 };
+        unsafe { (*detail_ptr).cbSize = u32::try_from(std::mem::size_of::<SP_DEVICE_INTERFACE_DETAIL_DATA_W>()).unwrap() };
 
         if unsafe { SetupDiGetDeviceInterfaceDetailW(handle, &raw const device_interface_data, Some(detail_ptr), required_size, None, None) }.is_ok() {
           let device_path_ptr: *const u16 = unsafe { &(*detail_ptr).DevicePath as *const u16 };
