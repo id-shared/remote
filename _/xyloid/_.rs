@@ -16,8 +16,8 @@ pub fn device() -> Device {
         let detail_ptr = detail_data.as_mut_ptr().cast::<SP_DEVICE_INTERFACE_DETAIL_DATA_W>();
         unsafe { (*detail_ptr).cbSize = std::mem::size_of::<SP_DEVICE_INTERFACE_DETAIL_DATA_W>() as u32 };
 
-        if unsafe { SetupDiGetDeviceInterfaceDetailW(handle, &device_interface_data, Some(detail_ptr), required_size, None, None) }.is_ok() {
-          let device_path_ptr = unsafe { &(*detail_ptr).DevicePath as *const u16 };
+        if unsafe { SetupDiGetDeviceInterfaceDetailW(handle, &raw const device_interface_data, Some(detail_ptr), required_size, None, None) }.is_ok() {
+          let device_path_ptr: *const u16 = unsafe { &(*detail_ptr).DevicePath as *const u16 };
           let mut len = 0;
 
           while unsafe { *device_path_ptr.add(len) } != 0 {

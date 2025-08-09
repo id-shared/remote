@@ -16,7 +16,7 @@ pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> u64, F1: FnMut(Record) -> (
     let oneach = || {
       let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
       let mut data: Option<IDXGIResource> = None;
-      match unsafe { recorder_1.framer.AcquireNextFrame(recorder_1.hz, &mut info, &mut data) } {
+      match unsafe { recorder_1.framer.AcquireNextFrame(recorder_1.hz, &raw mut info, &raw mut data) } {
         Ok(_) => match is_f() {
           T => {
             let supplier = match id {
@@ -61,10 +61,10 @@ fn each(d: &ID3D11Texture2D, v: &Supplier, z: &Recorder) -> Record {
   let texture = &v.texture;
   let region = v.region;
 
-  unsafe { z.context.CopySubresourceRegion(texture.as_ref().unwrap(), 0, 0, 0, 0, d, 0, Some(&region)) };
+  unsafe { z.context.CopySubresourceRegion(texture.as_ref().unwrap(), 0, 0, 0, 0, d, 0, Some(&raw const region)) };
 
   let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
-  unsafe { z.context.Map(texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&mut mapped)).unwrap() };
+  unsafe { z.context.Map(texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&raw mut mapped)).unwrap() };
 
   let pitch = mapped.RowPitch as usize;
   let data_ptr = mapped.pData as *const u8;
@@ -93,7 +93,7 @@ fn supplier(v: (f64, f64, f64, f64), z: &Recorder) -> Supplier {
   };
 
   let mut texture: Option<ID3D11Texture2D> = None;
-  unsafe { z.device.CreateTexture2D(&desc, None, Some(&mut texture)).unwrap() };
+  unsafe { z.device.CreateTexture2D(&raw const desc, None, Some(&raw mut texture)).unwrap() };
 
   let region = D3D11_BOX {
     left: l as u32,
@@ -132,12 +132,12 @@ fn recorder(n: u32) -> Recorder {
       D3D11_CREATE_DEVICE_BGRA_SUPPORT, // flags
       None,                             // pfeaturelevels
       D3D11_SDK_VERSION,                // sdkversion
-      Some(&mut device),                // ppdevice
-      Some(&mut level),                 // pfeaturelevel
-      Some(&mut context),               // ppimmediatecontext
+      Some(&raw mut device),            // ppdevice
+      Some(&raw mut level),             // pfeaturelevel
+      Some(&raw mut context),           // ppimmediatecontext
     )
-    .unwrap()
-  };
+  }
+  .unwrap();
 
   let device = device.unwrap();
   let context = context.unwrap();
