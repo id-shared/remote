@@ -12,14 +12,14 @@ pub fn main() {
     const _360: f64 = 6396.5885;
     const VFOV: f64 = 70.53;
     const HFOV: f64 = 103.;
-    const FREQ: u32 = 18;
+    const FREQ: u64 = 18;
 
     fn axis(k1: f64, k2: f64, n1: f64, n2: f64) -> f64 {
       wealth(to_rad(k1 / 2.), n2 / n1, k2)
     }
 
-    fn finder<F: Fn(u32) -> bool, I: IntoIterator<Item = usize> + Clone>(f: F, n: *const u8, v: usize, x: I, y: I) -> (bool, f64, f64) {
-      for yn in y {
+    fn finder<F: Fn(u32) -> bool, I: IntoIterator<Item = usize> + Clone>(f: F, n: *const u8, v: usize, x: &I, y: &I) -> (bool, f64, f64) {
+      for yn in y.clone() {
         let ny = unsafe { n.add(yn * v) } as *const u32;
 
         for xn in x.clone() {
@@ -174,11 +174,11 @@ pub fn main() {
         },
       },
       |(n, v, x, y)| {
-        let (is, xn, yn) = finder(check, n, v, 0..x, 0..y);
+        let (is, xn, yn) = finder(check, n, v, &(0..x), &(0..y));
 
         match is {
           T => {
-            let (is, _, yn_) = finder(check, n, v, (0..x).rev(), (0..y).rev());
+            let (is, _, yn_) = finder(check, n, v, &((0..x).rev()), &((0..y).rev()));
             let y_ = y as f64 / 2.;
             let x_ = x as f64 / 2.;
 
@@ -215,29 +215,23 @@ pub fn main() {
   }));
 
   zz.push(thread::spawn(|| {
-    let device = xyloid::device();
-    let mut d = (F, time::now());
-    let mut a = (F, time::now());
-    let mut w = (F, time::now());
-    let mut s = (F, time::now());
-
     fn held<F1: Fn() -> bool, F2: Fn(bool, &xyloid::Device) -> bool, F3: Fn(&xyloid::Device) -> bool>(f1: F1, f2: F2, f3: F3, x: BI, z: &xyloid::Device) -> BI {
       on(
         f1,
         |_| T,
         |n| {
-          let n_ = (n / 10.).round() as u32;
+          let n_ = u64::try_from(n / 10).unwrap();
           match n_ {
             17..=32 => {
               f2(F, z);
-              time::rest(time::MS * ((4 * 16) + ((n_ - 16) * 2)));
+              time::ms_rest((4 * 16) + ((n_ - 16) * 2));
               f2(T, z);
 
               f3(z)
             },
             6..=16 => {
               f2(F, z);
-              time::rest(time::MS * (4 * n_));
+              time::ms_rest(4 * n_);
               f2(T, z);
 
               f3(z)
@@ -245,7 +239,7 @@ pub fn main() {
             0..=5 => T,
             _ => {
               f2(F, z);
-              time::rest(time::MS * 96);
+              time::ms_rest(96);
               f2(T, z);
 
               f3(z)
@@ -256,6 +250,12 @@ pub fn main() {
         x,
       )
     }
+
+    let device = xyloid::device();
+    let mut d = (F, time::now());
+    let mut a = (F, time::now());
+    let mut w = (F, time::now());
+    let mut s = (F, time::now());
 
     loop {
       match screen::name().contains(ON) {
@@ -269,7 +269,7 @@ pub fn main() {
         _ => F,
       };
 
-      time::rest(time::MS);
+      time::ms_rest(1);
     }
   }));
 
@@ -290,19 +290,19 @@ pub const fn to_rad(n: f64) -> f64 {
   n.to_radians()
 }
 
-fn on<F1: Fn() -> bool, F2: Fn(f64) -> bool, F3: Fn(f64) -> bool>(f1: F1, f2: F2, f3: F3, z: BI) -> BI {
+fn on<F1: Fn() -> bool, F2: Fn(u64) -> bool, F3: Fn(u64) -> bool>(f1: F1, f2: F2, f3: F3, z: BI) -> BI {
   let (is, it) = z;
 
   match is {
     T => match f1() {
       T => z,
-      _ => match f3(time::till(it)) {
+      _ => match f3(time::ms_till(it)) {
         T => (F, time::now()),
         _ => (T, time::now()),
       },
     },
     _ => match f1() {
-      T => match f2(time::till(it)) {
+      T => match f2(time::ms_till(it)) {
         T => (T, time::now()),
         _ => (F, time::now()),
       },

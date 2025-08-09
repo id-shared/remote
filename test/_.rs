@@ -12,7 +12,7 @@ pub fn main() {
 
   loop {
     println!("OK");
-    time::rest(time::MS * 1000);
+    time::ms_rest(1000);
   }
 }
 

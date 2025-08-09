@@ -1,22 +1,22 @@
-pub fn sure<F: FnMut() -> bool>(mut f1: F, n1: Duration) -> bool {
+pub fn ms_sure<F: FnMut() -> bool>(mut f1: F, n1: u64) -> bool {
   let init = Instant::now();
   let back = f1();
-  let rest = init.elapsed();
+  let rest = ms_till(init);
   match back && n1 > rest {
     T => {
-      sleep(n1 - rest);
+      ms_rest(n1 - rest);
       back
     },
     _ => back,
   }
 }
 
-pub fn till(n: Instant) -> f64 {
-  n.elapsed().as_millis_f64()
+pub fn ms_till(n: Instant) -> u64 {
+  u64::try_from(n.elapsed().as_millis()).unwrap()
 }
 
-pub fn rest(n: Duration) -> bool {
-  sleep(n);
+pub fn ms_rest(n: u64) -> bool {
+  sleep(Duration::from_millis(n));
   T
 }
 

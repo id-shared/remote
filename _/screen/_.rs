@@ -2,13 +2,13 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> u64, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, n: u32, x: u64, y: u64) -> bool {
+pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> u64, F1: FnMut(Record) -> (bool, f64, f64, f64), F2: FnMut() -> bool>(mut f: F, mut on_f: F1, mut is_f: F2, n: u64, x: u64, y: u64) -> bool {
   let recorder_1 = recorder(n);
 
   let mut supplier_n: HashMap<u64, Supplier> = HashMap::new();
 
   for n in 0..=255 {
-    make(n, 4, x, y, 1, 8, &recorder_1, &mut supplier_n);
+    make(n, 4, 1, 8, x, y, &recorder_1, &mut supplier_n);
   }
 
   let mut id: u64 = 0;
@@ -16,7 +16,7 @@ pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> u64, F1: FnMut(Record) -> (
     let oneach = || {
       let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
       let mut data: Option<IDXGIResource> = None;
-      match unsafe { recorder_1.framer.AcquireNextFrame(recorder_1.hz, &raw mut info, &raw mut data) } {
+      match unsafe { recorder_1.framer.AcquireNextFrame(u32::try_from(recorder_1.hz).unwrap(), &raw mut info, &raw mut data) } {
         Ok(_) => match is_f() {
           T => {
             let supplier = match id {
@@ -49,12 +49,12 @@ pub fn watch<F: FnMut((bool, u64, f64, f64, f64)) -> u64, F1: FnMut(Record) -> (
       }
     };
 
-    time::sure(oneach, time::MS * recorder_1.hz);
+    time::ms_sure(oneach, recorder_1.hz);
   }
 }
 
 fn make(k1: u64, k2: u64, l1: u64, l2: u64, n1: u64, n2: u64, x: &Recorder, z: &mut HashMap<u64, Supplier>) {
-  z.insert(k1, supplier(ltxy(((k1 * n1) + k2, l1), (n2, l2)), x));
+  z.insert(k1, supplier(ltxy(((k1 * l1) + k2, n1), (l2, n2)), x));
 }
 
 fn each(d: &ID3D11Texture2D, v: &Supplier, z: &Recorder) -> Record {
@@ -123,7 +123,7 @@ struct Supplier {
   x: u64,
 }
 
-fn recorder(n: u32) -> Recorder {
+fn recorder(n: u64) -> Recorder {
   let mut context: Option<ID3D11DeviceContext> = None;
   let mut device: Option<ID3D11Device> = None;
   let mut level = D3D_FEATURE_LEVEL_12_2;
@@ -163,7 +163,7 @@ struct Recorder {
   context: ID3D11DeviceContext,
   device: ID3D11Device,
   framer: IDXGIOutputDuplication,
-  hz: u32,
+  hz: u64,
 }
 
 fn ltxy(x: (u64, u64), y: (u64, u64)) -> (u64, u64, u64, u64) {

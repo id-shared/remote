@@ -32,7 +32,7 @@ fn main() {
   loop {
     let _ = unsafe { EnumWindows(Some(enum_windows_proc), LPARAM(0)) };
 
-    if time::till(abc) >= 5000. {
+    if time::ms_till(abc) >= 5000 {
       unsafe { ShowWindow(hwnd, SW_SHOW).as_bool() }
     }
     else {
