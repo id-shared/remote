@@ -137,7 +137,7 @@ pub fn io(k: VIRTUAL_KEY, n: u16, z: &Device) -> bool {
 }
 
 pub fn mkcode(key: VIRTUAL_KEY) -> u16 {
-  common::abc(u16::try_from(unsafe { MapVirtualKeyW(u32::from(key.0), windows::Win32::UI::Input::KeyboardAndMouse::MAP_VIRTUAL_KEY_TYPE(0)) }))
+  common::it(u16::try_from(unsafe { MapVirtualKeyW(u32::from(key.0), windows::Win32::UI::Input::KeyboardAndMouse::MAP_VIRTUAL_KEY_TYPE(0)) }))
 }
 
 pub fn is(key: VIRTUAL_KEY) -> bool {

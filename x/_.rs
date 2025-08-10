@@ -26,7 +26,7 @@ pub fn main() {
         for xn in 0..x {
           let nx = xn * 4;
 
-          let px = unsafe { n.add(common::abc((nx + ny).try_into())) };
+          let px = unsafe { n.add(common::it((nx + ny).try_into())) };
           let cb = unsafe { *px };
           let cg = unsafe { *px.add(1) };
           let cr = unsafe { *px.add(2) };
@@ -34,7 +34,7 @@ pub fn main() {
 
           match f(cr, cg, cb, cz) {
             T => {
-              return (T, common::abc(xn.try_into()), common::abc(yn.try_into()));
+              return (T, common::it(xn.try_into()), common::it(yn.try_into()));
             },
             _ => F,
           };
@@ -83,7 +83,7 @@ pub fn main() {
     }
 
     fn pull(k: u64, l: u64, n: u64) -> i64 {
-      common::abc(((l / k) * n).try_into())
+      common::it(((l / k) * n).try_into())
     }
 
     const fn into(k1: u64, k2: i64, n: i64) -> (bool, i64) {
@@ -278,7 +278,7 @@ pub fn main() {
   }));
 
   for x in zz {
-    common::abc(x.join());
+    common::it(x.join());
   }
 }
 

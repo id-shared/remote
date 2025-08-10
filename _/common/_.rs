@@ -2,15 +2,17 @@
 #![feature(stmt_expr_attributes)]
 #![feature(trait_alias)]
 
-pub fn abc<T, E: std::fmt::Debug>(result: Result<T, E>) -> T {
-  match result {
-    Ok(value) => value,
-    Err(error) => panic!("Failed to  unwrap result: {error:#?}"),
-  }
+#[inline]
+pub fn it<T, E: std::fmt::Debug>(z: Result<T, E>) -> T {
+  z.unwrap_or_else(|err| panic!("called `it()` on an `Err` value: {err:?}."))
 }
 
-pub fn none<T>(result: Option<T>) -> T {
-  result.map_or_else(|| panic!("Failed to  unwrap result."), |value| value)
+pub fn so<T>(z: Option<T>) -> T {
+  z.unwrap_or_else(|| panic!("called `so()` on a `None` value."))
+}
+
+pub const fn is(a: bool) -> bool {
+  a == T
 }
 
 pub mod time;

@@ -12,7 +12,7 @@ pub fn ms_sure<F: FnMut() -> bool>(mut f1: F, n1: u64) -> bool {
 }
 
 pub fn ms_till(n: Instant) -> u64 {
-  crate::abc(u64::try_from(n.elapsed().as_millis()))
+  crate::it(u64::try_from(n.elapsed().as_millis()))
 }
 
 pub fn ms_rest(n: u64) -> bool {
