@@ -31,6 +31,8 @@ pub fn watch<F: FnMut((bool, u64, u64, i64, i64)) -> u64, F1: FnMut(Record) -> (
             let cast = data.cast().unwrap();
 
             let (is, an, ax, ay) = on_f(each(&cast, supplier, &recorder_1));
+
+            unsafe { recorder_1.context.Unmap(supplier.texture.as_ref().unwrap(), 0) };
             unsafe { recorder_1.framer.ReleaseFrame().unwrap() };
 
             id = f((is, id, an, ax, ay));
@@ -66,14 +68,10 @@ fn each(d: &ID3D11Texture2D, v: &Supplier, z: &Recorder) -> Record {
   let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
   unsafe { z.context.Map(texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&raw mut mapped)).unwrap() };
 
-  let pitch = mapped.RowPitch as usize;
-  let data_ptr = mapped.pData as *const u32;
+  let data_ptr = mapped.pData as *const u8;
+  let pitch = mapped.RowPitch;
 
-  unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
-
-  println!("{pitch}");
-
-  (data_ptr, pitch / 4, usize::try_from(v.x).unwrap(), usize::try_from(v.y).unwrap())
+  (data_ptr, u64::from(pitch), v.x, v.y)
 }
 
 fn supplier(v: (u64, u64, u64, u64), z: &Recorder) -> Supplier {
@@ -204,7 +202,7 @@ pub fn high() -> u64 {
   (unsafe { GetSystemMetrics(SM_CYSCREEN) }) as u64
 }
 
-type Record = (*const u32, usize, usize, usize);
+type Record = (*const u8, u64, u64, u64);
 
 use {
   common::{

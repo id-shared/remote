@@ -19,14 +19,22 @@ pub fn main() {
       wealth(to_rad(k1 / 2.), n2 / n1, k2)
     }
 
-    fn finder<F: Fn(u32) -> bool, I: IntoIterator<Item = usize> + Clone>(f: F, n: *const u32, v: usize, x: &I, y: &I) -> (bool, i64, i64) {
-      for yn in y.clone() {
-        let ny = unsafe { n.add(yn * v) };
+    fn finder<F: Fn(u8, u8, u8, u8) -> bool>(f: F, n: *const u8, v: u64, x: u64, y: u64) -> (bool, i64, i64) {
+      for yn in 0..y {
+        // let ny = unsafe { n.add(yn * v) };
+        let ny = yn * v;
 
-        for xn in x.clone() {
-          let nx = unsafe { *ny.add(xn) };
+        for xn in 0..x {
+          // let nx = unsafe { *ny.add(xn) };
+          let nx = xn * 4;
 
-          match f(nx) {
+          let px = unsafe { n.add((nx + ny).try_into().unwrap()) };
+          let cb = unsafe { *px };
+          let cg = unsafe { *px.add(1) };
+          let cr = unsafe { *px.add(2) };
+          let cz = unsafe { *px.add(3) };
+
+          match f(cr, cg, cb, cz) {
             T => {
               return (T, xn.try_into().unwrap(), yn.try_into().unwrap());
             },
@@ -38,9 +46,7 @@ pub fn main() {
       (false, 0, 0)
     }
 
-    const fn check(z: u32) -> bool {
-      let (n1, n2, n3, _) = color(z);
-
+    const fn check(n1: u8, n2: u8, n3: u8, _n4: u8) -> bool {
       match n1 >= 191 {
         T => match n3 >= 191 {
           T => match 16 >= n1.abs_diff(n3) {
@@ -60,15 +66,6 @@ pub fn main() {
         },
         _ => F,
       }
-    }
-
-    const fn color(n: u32) -> (u8, u8, u8, u8) {
-      let n4 = ((n >> 24) & 0xff) as u8;
-      let n1 = ((n >> 16) & 0xff) as u8;
-      let n2 = ((n >> 8) & 0xff) as u8;
-      let n3 = (n & 0xff) as u8;
-
-      (n1, n2, n3, n4)
     }
 
     const fn push(n: u64) -> i64 {
@@ -179,7 +176,7 @@ pub fn main() {
         },
       },
       |(n, v, x, y)| {
-        let (is, xn, yn) = finder(check, n, v, &(0..x), &(0..y));
+        let (is, xn, yn) = finder(check, n, v, x, y);
 
         match is {
           T => {
