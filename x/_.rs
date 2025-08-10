@@ -21,11 +21,9 @@ pub fn main() {
 
     fn finder<F: Fn(u8, u8, u8, u8) -> bool>(f: F, n: *const u8, v: u64, x: u64, y: u64) -> (bool, i64, i64) {
       for yn in 0..y {
-        // let ny = unsafe { n.add(yn * v) };
         let ny = yn * v;
 
         for xn in 0..x {
-          // let nx = unsafe { *ny.add(xn) };
           let nx = xn * 4;
 
           let px = unsafe { n.add((nx + ny).try_into().unwrap()) };
