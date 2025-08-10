@@ -1,0 +1,30 @@
+[
+  {
+    "label": "Clippy Full Project",
+    "command": "cargo",
+    "args": [
+      "clippy",
+      "--all-targets",
+      "--all-features",
+      "--",
+      "-W",
+      "clippy::all",
+      "-W",
+      "clippy::pedantic",
+      "-W",
+      "clippy::nursery",
+      "-W",
+      "clippy::cargo",
+      "-A",
+      "clippy::too_many_arguments",
+      "-A",
+      "clippy::must_use_candidate",
+      "-A",
+      "clippy::missing_panics_doc",
+      "-A",
+      "clippy::single_match_else",
+      "-A",
+      "clippy::match_bool"
+    ]
+  }
+]
