@@ -67,11 +67,13 @@ fn each(d: &ID3D11Texture2D, v: &Supplier, z: &Recorder) -> Record {
   unsafe { z.context.Map(texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&raw mut mapped)).unwrap() };
 
   let pitch = mapped.RowPitch as usize;
-  let data_ptr = mapped.pData as *const u8;
+  let data_ptr = mapped.pData as *const u32;
 
   unsafe { z.context.Unmap(texture.as_ref().unwrap(), 0) };
 
-  (data_ptr, pitch, usize::try_from(v.x).unwrap(), usize::try_from(v.y).unwrap())
+  println!("{pitch}");
+
+  (data_ptr, pitch / 4, usize::try_from(v.x).unwrap(), usize::try_from(v.y).unwrap())
 }
 
 fn supplier(v: (u64, u64, u64, u64), z: &Recorder) -> Supplier {
@@ -202,7 +204,7 @@ pub fn high() -> u64 {
   (unsafe { GetSystemMetrics(SM_CYSCREEN) }) as u64
 }
 
-type Record = (*const u8, usize, usize, usize);
+type Record = (*const u32, usize, usize, usize);
 
 use {
   common::{
