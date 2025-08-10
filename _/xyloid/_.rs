@@ -12,8 +12,13 @@ pub fn device() -> Device {
         let mut required_size = 0u32;
         let _ = unsafe { SetupDiGetDeviceInterfaceDetailW(handle, &raw const device_interface_data, None, 0, Some(&raw mut required_size), None) };
 
-        let mut detail_data = vec![0u8; required_size as usize];
-        let detail_ptr = detail_data.as_mut_ptr().cast::<SP_DEVICE_INTERFACE_DETAIL_DATA_W>();
+        // Calculate how many SP_DEVICE_INTERFACE_DETAIL_DATA_W structures we need
+        let struct_size = std::mem::size_of::<SP_DEVICE_INTERFACE_DETAIL_DATA_W>();
+        let num_structs = (required_size as usize).div_ceil(struct_size);
+
+        // Allocate properly aligned memory using Vec
+        let mut detail_buffer: Vec<SP_DEVICE_INTERFACE_DETAIL_DATA_W> = vec![unsafe { std::mem::zeroed() }; num_structs];
+        let detail_ptr = detail_buffer.as_mut_ptr();
         unsafe { (*detail_ptr).cbSize = u32::try_from(std::mem::size_of::<SP_DEVICE_INTERFACE_DETAIL_DATA_W>()).unwrap() };
 
         if unsafe { SetupDiGetDeviceInterfaceDetailW(handle, &raw const device_interface_data, Some(detail_ptr), required_size, None, None) }.is_ok() {

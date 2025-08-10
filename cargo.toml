@@ -1,5 +1,14 @@
 [workspace]
-members = ["x", "cdp", "live", "scp", "test", "_/screen", "_/xyloid"]
+members = [
+    "x",
+    "cdp",
+    "live",
+    "scp",
+    "test",
+    "_/common",
+    "_/screen",
+    "_/xyloid",
+]
 resolver = "3"
 
 [profile.release.package."*"]
