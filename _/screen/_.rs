@@ -184,7 +184,7 @@ pub fn name() -> String {
           let mut buffer = vec![0u16; (n + 1).unsigned_abs() as usize];
           match unsafe { GetWindowTextW(HWND(ptr), &mut buffer) } {
             0 => String::new(),
-            copied => String::from_utf16(&buffer[..copied.unsigned_abs() as usize]).unwrap_or_default(),
+            copied => common::abc(String::from_utf16(&buffer[..copied.unsigned_abs() as usize])),
           }
         },
       },
