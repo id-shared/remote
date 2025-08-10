@@ -26,7 +26,7 @@ pub fn main() {
         for xn in 0..x {
           let nx = xn * 4;
 
-          let px = unsafe { n.add((nx + ny).try_into().unwrap()) };
+          let px = unsafe { n.add(common::abc((nx + ny).try_into())) };
           let cb = unsafe { *px };
           let cg = unsafe { *px.add(1) };
           let cr = unsafe { *px.add(2) };
