@@ -13,12 +13,13 @@ name = "scp"
 doctest = false
 
 [package]
-version = "0.0.1"
-repository = "https://github.com/hq-zyrosk/scp"
-name = "scp"
-license = "MIT OR Apache-2.0"
-keywords = ["chrome", "client", "devtools", "protocol"]
-edition = "2024"
-description = "A Chrome DevTools Protocol client"
-categories = ["development-tools::debugging"]
 authors = ["Zyrosk <hq.zyrosk@gmail.com>"]
+categories = ["development-tools::debugging"]
+description = "A Chrome DevTools Protocol client"
+edition = "2024"
+keywords = ["chrome", "client", "devtools", "protocol"]
+license = "MIT OR Apache-2.0"
+name = "scp"
+readme = "README.md"
+repository = "https://github.com/hq-zyrosk/scp"
+version = "0.0.1"

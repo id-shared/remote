@@ -15,5 +15,6 @@ edition = "2024"
 keywords = ["chrome", "client", "devtools", "protocol"]
 license = "MIT OR Apache-2.0"
 name = "test"
+readme = "README.md"
 repository = "https://github.com/hq-zyrosk/test"
 version = "0.0.1"

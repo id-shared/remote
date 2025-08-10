@@ -4,6 +4,7 @@ scoop bucket add versions
 scoop install versions/firefox-developer
 scoop install versions/googlechrome-dev
 scoop install versions/vscode-insiders
+scoop install versions/zed-nightly
 
 scoop install main/rustup-msvc
 scoop install main/nodejs-lts
