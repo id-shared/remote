@@ -3,14 +3,16 @@
 #![feature(trait_alias)]
 
 #[inline]
-pub fn it<T, E: std::fmt::Debug>(z: Result<T, E>) -> T {
-  z.unwrap_or_else(|err| panic!("called `it()` on an `Err` value: {err:?}."))
+pub fn ok<T, E: std::fmt::Debug>(z: Result<T, E>) -> T {
+  z.unwrap_or_else(|err| panic!("called `ok()` on an `Err` value: {err:?}."))
 }
 
+#[inline]
 pub fn so<T>(z: Option<T>) -> T {
   z.unwrap_or_else(|| panic!("called `so()` on a `None` value."))
 }
 
+#[inline]
 pub const fn is(a: bool) -> bool {
   a == T
 }

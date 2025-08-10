@@ -16,7 +16,7 @@ pub fn watch<F: FnMut((bool, u64, u64, i64, i64)) -> u64, F1: FnMut(Record) -> (
     let oneach = || {
       let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
       let mut data: Option<IDXGIResource> = None;
-      match unsafe { recorder_1.framer.AcquireNextFrame(common::it(u32::try_from(recorder_1.hz)), &raw mut info, &raw mut data) } {
+      match unsafe { recorder_1.framer.AcquireNextFrame(common::ok(u32::try_from(recorder_1.hz)), &raw mut info, &raw mut data) } {
         Ok(()) => match is_f() {
           T => {
             let supplier = match id {
@@ -28,18 +28,18 @@ pub fn watch<F: FnMut((bool, u64, u64, i64, i64)) -> u64, F1: FnMut(Record) -> (
             };
 
             let data = data.expect("Data not available");
-            let cast = common::it(data.cast());
+            let cast = common::ok(data.cast());
 
             let (is, an, ax, ay) = on_f(each(&cast, supplier, &recorder_1));
 
             unsafe { recorder_1.context.Unmap(supplier.texture.as_ref().expect("Texture not available"), 0) };
-            unsafe { common::it(recorder_1.framer.ReleaseFrame()) };
+            unsafe { common::ok(recorder_1.framer.ReleaseFrame()) };
 
             id = f((is, id, an, ax, ay));
             T
           },
           _ => {
-            unsafe { common::it(recorder_1.framer.ReleaseFrame()) };
+            unsafe { common::ok(recorder_1.framer.ReleaseFrame()) };
             id = 0;
             F
           },
@@ -66,7 +66,7 @@ fn each(d: &ID3D11Texture2D, v: &Supplier, z: &Recorder) -> Record {
   unsafe { z.context.CopySubresourceRegion(texture.as_ref().expect("Texture not available"), 0, 0, 0, 0, d, 0, Some(&raw const region)) };
 
   let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
-  unsafe { common::it(z.context.Map(texture.as_ref().expect("Texture not available"), 0, D3D11_MAP_READ, 0, Some(&raw mut mapped))) };
+  unsafe { common::ok(z.context.Map(texture.as_ref().expect("Texture not available"), 0, D3D11_MAP_READ, 0, Some(&raw mut mapped))) };
 
   let data_ptr = mapped.pData as *const u8;
   let pitch = mapped.RowPitch;
@@ -75,10 +75,10 @@ fn each(d: &ID3D11Texture2D, v: &Supplier, z: &Recorder) -> Record {
 }
 
 fn supplier(v: (u64, u64, u64, u64), z: &Recorder) -> Supplier {
-  let l = common::it(u32::try_from(v.0));
-  let t = common::it(u32::try_from(v.1));
-  let x = common::it(u32::try_from(v.2));
-  let y = common::it(u32::try_from(v.3));
+  let l = common::ok(u32::try_from(v.0));
+  let t = common::ok(u32::try_from(v.1));
+  let x = common::ok(u32::try_from(v.2));
+  let y = common::ok(u32::try_from(v.3));
 
   let desc = D3D11_TEXTURE2D_DESC {
     Width: x,
@@ -97,7 +97,7 @@ fn supplier(v: (u64, u64, u64, u64), z: &Recorder) -> Supplier {
   };
 
   let mut texture: Option<ID3D11Texture2D> = None;
-  unsafe { common::it(z.device.CreateTexture2D(&raw const desc, None, Some(&raw mut texture))) };
+  unsafe { common::ok(z.device.CreateTexture2D(&raw const desc, None, Some(&raw mut texture))) };
 
   let region = D3D11_BOX {
     left: l,
@@ -141,15 +141,15 @@ fn recorder(n: u64) -> Recorder {
       Some(&raw mut context),           // ppimmediatecontext
     )
   };
-  common::it(result);
+  common::ok(result);
 
   let device = device.expect("Device not available");
   let context = context.expect("Context not available");
-  let device_cast: IDXGIDevice = common::it(device.cast());
-  let bridge: IDXGIAdapter = unsafe { common::it(device_cast.GetAdapter()) };
-  let output: IDXGIOutput = unsafe { common::it(bridge.EnumOutputs(0)) };
-  let output_cast: IDXGIOutput1 = common::it(output.cast());
-  let framer = unsafe { common::it(output_cast.DuplicateOutput(&device)) };
+  let device_cast: IDXGIDevice = common::ok(device.cast());
+  let bridge: IDXGIAdapter = unsafe { common::ok(device_cast.GetAdapter()) };
+  let output: IDXGIOutput = unsafe { common::ok(bridge.EnumOutputs(0)) };
+  let output_cast: IDXGIOutput1 = common::ok(output.cast());
+  let framer = unsafe { common::ok(output_cast.DuplicateOutput(&device)) };
 
   Recorder {
     context,
@@ -184,7 +184,7 @@ pub fn name() -> String {
           let mut buffer = vec![0u16; (n + 1).unsigned_abs() as usize];
           match unsafe { GetWindowTextW(HWND(ptr), &mut buffer) } {
             0 => String::new(),
-            copied => common::it(String::from_utf16(&buffer[..copied.unsigned_abs() as usize])),
+            copied => common::ok(String::from_utf16(&buffer[..copied.unsigned_abs() as usize])),
           }
         },
       },
