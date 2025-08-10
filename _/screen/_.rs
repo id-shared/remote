@@ -16,30 +16,30 @@ pub fn watch<F: FnMut((bool, u64, u64, i64, i64)) -> u64, F1: FnMut(Record) -> (
     let oneach = || {
       let mut info: DXGI_OUTDUPL_FRAME_INFO = DXGI_OUTDUPL_FRAME_INFO::default();
       let mut data: Option<IDXGIResource> = None;
-      match unsafe { recorder_1.framer.AcquireNextFrame(u32::try_from(recorder_1.hz).unwrap(), &raw mut info, &raw mut data) } {
+      match unsafe { recorder_1.framer.AcquireNextFrame(common::abc(u32::try_from(recorder_1.hz)), &raw mut info, &raw mut data) } {
         Ok(()) => match is_f() {
           T => {
             let supplier = match id {
-              64..=u64::MAX => supplier_n.get(&16).unwrap(),
+              64..=u64::MAX => supplier_n.get(&16).expect("Supplier not found"),
               0..=63 => match id.is_multiple_of(2) {
-                T => supplier_n.get(&(id / 4)).unwrap(),
-                _ => supplier_n.get(&255).unwrap(),
+                T => supplier_n.get(&(id / 4)).expect("Supplier not found"),
+                _ => supplier_n.get(&255).expect("Supplier not found"),
               },
             };
 
-            let data = data.unwrap();
-            let cast = data.cast().unwrap();
+            let data = data.expect("Data not available");
+            let cast = common::abc(data.cast());
 
             let (is, an, ax, ay) = on_f(each(&cast, supplier, &recorder_1));
 
-            unsafe { recorder_1.context.Unmap(supplier.texture.as_ref().unwrap(), 0) };
-            unsafe { recorder_1.framer.ReleaseFrame().unwrap() };
+            unsafe { recorder_1.context.Unmap(supplier.texture.as_ref().expect("Texture not available"), 0) };
+            unsafe { common::abc(recorder_1.framer.ReleaseFrame()) };
 
             id = f((is, id, an, ax, ay));
             T
           },
           _ => {
-            unsafe { recorder_1.framer.ReleaseFrame().unwrap() };
+            unsafe { common::abc(recorder_1.framer.ReleaseFrame()) };
             id = 0;
             F
           },
@@ -63,10 +63,10 @@ fn each(d: &ID3D11Texture2D, v: &Supplier, z: &Recorder) -> Record {
   let texture = &v.texture;
   let region = v.region;
 
-  unsafe { z.context.CopySubresourceRegion(texture.as_ref().unwrap(), 0, 0, 0, 0, d, 0, Some(&raw const region)) };
+  unsafe { z.context.CopySubresourceRegion(texture.as_ref().expect("Texture not available"), 0, 0, 0, 0, d, 0, Some(&raw const region)) };
 
   let mut mapped = D3D11_MAPPED_SUBRESOURCE::default();
-  unsafe { z.context.Map(texture.as_ref().unwrap(), 0, D3D11_MAP_READ, 0, Some(&raw mut mapped)).unwrap() };
+  unsafe { common::abc(z.context.Map(texture.as_ref().expect("Texture not available"), 0, D3D11_MAP_READ, 0, Some(&raw mut mapped))) };
 
   let data_ptr = mapped.pData as *const u8;
   let pitch = mapped.RowPitch;
@@ -75,10 +75,10 @@ fn each(d: &ID3D11Texture2D, v: &Supplier, z: &Recorder) -> Record {
 }
 
 fn supplier(v: (u64, u64, u64, u64), z: &Recorder) -> Supplier {
-  let l = u32::try_from(v.0).unwrap();
-  let t = u32::try_from(v.1).unwrap();
-  let x = u32::try_from(v.2).unwrap();
-  let y = u32::try_from(v.3).unwrap();
+  let l = common::abc(u32::try_from(v.0));
+  let t = common::abc(u32::try_from(v.1));
+  let x = common::abc(u32::try_from(v.2));
+  let y = common::abc(u32::try_from(v.3));
 
   let desc = D3D11_TEXTURE2D_DESC {
     Width: x,
@@ -97,7 +97,7 @@ fn supplier(v: (u64, u64, u64, u64), z: &Recorder) -> Supplier {
   };
 
   let mut texture: Option<ID3D11Texture2D> = None;
-  unsafe { z.device.CreateTexture2D(&raw const desc, None, Some(&raw mut texture)).unwrap() };
+  unsafe { common::abc(z.device.CreateTexture2D(&raw const desc, None, Some(&raw mut texture))) };
 
   let region = D3D11_BOX {
     left: l,
@@ -128,7 +128,7 @@ fn recorder(n: u64) -> Recorder {
   let mut device: Option<ID3D11Device> = None;
   let mut level = D3D_FEATURE_LEVEL_12_2;
 
-  unsafe {
+  let result = unsafe {
     D3D11CreateDevice(
       None,                             // pAdapter
       D3D_DRIVER_TYPE_HARDWARE,         // drivertype
@@ -140,16 +140,16 @@ fn recorder(n: u64) -> Recorder {
       Some(&raw mut level),             // pfeaturelevel
       Some(&raw mut context),           // ppimmediatecontext
     )
-  }
-  .unwrap();
+  };
+  common::abc(result);
 
-  let device = device.unwrap();
-  let context = context.unwrap();
-  let device_cast: IDXGIDevice = device.cast().unwrap();
-  let bridge: IDXGIAdapter = unsafe { device_cast.GetAdapter().unwrap() };
-  let output: IDXGIOutput = unsafe { bridge.EnumOutputs(0).unwrap() };
-  let output_cast: IDXGIOutput1 = output.cast().unwrap();
-  let framer = unsafe { output_cast.DuplicateOutput(&device).unwrap() };
+  let device = device.expect("Device not available");
+  let context = context.expect("Context not available");
+  let device_cast: IDXGIDevice = common::abc(device.cast());
+  let bridge: IDXGIAdapter = unsafe { common::abc(device_cast.GetAdapter()) };
+  let output: IDXGIOutput = unsafe { common::abc(bridge.EnumOutputs(0)) };
+  let output_cast: IDXGIOutput1 = common::abc(output.cast());
+  let framer = unsafe { common::abc(output_cast.DuplicateOutput(&device)) };
 
   Recorder {
     context,

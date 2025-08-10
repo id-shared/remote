@@ -9,6 +9,10 @@ pub fn abc<T, E: std::fmt::Debug>(result: Result<T, E>) -> T {
   }
 }
 
+pub fn none<T>(result: Option<T>) -> T {
+  result.map_or_else(|| panic!("Failed to  unwrap result."), |value| value)
+}
+
 pub mod time;
 
 pub const F: bool = false;

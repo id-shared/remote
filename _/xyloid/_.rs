@@ -6,7 +6,7 @@ pub fn device() -> Device {
       let mut device_interface_data = SP_DEVICE_INTERFACE_DATA::default();
       let idx = 0;
 
-      device_interface_data.cbSize = u32::try_from(std::mem::size_of::<SP_DEVICE_INTERFACE_DATA>()).unwrap();
+      device_interface_data.cbSize = common::abc(u32::try_from(std::mem::size_of::<SP_DEVICE_INTERFACE_DATA>()));
 
       if unsafe { SetupDiEnumDeviceInterfaces(handle, None, &raw const device_guid, idx, &raw mut device_interface_data) }.is_ok() {
         let mut required_size = 0u32;
@@ -19,7 +19,7 @@ pub fn device() -> Device {
         // Allocate properly aligned memory using Vec
         let mut detail_buffer: Vec<SP_DEVICE_INTERFACE_DETAIL_DATA_W> = vec![unsafe { std::mem::zeroed() }; num_structs];
         let detail_ptr = detail_buffer.as_mut_ptr();
-        unsafe { (*detail_ptr).cbSize = u32::try_from(std::mem::size_of::<SP_DEVICE_INTERFACE_DETAIL_DATA_W>()).unwrap() };
+        unsafe { (*detail_ptr).cbSize = common::abc(u32::try_from(std::mem::size_of::<SP_DEVICE_INTERFACE_DETAIL_DATA_W>())) };
 
         if unsafe { SetupDiGetDeviceInterfaceDetailW(handle, &raw const device_interface_data, Some(detail_ptr), required_size, None, None) }.is_ok() {
           let device_path_ptr = (unsafe { &(*detail_ptr).DevicePath }) as *const u16;
@@ -62,8 +62,8 @@ pub fn device() -> Device {
     contact.ok()
   }
 
-  let device = path(0xe3be005d_d130_4910_88ff_09ae02f680e9).unwrap();
-  let handle = io(&device).unwrap();
+  let device = path(0xe3be005d_d130_4910_88ff_09ae02f680e9).expect("Device path not found");
+  let handle = io(&device).expect("Failed to open device handle");
   Device {
     handle,
   }
@@ -102,12 +102,12 @@ pub fn io(mut x: Xyloid, z: &Device) -> bool {
     DeviceIoControl(
       z.handle,
       0x8888_3020,
-      Some((&raw mut x).cast()),                             // lpInBuffer
-      u32::try_from(std::mem::size_of::<Xyloid>()).unwrap(), // nInBufferSize
-      None,                                                  // lpOutBuffer
-      0,                                                     // nOutBufferSize
-      Some(&raw mut bytes_returned),                         // lpBytesReturned
-      None,                                                  // lpOverlapped
+      Some((&raw mut x).cast()),                                 // lpInBuffer
+      common::abc(u32::try_from(std::mem::size_of::<Xyloid>())), // nInBufferSize
+      None,                                                      // lpOutBuffer
+      0,                                                         // nOutBufferSize
+      Some(&raw mut bytes_returned),                             // lpBytesReturned
+      None,                                                      // lpOverlapped
     )
   }
   .is_ok()

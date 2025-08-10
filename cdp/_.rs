@@ -1,8 +1,8 @@
 fn main() -> std::io::Result<()> {
   let mut child = Command::new(r"C:\Program Files\Google\Chrome\Application\chrome.exe").args(["--user-data-dir=C:/chrome-profile-debug", "--no-first-run", "--no-default-browser-check"]).stdin(Stdio::piped()).stdout(Stdio::piped()).spawn()?;
 
-  let stdin = child.stdin.as_mut().unwrap();
-  let stdout = child.stdout.take().unwrap();
+  let stdin = common::none(child.stdin.as_mut());
+  let stdout = common::none(child.stdout.take());
   let mut reader = BufReader::new(stdout);
 
   // Send CDP command: Target.getBrowserContexts
