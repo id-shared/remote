@@ -1,0 +1,151 @@
+{
+  "agent": {
+    "always_allow_tool_actions": true
+  },
+  "agent_font_size": 14,
+  "auto_indent_on_paste": false,
+  "auto_install_extensions": {},
+  "auto_update": false,
+  "auto_update_extensions": {},
+  "autosave": "on_focus_change",
+  "autoscroll_on_clicks": true,
+  "buffer_font_fallbacks": null,
+  "buffer_font_family": "PragmataPro Mono Liga",
+  "buffer_font_size": 14,
+  "buffer_font_weight": 400,
+  "buffer_line_height": {
+    "custom": 1.25
+  },
+  "centered_layout": null,
+  "chat_panel": {
+    "dock": "right"
+  },
+  "close_on_file_delete": true,
+  "code_actions_on_format": {},
+  "completions": {},
+  "confirm_quit": true,
+  "current_line_highlight": "all",
+  "cursor_blink": false,
+  "cursor_shape": "bar",
+  "dev": {},
+  "disable_ai": false,
+  "edit_predictions": {
+    "mode": "eager"
+  },
+  "features": {
+    "edit_prediction_provider": "zed"
+  },
+  "format_on_save": "on",
+  "formatter": "language_server",
+  "git_panel": {},
+  "hide_mouse": "on_typing_and_movement",
+  "icon_theme": "Modern Icons (Light)",
+  "indent_guides": {
+    "enabled": true,
+    "line_width": 1,
+    "active_line_width": 1,
+    "coloring": "fixed",
+    "background_coloring": "disabled"
+  },
+  "line_indicator_format": "short",
+  "linux": {},
+  "lsp": {
+    "rust-analyzer": {
+      "initialization_options": {
+        "checkOnSave": {
+          "enable": true,
+          "command": "clippy",
+          "extraArgs": [
+            "--message-format=json-diagnostic-rendered-ansi",
+            "--",
+            "-W",
+            "clippy::pedantic",
+            "-W",
+            "clippy::nursery",
+            "-W",
+            "clippy::cargo",
+            "-W",
+            "clippy::all",
+            "-A",
+            "clippy::too_many_arguments",
+            "-A",
+            "clippy::must_use_candidate",
+            "-A",
+            "clippy::missing_panics_doc",
+            "-A",
+            "clippy::single_match_else",
+            "-A",
+            "clippy::match_bool"
+          ]
+        }
+      }
+    }
+  },
+  "macos": {},
+  "multi_cursor_modifier": "alt",
+  "nightly": {},
+  "profiles": {},
+  "project_panel": {
+    "indent_size": 14,
+    "hide_root": true,
+    "file_icons": true,
+    "folder_icons": false,
+    "hide_gitignore": true,
+    "entry_spacing": "standard",
+    "sticky_scroll": true,
+    "starts_open": true,
+    "default_width": 240,
+    "auto_fold_dirs": true,
+    "auto_reveal_entries": true
+  },
+  "relative_line_numbers": false,
+  "resize_all_panels_in_dock": [
+    "right",
+    "bottom",
+    "left"
+  ],
+  "tab_size": 2,
+  "tasks": {},
+  "telemetry": {
+    "metrics": false,
+    "diagnostics": false
+  },
+  "terminal": {
+    "font_family": "PragmataPro Mono Liga",
+    "blinking": "off",
+    "line_height": {
+      "custom": 1.25
+    },
+    "cursor_shape": "bar",
+    "copy_on_select": false,
+    "alternate_scroll": "on",
+    "dock": "right"
+  },
+  "theme": {
+    "mode": "system",
+    "light": "Quiet Light",
+    "dark": "One Dark"
+  },
+  "title_bar": {
+    "show_menus": false,
+    "show_sign_in": false,
+    "show_branch_icon": false,
+    "show_branch_name": false,
+    "show_onboarding_banner": false,
+    "show_project_items": false,
+    "show_user_picture": false
+  },
+  "toolbar": {
+    "breadcrumbs": false,
+    "quick_actions": false
+  },
+  "ui_font_family": "PragmataPro Mono Liga",
+  "ui_font_size": 14,
+  "unnecessary_code_fade": 0.2,
+  "use_autoclose": true,
+  "when_closing_with_no_tabs": "keep_window_open",
+  "windows": {},
+  "wrap_guides": [
+    128
+  ]
+}
