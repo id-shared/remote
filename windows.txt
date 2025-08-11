@@ -5,10 +5,12 @@ scoop install versions/firefox-developer
 scoop install versions/googlechrome-dev
 scoop install versions/vscode-insiders
 scoop install versions/zed-nightly
+scoop install versions/github-beta
 
 scoop install main/rustup-msvc
 scoop install main/nodejs-lts
 scoop install main/just
+scoop install main/deno
 scoop install main/upx
 scoop install main/git
 scoop install main/bun

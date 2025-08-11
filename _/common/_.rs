@@ -12,11 +12,6 @@ pub fn so<T>(z: Option<T>) -> T {
   z.unwrap_or_else(|| panic!("called `so()` on a `None` value."))
 }
 
-#[inline]
-pub const fn is(a: bool) -> bool {
-  a == T
-}
-
 pub mod time;
 
 pub const F: bool = false;
